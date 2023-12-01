@@ -13,7 +13,7 @@ const INITIAL_LEAD_OBJ = {
 
 function AddLeadModalBody({closeModal}){
     const dispatch = useDispatch()
-    const [loading, setLoading] = useState(false)
+    // const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
     const [leadObj, setLeadObj] = useState(INITIAL_LEAD_OBJ)
 
