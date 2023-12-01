@@ -36,7 +36,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path = "/app/dashboard" element = {<Dashboard/>}
+          <Route path = "/app/dashboard" element = {<Dashboard/>}/>
           {/* Place new routes over this */}
           <Route path="/app/*" element={<Layout />} />
 
