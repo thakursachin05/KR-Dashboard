@@ -1,5 +1,5 @@
 import moment from "moment"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 // import { useDispatch, useSelector } from "react-redux"
 // import { showNotification } from "../common/headerSlice"
 import TitleCard from "../../components/Cards/TitleCard"
@@ -25,13 +25,17 @@ const TopSideButtons = ({removeFilter, applyFilter, applySearch}) => {
         setSearchText("")
     }
 
+    const memoizedRemoveAppliedFilter = useCallback(() => {
+        removeAppliedFilter();
+    }, [removeAppliedFilter]);
+
     useEffect(() => {
-        if(searchText === ""){
-            removeAppliedFilter()
-        }else{
-            applySearch(searchText)
+        if (searchText === "") {
+            memoizedRemoveAppliedFilter();
+        } else {
+            applySearch(searchText);
         }
-    }, [searchText,applySearch,removeAppliedFilter])
+    }, [searchText, applySearch, memoizedRemoveAppliedFilter]);
 
     return(
         <div className="inline-block float-right">

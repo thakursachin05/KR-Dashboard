@@ -19,7 +19,7 @@ function Layout(){
           if(newNotificationStatus === 0)NotificationManager.error( newNotificationMessage, 'Error')
           dispatch(removeNotificationMessage())
       }
-  }, [dispatch, newNotificationMessage])
+  }, [dispatch, newNotificationStatus, newNotificationMessage])
 
     return(
       <>
