@@ -1,13 +1,12 @@
 // import {useState, useRef} from 'react'
 // import {Link} from 'react-router-dom'
-import DocGettingStarted from '../features/documentation/DocGettingStarted'
-
+import Login from './Login'
 function ExternalPage(){
 
 
     return(
         <div className="">
-            <DocGettingStarted />
+            <Login />
         </div>
     )
 }
