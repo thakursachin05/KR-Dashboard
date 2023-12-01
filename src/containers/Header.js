@@ -38,7 +38,7 @@ function Header(){
 
     function logoutUser(){
         localStorage.clear();
-        window.location.href = '/'
+        window.location.href = '/login'
     }
 
     return(
