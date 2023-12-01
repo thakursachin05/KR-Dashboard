@@ -24,7 +24,7 @@ function DocComponentsNav({activeIndex}){
             {
                 navs.map((n, k) => {
                     return(
-                        <li key={k} onClick={() => scrollToSection(k)} className={n.isActive ? "bordered" : ""}><a>{n.name}</a></li>
+                        <li key={k} onClick={() => scrollToSection(k)} className={n.isActive ? "bordered" : ""}><span>{n.name}</span></li>
                     )
                 })
             }

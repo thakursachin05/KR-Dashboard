@@ -12,7 +12,7 @@ function SidebarSubmenu({submenu, name, icon}){
     useEffect(() => {
          // eslint-disable-next-line react-hooks/exhaustive-deps
         if(submenu.filter(m => {return m.path === location.pathname})[0])setIsExpanded(true)
-    }, [])
+    }, [location.pathname, submenu])
 
     return (
         <div className='flex-col'>

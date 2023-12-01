@@ -14,13 +14,12 @@ function Layout(){
 
 
   useEffect(() => {
-     // eslint-disable-next-line react-hooks/exhaustive-deps
       if(newNotificationMessage !== ""){
           if(newNotificationStatus === 1)NotificationManager.success(newNotificationMessage, 'Success')
           if(newNotificationStatus === 0)NotificationManager.error( newNotificationMessage, 'Error')
           dispatch(removeNotificationMessage())
       }
-  }, [])
+  }, [dispatch, newNotificationMessage])
 
     return(
       <>

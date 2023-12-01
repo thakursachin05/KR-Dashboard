@@ -14,7 +14,7 @@ function GettingStarted(){
 
     useEffect(() => {
         dispatch(setPageTitle({ title : "Documentation"}))
-      }, [])
+      }, [dispatch])
 
 
     return(

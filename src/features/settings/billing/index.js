@@ -1,8 +1,8 @@
 import moment from "moment"
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
+import { useState } from "react"
+// import { useDispatch, useSelector } from "react-redux"
 import TitleCard from "../../../components/Cards/TitleCard"
-import { showNotification } from '../../common/headerSlice'
+// import { showNotification } from '../../common/headerSlice'
 
 
 
@@ -28,8 +28,8 @@ const BILLS = [
 
 function Billing(){
 
-
-    const [bills, setBills] = useState(BILLS)
+    let bills = BILLS;
+    // const [bills, setBills] = useState(BILLS)
 
     const getPaymentStatus = (status) => {
         if(status  === "Paid")return <div className="badge badge-success">{status}</div>

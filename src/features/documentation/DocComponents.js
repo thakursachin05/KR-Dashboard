@@ -16,7 +16,7 @@ function DocComponents(){
 
     useEffect(() => {
         dispatch(setPageTitle({ title : "Documentation"}))
-      }, [])
+      }, [dispatch])
 
 
     return(

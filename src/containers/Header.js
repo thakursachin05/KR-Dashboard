@@ -18,7 +18,6 @@ function Header(){
     const [currentTheme, setCurrentTheme] = useState(localStorage.getItem("theme"))
 
     useEffect(() => {
-         // eslint-disable-next-line react-hooks/exhaustive-deps
         themeChange(false)
         if(currentTheme === null){
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ) {
@@ -28,7 +27,7 @@ function Header(){
             }
         }
         // 👆 false parameter is required for react project
-      }, [])
+      }, [currentTheme])
 
 
     // Opening right sidebar for notification

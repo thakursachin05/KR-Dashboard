@@ -80,10 +80,6 @@ function FeaturesContent(){
 
                     {/* Themes*/}
               <h2 id="feature5">Themes</h2>
-                <p>
-                By default we have added light and dark theme and Daisy UI comes with a number of themes, which you can use with no extra effort, you just have to include it in <span className="badge mt-0 mb-0 badge-ghost">tailwind.config.js</span> file,  you can add themes like cupcake, corporate, reto etc... Also we can configure themes colors in config file, for more documentation on themes checkout <a href="https://daisyui.com/docs/themes/" target="_blank">Daisy UI documentation.</a>
-                </p>
-
 
 
 

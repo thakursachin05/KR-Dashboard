@@ -30,7 +30,7 @@ function Leads(){
 
     useEffect(() => {
         dispatch(getLeadsContent())
-    }, [])
+    }, [dispatch])
 
     
 
