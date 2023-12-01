@@ -32,15 +32,15 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Login />} />
+          {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
+          {/* <Route path="/register" element={<Register />} /> */}
           {/* <Route path="/" element={<Login />} /> */}
           
           {/* Place new routes over this */}
-          <Route path="/app/*" element={<Layout />} />
+          {/* <Route path="/app/*" element={<Layout />} /> */}
 
-          <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} replace />}/>
+          {/* <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} replace />}/> */}
 
         </Routes>
       </Router>
