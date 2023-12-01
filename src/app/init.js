@@ -17,7 +17,7 @@ const initializeApp = () => {
 
 
         // Removing console.log from prod
-        console.log = () => {};
+        // console.log = () => {};
 
 
         // init analytics here
