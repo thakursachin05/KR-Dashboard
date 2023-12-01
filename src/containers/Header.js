@@ -127,7 +127,7 @@ function Header() {
                 </Link>
               </li>
               <li>
-                <a href ="/login" onClick={logoutUser}>Logout</a>
+                <span onClick={logoutUser}>Logout</span>
               </li>
             </ul>
           </div>
