@@ -1,7 +1,7 @@
 
-// import axios from 'axios'
-// import capitalize from 'capitalize-the-first-letter'
-import React, { useState } from 'react'
+import axios from 'axios'
+import capitalize from 'capitalize-the-first-letter'
+import React, { useState, useEffect } from 'react'
 import InformationCircleIcon from '@heroicons/react/24/outline/InformationCircleIcon'
 
 

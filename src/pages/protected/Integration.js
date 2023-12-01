@@ -9,7 +9,7 @@ function InternalPage(){
 
     useEffect(() => {
         dispatch(setPageTitle({ title : "Integrations"}))
-      }, [dispatch])
+      }, [])
       
     return(
         <Integration />

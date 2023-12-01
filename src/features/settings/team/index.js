@@ -1,6 +1,6 @@
 import moment from "moment"
-// import {  useState } from "react"
-import { useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import TitleCard from "../../../components/Cards/TitleCard"
 import { showNotification } from '../../common/headerSlice'
 
@@ -33,7 +33,7 @@ const TEAM_MEMBERS = [
 function Team(){
 
 
-    // const [members, setMembers] = useState(TEAM_MEMBERS)
+    const [members, setMembers] = useState(TEAM_MEMBERS)
 
     const getRoleComponent = (role) => {
         if(role  === "Admin")return <div className="badge badge-secondary">{role}</div>
@@ -62,7 +62,7 @@ function Team(){
                     </thead>
                     <tbody>
                         {
-                            TEAM_MEMBERS.map((l, k) => {
+                            members.map((l, k) => {
                                 return(
                                     <tr key={k}>
                                     <td>

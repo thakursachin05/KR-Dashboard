@@ -8,7 +8,7 @@ const THEME_BG = CALENDAR_EVENT_STYLE
 
 function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
 
-    // const today = moment().startOf('day')
+    const today = moment().startOf('day')
     const weekdays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
     const colStartClasses = [
       "",
@@ -22,8 +22,8 @@ function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
 
     const [firstDayOfMonth, setFirstDayOfMonth] = useState(moment().startOf('month'))
     const [events, setEvents] = useState([])
-    // const [currMonth, setCurrMonth] = useState(() => moment(today).format("MMM-yyyy"));
-  
+    const [currMonth, setCurrMonth] = useState(() => moment(today).format("MMM-yyyy"));
+
     useEffect(() => {
         setEvents(calendarEvents)
     }, [calendarEvents])
@@ -52,7 +52,7 @@ function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
     }
 
     const openAllEventsDetail = (date, theme) => {
-        if(theme !== "MORE")return 1
+        if(theme != "MORE")return 1
         let filteredEvents = events.filter((e) => {return moment(date).isSame(moment(e.startTime), 'day') } ).map((e) => {return {title : e.title, theme : e.theme}})
         openDayDetail({filteredEvents, title : moment(date).format("D MMM YYYY")})
     }
@@ -62,25 +62,25 @@ function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
     }
 
     const isDifferentMonth = (date) => {
-        return moment(date).month() !== moment(firstDayOfMonth).month() 
+        return moment(date).month() != moment(firstDayOfMonth).month() 
     }
 
     const getPrevMonth = (event) => {
         const firstDayOfPrevMonth = moment(firstDayOfMonth).add(-1, 'M').startOf('month');
         setFirstDayOfMonth(firstDayOfPrevMonth)
-        // setCurrMonth(moment(firstDayOfPrevMonth).format("MMM-yyyy"));
+        setCurrMonth(moment(firstDayOfPrevMonth).format("MMM-yyyy"));
     };
 
     const getCurrentMonth = (event) => {
         const firstDayOfCurrMonth = moment().startOf('month');
         setFirstDayOfMonth(firstDayOfCurrMonth)
-        // setCurrMonth(moment(firstDayOfCurrMonth).format("MMM-yyyy"));
+        setCurrMonth(moment(firstDayOfCurrMonth).format("MMM-yyyy"));
     };
 
     const getNextMonth = (event) => {
         const firstDayOfNextMonth = moment(firstDayOfMonth).add(1, 'M').startOf('month');
         setFirstDayOfMonth(firstDayOfNextMonth)
-        // setCurrMonth(moment(firstDayOfNextMonth).format("MMM-yyyy"));
+        setCurrMonth(moment(firstDayOfNextMonth).format("MMM-yyyy"));
     };
  
     return(
@@ -125,7 +125,7 @@ function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
           {allDaysInMonth().map((day, idx) => {
             return (
               <div key={idx} className={colStartClasses[moment(day).day().toString()] + " border border-solid w-full h-28  "}>
-                <p className={` flex items-center  justify-center h-8 w-8 rounded-full mx-1 mt-1 text-sm cursor-pointer hover:bg-base-300 ${isToday(day) && " bg-blue-100 dark:bg-blue-400 dark:hover:bg-base-300 dark:text-white"} ${isDifferentMonth(day) && " text-slate-400 dark:text-slate-600"}`} onClick={() => addNewEvent(day)}> { moment(day).format("D") }</p>
+                <p className={`inline-block flex items-center  justify-center h-8 w-8 rounded-full mx-1 mt-1 text-sm cursor-pointer hover:bg-base-300 ${isToday(day) && " bg-blue-100 dark:bg-blue-400 dark:hover:bg-base-300 dark:text-white"} ${isDifferentMonth(day) && " text-slate-400 dark:text-slate-600"}`} onClick={() => addNewEvent(day)}> { moment(day).format("D") }</p>
                 {
                     getEventsForCurrentDate(day).map((e, k) => {
                         return <p key={k} onClick={() => openAllEventsDetail(day, e.theme)} className={`text-xs px-2 mt-1 truncate  ${THEME_BG[e.theme] || ""}`}>{e.title}</p>
