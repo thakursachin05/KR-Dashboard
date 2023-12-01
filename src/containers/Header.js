@@ -8,7 +8,7 @@ import SunIcon from '@heroicons/react/24/outline/SunIcon'
 import { openRightDrawer } from '../features/common/rightDrawerSlice';
 import { RIGHT_DRAWER_TYPES } from '../utils/globalConstantUtil'
 
-import { NavLink,  Routes, Link , useLocation} from 'react-router-dom'
+import {  Link  } from 'react-router-dom'
 
 
 function Header(){
@@ -27,7 +27,7 @@ function Header(){
             }
         }
         // 👆 false parameter is required for react project
-      }, [])
+      }, [currentTheme])
 
 
     // Opening right sidebar for notification
@@ -102,7 +102,7 @@ function Header(){
                         </li>
                         <li className=''><Link to={'/app/settings-billing'}>Bill History</Link></li>
                         <div className="divider mt-0 mb-0"></div>
-                        <li><a onClick={logoutUser}>Logout</a></li>
+                        <li><a href ="/logout" onClick={logoutUser}>Logout</a></li>
                     </ul>
                 </div>
             </div>
