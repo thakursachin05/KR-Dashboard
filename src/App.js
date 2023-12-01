@@ -1,16 +1,16 @@
-import React, { lazy, useEffect } from 'react'
+import React, {  useEffect } from 'react'
 import './App.css';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { themeChange } from 'theme-change'
-import checkAuth from './app/auth';
+// import checkAuth from './app/auth';
 import Dashboard from './features/dashboard';
 // import initializeApp from './app/init';
 
 // Importing pages
-const Layout = lazy(() => import('./containers/Layout'))
-const Login = lazy(() => import('./pages/Login'))
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
-const Register = lazy(() => import('./pages/Register'))
+// const Layout = lazy(() => import('./containers/Layout'))
+// const Login = lazy(() => import('./pages/Login'))
+// const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+// const Register = lazy(() => import('./pages/Register'))
 
 
 // Initializing different libraries
@@ -18,7 +18,7 @@ const Register = lazy(() => import('./pages/Register'))
 
 
 // Check for login and initialize axios
-const token = checkAuth()
+// const token = checkAuth()
 // const token = true
 function App() {
 
