@@ -3,6 +3,7 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import { themeChange } from 'theme-change'
 import checkAuth from './app/auth';
+import Dashboard from './features/dashboard';
 // import initializeApp from './app/init';
 
 // Importing pages
@@ -35,7 +36,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          
+          <Route path = "/app/dashboard" element = {<Dashboard/>}
           {/* Place new routes over this */}
           <Route path="/app/*" element={<Layout />} />
 
