@@ -1,5 +1,5 @@
 import moment from "moment"
-import { useCallback, useEffect, useState } from "react"
+import {  useState } from "react"
 // import { useDispatch, useSelector } from "react-redux"
 // import { showNotification } from "../common/headerSlice"
 import TitleCard from "../../components/Cards/TitleCard"
@@ -8,7 +8,7 @@ import FunnelIcon from '@heroicons/react/24/outline/FunnelIcon'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
 import SearchBar from "../../components/Input/SearchBar"
 
-const TopSideButtons = ({removeFilter, applyFilter, applySearch}) => {
+const TopSideButtons = ({removeFilter, applyFilter}) => {
 
     const [filterParam, setFilterParam] = useState("")
     const [searchText, setSearchText] = useState("")
@@ -25,17 +25,17 @@ const TopSideButtons = ({removeFilter, applyFilter, applySearch}) => {
         setSearchText("")
     }
 
-    const memoizedRemoveAppliedFilter = useCallback(() => {
-        removeAppliedFilter();
-    }, [removeAppliedFilter]);
+    // const memoizedRemoveAppliedFilter = useCallback(() => {
+    //     removeAppliedFilter();
+    // }, [removeAppliedFilter]);
 
-    useEffect(() => {
-        if (searchText === "") {
-            memoizedRemoveAppliedFilter();
-        } else {
-            applySearch(searchText);
-        }
-    }, [searchText, applySearch, memoizedRemoveAppliedFilter]);
+    // useEffect(() => {
+    //     if (searchText === "") {
+    //         memoizedRemoveAppliedFilter();
+    //     } else {
+    //         applySearch(searchText);
+    //     }
+    // }, [searchText, applySearch, memoizedRemoveAppliedFilter]);
 
     return(
         <div className="inline-block float-right">
