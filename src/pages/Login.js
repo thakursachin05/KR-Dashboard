@@ -1,5 +1,5 @@
-import {useState, useRef} from 'react'
-import {Link} from 'react-router-dom'
+// import {useState, useRef} from 'react'
+// import {Link} from 'react-router-dom'
 import Login from '../features/user/Login'
 
 function ExternalPage(){
