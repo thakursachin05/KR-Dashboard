@@ -8,7 +8,7 @@ import SunIcon from '@heroicons/react/24/outline/SunIcon'
 import { openRightDrawer } from '../features/common/rightDrawerSlice';
 import { RIGHT_DRAWER_TYPES } from '../utils/globalConstantUtil'
 
-import { NavLink,  Routes, Link , useLocation} from 'react-router-dom'
+import { Link} from 'react-router-dom'
 
 
 function Header(){
@@ -18,6 +18,7 @@ function Header(){
     const [currentTheme, setCurrentTheme] = useState(localStorage.getItem("theme"))
 
     useEffect(() => {
+         // eslint-disable-next-line react-hooks/exhaustive-deps
         themeChange(false)
         if(currentTheme === null){
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ) {
@@ -102,7 +103,7 @@ function Header(){
                         </li>
                         <li className=''><Link to={'/app/settings-billing'}>Bill History</Link></li>
                         <div className="divider mt-0 mb-0"></div>
-                        <li><a onClick={logoutUser}>Logout</a></li>
+                        <li><span onClick={logoutUser}>Logout</span></li>
                     </ul>
                 </div>
             </div>

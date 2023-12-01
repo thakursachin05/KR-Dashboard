@@ -1,4 +1,4 @@
-import SelectBox from "../../../components/Input/SelectBox"
+// import SelectBox from "../../../components/Input/SelectBox"
 import ArrowDownTrayIcon  from '@heroicons/react/24/outline/ArrowDownTrayIcon'
 import ShareIcon  from '@heroicons/react/24/outline/ShareIcon'
 import EnvelopeIcon  from '@heroicons/react/24/outline/EnvelopeIcon'
@@ -9,14 +9,14 @@ import Datepicker from "react-tailwindcss-datepicker";
 
 
 
-const periodOptions = [
-    {name : "Today", value : "TODAY"},
-    {name : "Yesterday", value : "YESTERDAY"},
-    {name : "This Week", value : "THIS_WEEK"},
-    {name : "Last Week", value : "LAST_WEEK"},
-    {name : "This Month", value : "THIS_MONTH"},
-    {name : "Last Month", value : "LAST_MONTH"},
-]
+// const periodOptions = [
+//     {name : "Today", value : "TODAY"},
+//     {name : "Yesterday", value : "YESTERDAY"},
+//     {name : "This Week", value : "THIS_WEEK"},
+//     {name : "Last Week", value : "LAST_WEEK"},
+//     {name : "This Month", value : "THIS_MONTH"},
+//     {name : "Last Month", value : "LAST_MONTH"},
+// ]
 
 function DashboardTopBar({updateDashboardPeriod}){
 
@@ -63,8 +63,8 @@ function DashboardTopBar({updateDashboardPeriod}){
                 <div className="dropdown dropdown-bottom dropdown-end  ml-2">
                     <label tabIndex={0} className="btn btn-ghost btn-sm normal-case btn-square "><EllipsisVerticalIcon className="w-5"/></label>
                     <ul tabIndex={0} className="dropdown-content menu menu-compact  p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a><EnvelopeIcon className="w-4"/>Email Digests</a></li>
-                        <li><a><ArrowDownTrayIcon className="w-4"/>Download</a></li>
+                        <li><span><EnvelopeIcon className="w-4"/>Email Digests</span></li>
+                        <li><span><ArrowDownTrayIcon className="w-4"/>Download</span></li>
                     </ul>
                 </div>
             </div>

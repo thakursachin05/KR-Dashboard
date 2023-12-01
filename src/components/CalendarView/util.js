@@ -1,4 +1,4 @@
-const moment  = require("moment");
+// const moment  = require("moment");
 
 module.exports = Object.freeze({
     CALENDAR_EVENT_STYLE : {

@@ -8,7 +8,7 @@ const THEME_BG = CALENDAR_EVENT_STYLE
 
 function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
 
-    const today = moment().startOf('day')
+    // const today = moment().startOf('day')
     const weekdays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
     const colStartClasses = [
       "",
@@ -22,7 +22,7 @@ function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
 
     const [firstDayOfMonth, setFirstDayOfMonth] = useState(moment().startOf('month'))
     const [events, setEvents] = useState([])
-    const [currMonth, setCurrMonth] = useState(() => moment(today).format("MMM-yyyy"));
+    // const [currMonth, setCurrMonth] = useState(() => moment(today).format("MMM-yyyy"));
 
     useEffect(() => {
         setEvents(calendarEvents)
@@ -52,7 +52,7 @@ function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
     }
 
     const openAllEventsDetail = (date, theme) => {
-        if(theme != "MORE")return 1
+        if(theme !== "MORE")return 1
         let filteredEvents = events.filter((e) => {return moment(date).isSame(moment(e.startTime), 'day') } ).map((e) => {return {title : e.title, theme : e.theme}})
         openDayDetail({filteredEvents, title : moment(date).format("D MMM YYYY")})
     }
@@ -62,25 +62,25 @@ function CalendarView({calendarEvents, addNewEvent, openDayDetail}){
     }
 
     const isDifferentMonth = (date) => {
-        return moment(date).month() != moment(firstDayOfMonth).month() 
+        return moment(date).month() !== moment(firstDayOfMonth).month() 
     }
 
     const getPrevMonth = (event) => {
         const firstDayOfPrevMonth = moment(firstDayOfMonth).add(-1, 'M').startOf('month');
         setFirstDayOfMonth(firstDayOfPrevMonth)
-        setCurrMonth(moment(firstDayOfPrevMonth).format("MMM-yyyy"));
+        // setCurrMonth(moment(firstDayOfPrevMonth).format("MMM-yyyy"));
     };
 
     const getCurrentMonth = (event) => {
         const firstDayOfCurrMonth = moment().startOf('month');
         setFirstDayOfMonth(firstDayOfCurrMonth)
-        setCurrMonth(moment(firstDayOfCurrMonth).format("MMM-yyyy"));
+        // setCurrMonth(moment(firstDayOfCurrMonth).format("MMM-yyyy"));
     };
 
     const getNextMonth = (event) => {
         const firstDayOfNextMonth = moment(firstDayOfMonth).add(1, 'M').startOf('month');
         setFirstDayOfMonth(firstDayOfNextMonth)
-        setCurrMonth(moment(firstDayOfNextMonth).format("MMM-yyyy"));
+        // setCurrMonth(moment(firstDayOfNextMonth).format("MMM-yyyy"));
     };
  
     return(
