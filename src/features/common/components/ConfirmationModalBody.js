@@ -1,6 +1,6 @@
-import {useDispatch, useSelector} from 'react-redux'
-import axios from 'axios'
-import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_CLOSE_TYPES } from '../../../utils/globalConstantUtil'
+import {useDispatch} from 'react-redux'
+// import axios from 'axios'
+import { CONFIRMATION_MODAL_CLOSE_TYPES } from '../../../utils/globalConstantUtil'
 import { deleteLead } from '../../leads/leadSlice'
 import { showNotification } from '../headerSlice'
 
@@ -8,7 +8,7 @@ function ConfirmationModalBody({ extraObject, closeModal}){
 
     const dispatch = useDispatch()
 
-    const { message, type, _id, index} = extraObject
+    const { message, type, index} = extraObject
 
 
     const proceedWithYes = async() => {

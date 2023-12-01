@@ -1,6 +1,8 @@
 
 
-function AmountStats({}){
+import React from 'react'
+
+const AmountStats = () => {
     return(
         <div className="stats bg-base-100 shadow">
             <div className="stat">
