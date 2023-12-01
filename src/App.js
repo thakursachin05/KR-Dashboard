@@ -2,7 +2,7 @@ import React, { lazy, useEffect } from 'react'
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import { themeChange } from 'theme-change'
-// import checkAuth from './app/auth';
+import checkAuth from './app/auth';
 // import initializeApp from './app/init';
 
 // Importing pages
@@ -17,8 +17,8 @@ const Register = lazy(() => import('./pages/Register'))
 
 
 // Check for login and initialize axios
-// const token = checkAuth()
-const token = true
+const token = checkAuth()
+// const token = true
 function App() {
 
   useEffect(() => {
