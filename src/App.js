@@ -3,7 +3,7 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import { themeChange } from 'theme-change'
 import checkAuth from './app/auth';
-import Dashboard from './features/dashboard';
+// import Dashboard from './features/dashboard';
 // import initializeApp from './app/init';
 
 // Importing pages
