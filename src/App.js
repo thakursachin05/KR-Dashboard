@@ -38,8 +38,8 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/documentation" element={<Documentation />} />
+          <Route path="/" element={<Login />} />
           
-          {/* Place new routes over this */}
           <Route path="/app/*" element={<Layout />} />
 
           <Route path="*" element={<Navigate to={token ? "/app/welcome" : "/login"} replace />}/>
