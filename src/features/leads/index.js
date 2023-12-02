@@ -9,6 +9,7 @@ import {
 } from "../../utils/globalConstantUtil";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import Pagination from "../../components/Pagination";
+import * as XLSX from "xlsx";
 
 const TopSideButtons = () => {
   const dispatch = useDispatch();
@@ -35,11 +36,43 @@ const TopSideButtons = () => {
 };
 
 function Leads() {
-  const { leads } = useSelector((state) => state.lead);
   const dispatch = useDispatch();
+  const { leads } = useSelector((state) => state.lead);
+  const [localLeads, setLocalLeads] = useState([]);
+
   useEffect(() => {
     dispatch(getLeadsContent());
   }, [dispatch]);
+
+  useEffect(() => {
+    setLocalLeads(leads); // Use setLocalLeads to update the localLeads state
+  }, [leads]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+
+          // Assuming you have a single sheet in your workbook
+          const sheetName = workbook.SheetNames[0];
+          const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+          // Update localLeads state with the new data
+          setLocalLeads((prevLeads) => [...prevLeads, ...jsonData]);
+        } catch (error) {
+          console.error("Error reading XLSX file:", error);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+  };
 
   const getDummyStatus = (index) => {
     if (index % 5 === 0) return <div className="badge">Not Interested</div>;
@@ -75,13 +108,13 @@ function Leads() {
   };
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentLeads = leads.slice(indexOfFirstItem, indexOfLastItem);
+  const currentLeads = localLeads.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  const totalItems = leads.length;
+  const totalItems = localLeads.length;
   const itemsPerPageOptions = Array.from(
     { length: Math.ceil(totalItems / 10) },
     (_, index) => (index + 1) * 10
@@ -149,6 +182,9 @@ function Leads() {
           onChange={handleFilterChange}
           className="border rounded p-2 ml-4"
         />
+        <div className="ml-6">
+          <input type="file" onChange={handleFileChange} />
+        </div>
       </div>
       {sortedLeads.length === 0 ? (
         <p>Loading...</p>
@@ -224,7 +260,7 @@ function Leads() {
           </div>
           <Pagination
             itemsPerPage={itemsPerPage}
-            totalItems={leads.length}
+            totalItems={localLeads.length}
             currentPage={currentPage}
             onPageChange={handlePageChange}
           />
