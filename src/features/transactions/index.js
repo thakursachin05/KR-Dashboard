@@ -1,5 +1,5 @@
 import moment from "moment"
-import { useEffect, useState } from "react"
+import {  useState } from "react"
 // import { useDispatch, useSelector } from "react-redux"
 // import { showNotification } from "../common/headerSlice"
 import TitleCard from "../../components/Cards/TitleCard"
@@ -7,9 +7,8 @@ import { RECENT_TRANSACTIONS } from "../../utils/dummyData"
 import FunnelIcon from '@heroicons/react/24/outline/FunnelIcon'
 import XMarkIcon from '@heroicons/react/24/outline/XMarkIcon'
 import SearchBar from "../../components/Input/SearchBar"
-import { useCallback } from "react"
 
-const TopSideButtons = ({removeFilter, applyFilter, applySearch}) => {
+const TopSideButtons = ({removeFilter, applyFilter}) => {
 
     const [filterParam, setFilterParam] = useState("")
     const [searchText, setSearchText] = useState("")
@@ -19,19 +18,24 @@ const TopSideButtons = ({removeFilter, applyFilter, applySearch}) => {
         applyFilter(params)
         setFilterParam(params)
     }
-    const removeAppliedFilter = useCallback(() => {
-        removeFilter();
-        setFilterParam("");
-        setSearchText("");
-    }, [removeFilter, setFilterParam, setSearchText]);
 
-    useEffect(() => {
-        if (searchText === "") {
-            removeAppliedFilter();
-        } else {
-            applySearch(searchText);
-        }
-    }, [searchText, applySearch, removeAppliedFilter]);
+    const removeAppliedFilter = () => {
+        removeFilter()
+        setFilterParam("")
+        setSearchText("")
+    }
+
+    // const memoizedRemoveAppliedFilter = useCallback(() => {
+    //     removeAppliedFilter();
+    // }, [removeAppliedFilter]);
+
+    // useEffect(() => {
+    //     if (searchText === "") {
+    //         memoizedRemoveAppliedFilter();
+    //     } else {
+    //         applySearch(searchText);
+    //     }
+    // }, [searchText, applySearch, memoizedRemoveAppliedFilter]);
 
     return(
         <div className="inline-block float-right">
@@ -42,11 +46,11 @@ const TopSideButtons = ({removeFilter, applyFilter, applySearch}) => {
                 <ul tabIndex={0} className="dropdown-content menu p-2 text-sm shadow bg-base-100 rounded-box w-52">
                     {
                         locationFilters.map((l, k) => {
-                            return  <li key={k}><a  href = "/filter" onClick={() => showFiltersAndApply(l)}>{l}</a></li>
+                            return  <li key={k}><span onClick={() => showFiltersAndApply(l)}>{l}</span></li>
                         })
                     }
                     <div className="divider mt-0 mb-0"></div>
-                    <li><a href = "/removed" onClick={() => removeAppliedFilter()}>Remove Filter</a></li>
+                    <li><span onClick={() => removeAppliedFilter()}>Remove Filter</span></li>
                 </ul>
             </div>
         </div>

@@ -9,4 +9,4 @@ function TemplatePointers() {
   );
 }
 
-export default TemplatePointers;
+export default TemplatePointers

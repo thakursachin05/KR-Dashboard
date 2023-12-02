@@ -10,8 +10,9 @@ function SidebarSubmenu({submenu, name, icon}){
 
     /** Open Submenu list if path found in routes, this is for directly loading submenu routes  first time */
     useEffect(() => {
+         // eslint-disable-next-line react-hooks/exhaustive-deps
         if(submenu.filter(m => {return m.path === location.pathname})[0])setIsExpanded(true)
-    }, [submenu,location.pathname])
+    }, [location.pathname, submenu])
 
     return (
         <div className='flex-col'>

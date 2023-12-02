@@ -1,7 +1,7 @@
 {
-  "name": "kr-telservices",
+  "name": "admin-dashboard-template-dashwind",
   "version": "1.0.0",
-  "description": "Admin Dashboard create-react-app, tailwind css and daisy UI.",
+  "description": "Admin Dashboard template built with create-react-app, tailwind css and daisy UI. Template uses rich tailwind css utility classes and have components of daisy UI, also have redux toolkit implemented for store management.",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -44,6 +44,9 @@
   ],
   "author": "srobbin01",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/srobbin01/tailwind-dashboard-template-dashwind/issues"
+  },
   "homepage": "",
   "eslintConfig": {
     "extends": [

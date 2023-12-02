@@ -1,5 +1,5 @@
 import moment from "moment"
-// import {  useState } from "react"
+// import { useState } from "react"
 // import { useDispatch, useSelector } from "react-redux"
 import TitleCard from "../../../components/Cards/TitleCard"
 // import { showNotification } from '../../common/headerSlice'
@@ -28,7 +28,7 @@ const BILLS = [
 
 function Billing(){
 
-
+    let bills = BILLS;
     // const [bills, setBills] = useState(BILLS)
 
     const getPaymentStatus = (status) => {
@@ -57,7 +57,7 @@ function Billing(){
                     </thead>
                     <tbody>
                         {
-                            BILLS.map((l, k) => {
+                            bills.map((l, k) => {
                                 return(
                                     <tr key={k}>
                                     <td>{l.invoiceNo}</td>

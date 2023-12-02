@@ -32,7 +32,7 @@ const TEAM_MEMBERS = [
 
 function Team(){
 
-
+    let members = TEAM_MEMBERS
     // const [members, setMembers] = useState(TEAM_MEMBERS)
 
     const getRoleComponent = (role) => {
@@ -62,7 +62,7 @@ function Team(){
                     </thead>
                     <tbody>
                         {
-                            TEAM_MEMBERS.map((l, k) => {
+                            members.map((l, k) => {
                                 return(
                                     <tr key={k}>
                                     <td>
