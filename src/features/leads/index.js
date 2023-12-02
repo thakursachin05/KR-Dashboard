@@ -114,6 +114,19 @@ function Leads() {
     }
   });
 
+  const [filterValue, setFilterValue] = useState("");
+
+  const handleFilterChange = (e) => {
+    setFilterValue(e.target.value);
+  };
+
+  const filteredLeads = sortedLeads.filter((lead) => {
+    return (
+      lead.STUDENTNAME.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.STCELLNO.includes(filterValue)
+    );
+  });
+
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -129,6 +142,13 @@ function Leads() {
             </option>
           ))}
         </select>
+        <input
+          type="text"
+          placeholder="Filter by Name or Phone Number"
+          value={filterValue}
+          onChange={handleFilterChange}
+          className="border rounded p-2 ml-4"
+        />
       </div>
       {sortedLeads.length === 0 ? (
         <p>Loading...</p>
@@ -178,7 +198,7 @@ function Leads() {
                 </tr>
               </thead>
               <tbody>
-                {sortedLeads.map((l, k) => {
+                {filteredLeads.map((l, k) => {
                   return (
                     <tr key={k}>
                       <td>{l.STUDENTNAME}</td>
