@@ -1,6 +1,6 @@
 import React, { lazy, useEffect } from 'react'
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import { themeChange } from 'theme-change'
 // import checkAuth from './app/auth';
 // import initializeApp from './app/init';
@@ -20,7 +20,7 @@ const Documentation = lazy(() => import('./pages/Documentation'))
 // Check for login and initialize axios
 // const token = checkAuth()
 
-// const token = true;
+const token = true;
 
 function App() {
 
@@ -38,11 +38,10 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/documentation" element={<Documentation />} />
-          <Route path="/" element={<Login />} />
           
           <Route path="/app/*" element={<Layout />} />
 
-          {/* <Route path="*" element={<Navigate to={token ? "/app/welcome" : "/login"} replace />}/> */}
+          <Route path="*" element={<Navigate to={token ? "/app/welcome" : "/login"} replace />}/>
 
         </Routes>
       </Router>
