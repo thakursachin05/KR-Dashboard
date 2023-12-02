@@ -37,7 +37,6 @@ const TopSideButtons = () => {
 function Leads() {
   const { leads } = useSelector((state) => state.lead);
   const dispatch = useDispatch();
-  console.log("leds are", leads);
   useEffect(() => {
     dispatch(getLeadsContent());
   }, [dispatch]);
@@ -88,17 +87,32 @@ function Leads() {
     (_, index) => (index + 1) * 10
   );
 
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
-  const [sortColumn, setSortColumn] = useState('Name');
+  const [sortConfig, setSortConfig] = useState({
+    column: "STUDENTNAME",
+    order: "asc",
+  });
 
   const handleSort = (column) => {
-    if (column === sortColumn) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    if (column === sortConfig.column) {
+      setSortConfig({
+        ...sortConfig,
+        order: sortConfig.order === "asc" ? "desc" : "asc",
+      });
     } else {
-      setSortColumn(column);
-      setSortOrder('asc');
+      setSortConfig({ column, order: "asc" });
     }
   };
+
+  const sortedLeads = currentLeads.slice().sort((a, b) => {
+    const aValue = a[sortConfig.column] || "";
+    const bValue = b[sortConfig.column] || "";
+
+    if (sortConfig.order === "asc") {
+      return aValue.localeCompare(bValue);
+    } else {
+      return bValue.localeCompare(aValue);
+    }
+  });
 
   return (
     <>
@@ -116,7 +130,7 @@ function Leads() {
           ))}
         </select>
       </div>
-      {currentLeads.length === 0 ? (
+      {sortedLeads.length === 0 ? (
         <p>Loading...</p>
       ) : (
         <TitleCard
@@ -128,16 +142,43 @@ function Leads() {
             <table className="table w-full">
               <thead>
                 <tr>
-                  <th onClick={() => handleSort('Name')}>Name</th>
+                  <th
+                    onClick={() => handleSort("STUDENTNAME")}
+                    className={`cursor-pointer ${
+                      sortConfig.column === "STUDENTNAME" ? "font-bold" : ""
+                    } ${
+                      sortConfig.column === "STUDENTNAME"
+                        ? sortConfig.order === "asc"
+                          ? "sort-asc"
+                          : "sort-desc"
+                        : ""
+                    }`}
+                  >
+                    Name
+                  </th>
+
                   <th>Email Id</th>
-                  <th>Phone Number</th>
+                  <th
+                    onClick={() => handleSort("STCELLNO")}
+                    className={`cursor-pointer ${
+                      sortConfig.column === "STCELLNO" ? "font-bold" : ""
+                    } ${
+                      sortConfig.column === "STCELLNO"
+                        ? sortConfig.order === "asc"
+                          ? "sort-asc"
+                          : "sort-desc"
+                        : ""
+                    }`}
+                  >
+                    Phone Number
+                  </th>
                   <th>Status</th>
                   <th>Enrollment Number</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {currentLeads.map((l, k) => {
+                {sortedLeads.map((l, k) => {
                   return (
                     <tr key={k}>
                       <td>{l.STUDENTNAME}</td>
