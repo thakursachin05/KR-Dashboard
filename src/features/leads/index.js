@@ -1,104 +1,176 @@
-import moment from "moment"
-import { useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import TitleCard from "../../components/Cards/TitleCard"
-import { openModal } from "../common/modalSlice"
-import {  getLeadsContent } from "./leadSlice"
-import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from '../../utils/globalConstantUtil'
-import TrashIcon from '@heroicons/react/24/outline/TrashIcon'
-// import { showNotification } from '../common/headerSlice'
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import TitleCard from "../../components/Cards/TitleCard";
+import { openModal } from "../common/modalSlice";
+import { getLeadsContent } from "./leadSlice";
+import {
+  CONFIRMATION_MODAL_CLOSE_TYPES,
+  MODAL_BODY_TYPES,
+} from "../../utils/globalConstantUtil";
+import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
+import Pagination from "../../components/Pagination";
 
 const TopSideButtons = () => {
+  const dispatch = useDispatch();
 
-    const dispatch = useDispatch()
+  const openAddNewLeadModal = () => {
+    dispatch(
+      openModal({
+        title: "Add New Lead",
+        bodyType: MODAL_BODY_TYPES.LEAD_ADD_NEW,
+      })
+    );
+  };
 
-    const openAddNewLeadModal = () => {
-        dispatch(openModal({title : "Add New Lead", bodyType : MODAL_BODY_TYPES.LEAD_ADD_NEW}))
+  return (
+    <div className="inline-block float-right">
+      <button
+        className="btn px-6 btn-sm normal-case btn-primary"
+        onClick={() => openAddNewLeadModal()}
+      >
+        Add New
+      </button>
+    </div>
+  );
+};
+
+function Leads() {
+  const { leads } = useSelector((state) => state.lead);
+  const dispatch = useDispatch();
+  console.log("leds are", leads);
+  useEffect(() => {
+    dispatch(getLeadsContent());
+  }, [dispatch]);
+
+  const getDummyStatus = (index) => {
+    if (index % 5 === 0) return <div className="badge">Not Interested</div>;
+    else if (index % 5 === 1)
+      return <div className="badge badge-primary">In Progress</div>;
+    else if (index % 5 === 2)
+      return <div className="badge badge-secondary">Sold</div>;
+    else if (index % 5 === 3)
+      return <div className="badge badge-accent">Need Followup</div>;
+    else return <div className="badge badge-ghost">Open</div>;
+  };
+
+  const deleteCurrentLead = (index) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to delete this lead?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE,
+          index,
+        },
+      })
+    );
+  };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10); // You can adjust this based on your preference
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(value);
+    setCurrentPage(1); // Reset to the first page when changing items per page
+  };
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentLeads = leads.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const totalItems = leads.length;
+  const itemsPerPageOptions = Array.from(
+    { length: Math.ceil(totalItems / 10) },
+    (_, index) => (index + 1) * 10
+  );
+
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+  const [sortColumn, setSortColumn] = useState('Name');
+
+  const handleSort = (column) => {
+    if (column === sortColumn) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortOrder('asc');
     }
+  };
 
-    return(
-        <div className="inline-block float-right">
-            <button className="btn px-6 btn-sm normal-case btn-primary" onClick={() => openAddNewLeadModal()}>Add New</button>
-        </div>
-    )
-}
+  return (
+    <>
+      <div className="mb-4 flex items-center">
+        <label className="mr-2 text-sm font-medium">Items Per Page:</label>
+        <select
+          className="border rounded p-2"
+          value={itemsPerPage}
+          onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+        >
+          {itemsPerPageOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+      {currentLeads.length === 0 ? (
+        <p>Loading...</p>
+      ) : (
+        <TitleCard
+          title="Current Leads"
+          topMargin="mt-2"
+          TopSideButtons={<TopSideButtons />}
+        >
+          <div className="overflow-x-auto w-full">
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  <th onClick={() => handleSort('Name')}>Name</th>
+                  <th>Email Id</th>
+                  <th>Phone Number</th>
+                  <th>Status</th>
+                  <th>Enrollment Number</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentLeads.map((l, k) => {
+                  return (
+                    <tr key={k}>
+                      <td>{l.STUDENTNAME}</td>
 
-function Leads(){
+                      <td>{l.STTIETEMAILID}</td>
+                      <td>{l.STCELLNO}</td>
 
-    const {leads } = useSelector(state => state.lead)
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(getLeadsContent())
-    }, [dispatch])
-
-    
-
-    const getDummyStatus = (index) => {
-        if(index % 5 === 0)return <div className="badge">Not Interested</div>
-        else if(index % 5 === 1)return <div className="badge badge-primary">In Progress</div>
-        else if(index % 5 === 2)return <div className="badge badge-secondary">Sold</div>
-        else if(index % 5 === 3)return <div className="badge badge-accent">Need Followup</div>
-        else return <div className="badge badge-ghost">Open</div>
-    }
-
-    const deleteCurrentLead = (index) => {
-        dispatch(openModal({title : "Confirmation", bodyType : MODAL_BODY_TYPES.CONFIRMATION, 
-        extraObject : { message : `Are you sure you want to delete this lead?`, type : CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE, index}}))
-    }
-
-    return(
-        <>
-            
-            <TitleCard title="Current Leads" topMargin="mt-2" TopSideButtons={<TopSideButtons />}>
-
-                {/* Leads List in table format loaded from slice after api call */}
-            <div className="overflow-x-auto w-full">
-                <table className="table w-full">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email Id</th>
-                        <th>Created At</th>
-                        <th>Status</th>
-                        <th>Assigned To</th>
-                        <th></th>
+                      <td>{getDummyStatus(k)}</td>
+                      <td>{l.ENROLLMENTNO}</td>
+                      <td>
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() => deleteCurrentLead(k)}
+                        >
+                          <TrashIcon className="w-5" />
+                        </button>
+                      </td>
                     </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            leads.map((l, k) => {
-                                return(
-                                    <tr key={k}>
-                                    <td>
-                                        <div className="flex items-center space-x-3">
-                                            <div className="avatar">
-                                                <div className="mask mask-squircle w-12 h-12">
-                                                    <img src={l.avatar} alt="Avatar" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="font-bold">{l.first_name}</div>
-                                                <div className="text-sm opacity-50">{l.last_name}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{l.email}</td>
-                                    <td>{moment(new Date()).add(-5*(k+2), 'days').format("DD MMM YY")}</td>
-                                    <td>{getDummyStatus(k)}</td>
-                                    <td>{l.last_name}</td>
-                                    <td><button className="btn btn-square btn-ghost" onClick={() => deleteCurrentLead(k)}><TrashIcon className="w-5"/></button></td>
-                                    </tr>
-                                )
-                            })
-                        }
-                    </tbody>
-                </table>
-            </div>
-            </TitleCard>
-        </>
-    )
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            itemsPerPage={itemsPerPage}
+            totalItems={leads.length}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
+        </TitleCard>
+      )}
+    </>
+  );
 }
 
-
-export default Leads
+export default Leads;
