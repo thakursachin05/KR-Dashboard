@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+import { StudentData } from './StudentData';
 
 
 
 export const getLeadsContent = createAsyncThunk('/leads/content', async () => {
-	const response = await axios.get('/api/users?page=2', {})
-	return response.data;
+	// const response = await axios.get('/api/users?page=2', {})
+	return StudentData;
 })
 
 export const leadsSlice = createSlice({
@@ -33,7 +33,7 @@ export const leadsSlice = createSlice({
 			state.isLoading = true
 		},
 		[getLeadsContent.fulfilled]: (state, action) => {
-			state.leads = action.payload.data
+			state.leads = action.payload
 			state.isLoading = false
 		},
 		[getLeadsContent.rejected]: state => {
