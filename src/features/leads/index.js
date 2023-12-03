@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
-import { getLeadsContent } from "./leadSlice";
+import { addNewLead, getLeadsContent } from "./leadSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
@@ -25,6 +25,20 @@ function Leads() {
     setLocalLeads(leads);
   }, [leads]);
 
+  // Function to find duplicates between two arrays
+  const findDuplicates = (arr1, arr2) => {
+    const duplicates = [];
+    const uniqueValues = new Set(arr1.map((item) => JSON.stringify(item)));
+
+    for (const item of arr2) {
+      if (uniqueValues.has(JSON.stringify(item))) {
+        duplicates.push(item);
+      }
+    }
+
+    return duplicates;
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
 
@@ -37,10 +51,32 @@ function Leads() {
           const workbook = XLSX.read(data, { type: "array" });
 
           const sheetName = workbook.SheetNames[0];
+
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-          setLocalLeads((prevLeads) => [...prevLeads, ...jsonData]);
-          dispatch(showNotification({message : "New Lead Added!", status : 1}))
+          const duplicates = findDuplicates(localLeads, jsonData);
+
+          if (duplicates.length > 0) {
+            dispatch(
+              openModal({
+                title: `Confirmation`,
+                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
+                extraObject: {
+                  message: `${duplicates.length} Duplicates Found`,
+                  uniqueData: jsonData.filter(
+                    (item) => !duplicates.includes(item)
+                  ),
+                  allData: jsonData,
+                },
+              })
+            );
+          } else {
+            const updatedLeads = [...leads, ...jsonData];
+            dispatch(addNewLead({ newLeadObj: updatedLeads }));
+            dispatch(
+              showNotification({ message: "New Lead Added!", status: 1 })
+            );
+          }
         } catch (error) {
           console.error("Error reading XLSX file:", error);
         }
@@ -141,26 +177,30 @@ function Leads() {
   const convertDataToXLSX = (data) => {
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-  
-    const blob = XLSX.write(wb, { bookType: 'xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', type: 'binary' });
-  
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    const blob = XLSX.write(wb, {
+      bookType: "xlsx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      type: "binary",
+    });
+
     // Convert the binary string to a Blob
-    const blobData = new Blob([s2ab(blob)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  
+    const blobData = new Blob([s2ab(blob)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
     return blobData;
   };
-  
+
   // Utility function to convert binary string to ArrayBuffer
   const s2ab = (s) => {
     const buf = new ArrayBuffer(s.length);
     const view = new Uint8Array(buf);
-    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
     return buf;
   };
-  
-  
-  
 
   // Function to trigger the download
   const downloadXLSX = (data) => {
@@ -200,19 +240,19 @@ function Leads() {
         >
           Assign Leads
         </button>
-          <label
-            htmlFor="xlsxInput"
-            className="ml-6 cursor-pointer btn px-6 btn-sm normal-case btn-primary"
-          >
-            Import XLSX
-          </label>
-          <input
-            type="file"
-            id="xlsxInput"
-            onChange={handleFileChange}
-            className="hidden"
-            accept=".xlsx" 
-          />
+        <label
+          htmlFor="xlsxInput"
+          className="ml-6 cursor-pointer btn px-6 btn-sm normal-case btn-primary"
+        >
+          Import XLSX
+        </label>
+        <input
+          type="file"
+          id="xlsxInput"
+          onChange={handleFileChange}
+          className="hidden"
+          accept=".xlsx"
+        />
         <button
           className="btn ml-6 px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
@@ -233,7 +273,6 @@ function Leads() {
           onChange={handleFilterChange}
           className="input input-sm input-bordered  w-full max-w-xs"
         />
-
       </div>
       {filteredLeads.length === 0 ? (
         <p>No Data Found</p>
@@ -279,7 +318,7 @@ function Leads() {
                   </th>
                   <th>Status</th>
                   <th>Enrollment Number</th>
-                  <th></th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
