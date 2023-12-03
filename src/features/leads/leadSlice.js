@@ -23,6 +23,10 @@ export const leadsSlice = createSlice({
       let { index } = action.payload;
       state.leads.splice(index, 1);
     },
+    editLead: (state, action) => {
+      const { index, updatedLead } = action.payload;
+      state.leads[index] = updatedLead;
+    }
   },
 
   extraReducers: {
@@ -39,6 +43,6 @@ export const leadsSlice = createSlice({
   },
 });
 
-export const { addNewLead, deleteLead } = leadsSlice.actions;
+export const { addNewLead, deleteLead, editLead } = leadsSlice.actions;
 
 export default leadsSlice.reducer;

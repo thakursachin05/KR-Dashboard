@@ -8,6 +8,7 @@ import {
   MODAL_BODY_TYPES,
 } from "../../utils/globalConstantUtil";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
+
 import Pagination from "../../components/Pagination";
 import * as XLSX from "xlsx";
 import { showNotification } from "../common/headerSlice";
@@ -16,6 +17,7 @@ function Leads() {
   const dispatch = useDispatch();
   const { leads } = useSelector((state) => state.lead);
   const [localLeads, setLocalLeads] = useState([]);
+  const [editableRows, setEditableRows] = useState([]);
 
   useEffect(() => {
     dispatch(getLeadsContent());
@@ -263,6 +265,28 @@ function Leads() {
     );
   };
 
+  const toggleEdit = (index) => {
+    setEditableRows((prevEditableRows) => {
+      const updatedRows = [...prevEditableRows];
+      updatedRows[index] = !updatedRows[index];
+      return updatedRows;
+    });
+  };
+
+  const handleEditChange = (index, field, value) => {
+    setLocalLeads((prevLeads) => {
+      const updatedLeads = [...prevLeads];
+      const updatedLead = { ...updatedLeads[index], [field]: value };
+      updatedLeads[index] = updatedLead;
+      return updatedLeads;
+    });
+  };
+
+  // const handleSaveEdit = async (index, updatedLead) => {
+  //   await dispatch(editLead({ index, updatedLead }));
+  // };
+
+
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -325,20 +349,59 @@ function Leads() {
                 {filteredLeads.map((l, k) => {
                   return (
                     <tr key={k}>
-                      <td>{l.STUDENTNAME}</td>
+                      <td>
+                        {editableRows[k] ? (
+                          <input
+                            type="text"
+                            value={l.STUDENTNAME}
+                            onChange={(e) =>
+                              handleEditChange(k, "STUDENTNAME", e.target.value)
+                            }
+                          />
+                        ) : (
+                          l.STUDENTNAME
+                        )}
+                      </td>
 
-                      <td>{l.STTIETEMAILID}</td>
+                      <td>
+                        {editableRows[k] ? (
+                          <input
+                            type="text"
+                            value={l.STTIETEMAILID}
+                            onChange={(e) =>
+                              handleEditChange(
+                                k,
+                                "STTIETEMAILID",
+                                e.target.value
+                              )
+                            }
+                          />
+                        ) : (
+                          l.STTIETEMAILID
+                        )}
+                      </td>
                       <td>{l.STCELLNO}</td>
 
                       <td>{getDummyStatus(k)}</td>
                       <td>{l.ENROLLMENTNO}</td>
                       <td>
+                        <div className="flex item-center justify-between">
+
                         <button
                           className="btn btn-square btn-ghost"
                           onClick={() => deleteCurrentLead(k)}
                         >
                           <TrashIcon className="w-5" />
                         </button>
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() => toggleEdit(k)}
+                        >
+                            
+                          {editableRows[k] ? "Save" : "Edit"}
+                        </button>
+                        </div>
+
                       </td>
                     </tr>
                   );
