@@ -10,6 +10,7 @@ import {
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import Pagination from "../../components/Pagination";
 import * as XLSX from "xlsx";
+import { showNotification } from "../common/headerSlice";
 
 function Leads() {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ function Leads() {
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
           setLocalLeads((prevLeads) => [...prevLeads, ...jsonData]);
+          dispatch(showNotification({message : "New Lead Added!", status : 1}))
         } catch (error) {
           console.error("Error reading XLSX file:", error);
         }
@@ -135,13 +137,56 @@ function Leads() {
     );
   });
 
-  const TopSideButtons = () => {
+  // Function to convert the data to XLSX format
+  const convertDataToXLSX = (data) => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  
+    const blob = XLSX.write(wb, { bookType: 'xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', type: 'binary' });
+  
+    // Convert the binary string to a Blob
+    const blobData = new Blob([s2ab(blob)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+    return blobData;
+  };
+  
+  // Utility function to convert binary string to ArrayBuffer
+  const s2ab = (s) => {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+  };
+  
+  
+  
+
+  // Function to trigger the download
+  const downloadXLSX = (data) => {
+    const blob = convertDataToXLSX(data);
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "exported_data.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportXLSX = () => {
+    // Assuming you have an array of objects representing the table data
+    const dataToExport = filteredLeads;
+
+    downloadXLSX(dataToExport);
+  };
+
+  const TopSideButtons = ({ onExportXLSX }) => {
     const dispatch = useDispatch();
 
     const openAddNewLeadModal = () => {
       dispatch(
         openModal({
-          title: "Add New Lead",
+          title: "Assign Leads",
           bodyType: MODAL_BODY_TYPES.LEAD_ADD_NEW,
         })
       );
@@ -153,7 +198,26 @@ function Leads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal()}
         >
-          Add New
+          Assign Leads
+        </button>
+          <label
+            htmlFor="xlsxInput"
+            className="ml-6 cursor-pointer btn px-6 btn-sm normal-case btn-primary"
+          >
+            Import XLSX
+          </label>
+          <input
+            type="file"
+            id="xlsxInput"
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".xlsx" 
+          />
+        <button
+          className="btn ml-6 px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export XLSX
         </button>
       </div>
     );
@@ -169,29 +233,15 @@ function Leads() {
           onChange={handleFilterChange}
           className="input input-sm input-bordered  w-full max-w-xs"
         />
-        <div className="ml-6">
-          <label
-            htmlFor="xlsxInput"
-            className="cursor-pointer btn px-6 btn-sm normal-case btn-primary"
-          >
-            Import XLSX
-          </label>
-          <input
-            type="file"
-            id="xlsxInput"
-            onChange={handleFileChange}
-            className="hidden"
-            accept=".xlsx" // Specify the accepted file type as .xlsx
-          />
-        </div>
+
       </div>
-      {sortedLeads.length === 0 ? (
-        <p>Loading...</p>
+      {filteredLeads.length === 0 ? (
+        <p>No Data Found</p>
       ) : (
         <TitleCard
-          title="Current Leads"
+          title={`Total Leads ${localLeads.length}`}
           topMargin="mt-2"
-          TopSideButtons={<TopSideButtons />}
+          TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
           <div className="overflow-x-auto w-full">
             <table className="table w-full">
