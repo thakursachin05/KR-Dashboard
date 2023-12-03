@@ -25,18 +25,6 @@ const TopSideButtons = ({removeFilter, applyFilter}) => {
         setSearchText("")
     }
 
-    // const memoizedRemoveAppliedFilter = useCallback(() => {
-    //     removeAppliedFilter();
-    // }, [removeAppliedFilter]);
-
-    // useEffect(() => {
-    //     if (searchText === "") {
-    //         memoizedRemoveAppliedFilter();
-    //     } else {
-    //         applySearch(searchText);
-    //     }
-    // }, [searchText, applySearch, memoizedRemoveAppliedFilter]);
-
     return(
         <div className="inline-block float-right">
             <SearchBar searchText={searchText} styleClass="mr-4" setSearchText={setSearchText}/>

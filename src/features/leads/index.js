@@ -11,30 +11,6 @@ import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import Pagination from "../../components/Pagination";
 import * as XLSX from "xlsx";
 
-const TopSideButtons = () => {
-  const dispatch = useDispatch();
-
-  const openAddNewLeadModal = () => {
-    dispatch(
-      openModal({
-        title: "Add New Lead",
-        bodyType: MODAL_BODY_TYPES.LEAD_ADD_NEW,
-      })
-    );
-  };
-
-  return (
-    <div className="inline-block float-right">
-      <button
-        className="btn px-6 btn-sm normal-case btn-primary"
-        onClick={() => openAddNewLeadModal()}
-      >
-        Add New
-      </button>
-    </div>
-  );
-};
-
 function Leads() {
   const dispatch = useDispatch();
   const { leads } = useSelector((state) => state.lead);
@@ -45,7 +21,7 @@ function Leads() {
   }, [dispatch]);
 
   useEffect(() => {
-    setLocalLeads(leads); // Use setLocalLeads to update the localLeads state
+    setLocalLeads(leads);
   }, [leads]);
 
   const handleFileChange = (e) => {
@@ -59,11 +35,9 @@ function Leads() {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: "array" });
 
-          // Assuming you have a single sheet in your workbook
           const sheetName = workbook.SheetNames[0];
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-          // Update localLeads state with the new data
           setLocalLeads((prevLeads) => [...prevLeads, ...jsonData]);
         } catch (error) {
           console.error("Error reading XLSX file:", error);
@@ -100,12 +74,13 @@ function Leads() {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // You can adjust this based on your preference
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
-    setCurrentPage(1); // Reset to the first page when changing items per page
+    setCurrentPage(1);
   };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentLeads = localLeads.slice(indexOfFirstItem, indexOfLastItem);
@@ -160,30 +135,54 @@ function Leads() {
     );
   });
 
+  const TopSideButtons = () => {
+    const dispatch = useDispatch();
+
+    const openAddNewLeadModal = () => {
+      dispatch(
+        openModal({
+          title: "Add New Lead",
+          bodyType: MODAL_BODY_TYPES.LEAD_ADD_NEW,
+        })
+      );
+    };
+
+    return (
+      <div className="inline-block float-right">
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => openAddNewLeadModal()}
+        >
+          Add New
+        </button>
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="mb-4 flex items-center">
-        <label className="mr-2 text-sm font-medium">Items Per Page:</label>
-        <select
-          className="border rounded p-2"
-          value={itemsPerPage}
-          onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-        >
-          {itemsPerPageOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
         <input
           type="text"
           placeholder="Filter by Name or Phone Number"
           value={filterValue}
           onChange={handleFilterChange}
-          className="border rounded p-2 ml-4"
+          className="input input-sm input-bordered  w-full max-w-xs"
         />
         <div className="ml-6">
-          <input type="file" onChange={handleFileChange} />
+          <label
+            htmlFor="xlsxInput"
+            className="cursor-pointer btn px-6 btn-sm normal-case btn-primary"
+          >
+            Import XLSX
+          </label>
+          <input
+            type="file"
+            id="xlsxInput"
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".xlsx" // Specify the accepted file type as .xlsx
+          />
         </div>
       </div>
       {sortedLeads.length === 0 ? (
@@ -258,12 +257,32 @@ function Leads() {
               </tbody>
             </table>
           </div>
-          <Pagination
-            itemsPerPage={itemsPerPage}
-            totalItems={localLeads.length}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-          />
+          <div className="flex item-center justify-between">
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={localLeads.length}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+            <div className="flex items-center">
+              <label className="mr-2 text-sm font-medium">
+                Items Per Page:
+              </label>
+              <select
+                className="border rounded p-2"
+                value={itemsPerPage}
+                onChange={(e) =>
+                  handleItemsPerPageChange(Number(e.target.value))
+                }
+              >
+                {itemsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </TitleCard>
       )}
     </>
