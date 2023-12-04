@@ -345,7 +345,7 @@ function Leads() {
                   </th>
                   <th>Status</th>
                   <th>Enrollment Number</th>
-                  <th>Action</th>
+                  <th className="text-center">Action</th>
                 </tr>
               </thead>
               <tbody>

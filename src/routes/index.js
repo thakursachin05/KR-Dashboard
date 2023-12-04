@@ -11,6 +11,7 @@ const GettingStarted = lazy(() => import('../pages/GettingStarted'))
 const AddMember = lazy(()=>import(`../pages/protected/Team`))
 
 
+
 const routes = [
   {
     path: '/welcome',
@@ -35,6 +36,11 @@ const routes = [
   {
     path: '/404',
     component: Page404,
+  },
+
+  {
+    path: '/addMember',
+    component: AddMember,
   },
 
   {

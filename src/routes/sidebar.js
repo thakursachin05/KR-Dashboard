@@ -39,5 +39,3 @@ if (isAdmin) {
 }
 
 export default routes;
-
-
