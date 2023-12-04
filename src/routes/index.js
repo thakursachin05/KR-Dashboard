@@ -8,7 +8,7 @@ const Leads = lazy(() => import('../pages/protected/Leads'))
 const Team = lazy(() => import('../pages/protected/Team'))
 const ProfileSettings = lazy(() => import('../pages/protected/ProfileSettings'))
 const GettingStarted = lazy(() => import('../pages/GettingStarted'))
-const AddMember = lazy(()=>import(`../pages/protected/AddMember`))
+const AddMember = lazy(()=>import(`../pages/protected/Team`))
 
 
 const routes = [
