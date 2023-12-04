@@ -1,20 +1,20 @@
 import { themeChange } from 'theme-change'
 import React, {  useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import BellIcon  from '@heroicons/react/24/outline/BellIcon'
+// import {  useDispatch } from 'react-redux'
+// import BellIcon  from '@heroicons/react/24/outline/BellIcon'
 import Bars3Icon  from '@heroicons/react/24/outline/Bars3Icon'
 import MoonIcon from '@heroicons/react/24/outline/MoonIcon'
 import SunIcon from '@heroicons/react/24/outline/SunIcon'
-import { openRightDrawer } from '../features/common/rightDrawerSlice';
-import { RIGHT_DRAWER_TYPES } from '../utils/globalConstantUtil'
-
+// import { openRightDrawer } from '../features/common/rightDrawerSlice';
+// import { RIGHT_DRAWER_TYPES } from '../utils/globalConstantUtil'
+import logo from '../assets/images/user.jpg'
 import { Link} from 'react-router-dom'
 
 
 function Header(){
 
-    const dispatch = useDispatch()
-    const {noOfNotifications, pageTitle} = useSelector(state => state.header)
+    // const dispatch = useDispatch()
+    // const {noOfNotifications, pageTitle} = useSelector(state => state.header)
     const [currentTheme, setCurrentTheme] = useState(localStorage.getItem("theme"))
 
     useEffect(() => {
@@ -31,9 +31,9 @@ function Header(){
 
 
     // Opening right sidebar for notification
-    const openNotification = () => {
-        dispatch(openRightDrawer({header : "Notifications", bodyType : RIGHT_DRAWER_TYPES.NOTIFICATION}))
-    }
+    // const openNotification = () => {
+    //     dispatch(openRightDrawer({header : "Notifications", bodyType : RIGHT_DRAWER_TYPES.NOTIFICATION}))
+    // }
 
 
     function logoutUser(){
@@ -50,7 +50,7 @@ function Header(){
                 <div className="">
                     <label htmlFor="left-sidebar-drawer" className="btn btn-primary drawer-button lg:hidden">
                     <Bars3Icon className="h-5 inline-block w-5"/></label>
-                    <h1 className="text-2xl font-semibold ml-2">{pageTitle}</h1>
+                    {/* <h1 className="text-2xl font-semibold ml-2">{pageTitle}</h1> */}
                 </div>
 
                 
@@ -69,7 +69,6 @@ function Header(){
                 </select> */}
 
 
-            {/* Light and dark theme selection toogle **/}
             <label className="swap ">
                 <input type="checkbox"/>
                 <SunIcon data-set-theme="light" data-act-class="ACTIVECLASS" className={"fill-current w-6 h-6 "+(currentTheme === "dark" ? "swap-on" : "swap-off")}/>
@@ -77,20 +76,10 @@ function Header(){
             </label>
 
 
-                {/* Notification icon */}
-                <button className="btn btn-ghost ml-4  btn-circle" onClick={() => openNotification()}>
-                    <div className="indicator">
-                        <BellIcon className="h-6 w-6"/>
-                        {noOfNotifications > 0 ? <span className="indicator-item badge badge-secondary badge-sm">{noOfNotifications}</span> : null }
-                    </div>
-                </button>
-
-
-                {/* Profile icon, opening menu on click */}
                 <div className="dropdown dropdown-end ml-4">
                     <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                         <div className="w-10 rounded-full">
-                        <img src="https://placeimg.com/80/80/people" alt="profile" />
+                        <img src={logo} alt="profile" />
                         </div>
                     </label>
                     <ul tabIndex={0} className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
@@ -100,7 +89,7 @@ function Header(){
                             <span className="badge">New</span>
                             </Link>
                         </li>
-                        <li className=''><Link to={'/app/settings-billing'}>Bill History</Link></li>
+                       
                         <div className="divider mt-0 mb-0"></div>
                         <li><span onClick={logoutUser}>Logout</span></li>
                     </ul>
