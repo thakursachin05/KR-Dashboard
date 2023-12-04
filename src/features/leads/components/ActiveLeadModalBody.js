@@ -7,29 +7,17 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   const totalEmployees = 50;
   const { leads } = useSelector((state) => state.lead);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
-  const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState([]);
-  
+  const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
+  const [remainingLeads, setRemainingLeads] = useState(0);
+
   useEffect(() => {
-    let calculatedLeadsPerEmployee = Math.floor(leads.length / totalEmployees);
-
-    if (leads.length < totalEmployees) {
-      calculatedLeadsPerEmployee = 1;
+    let employeegetLeads = Math.floor(leads.length / leadsPerEmployee);
+    const donothaveLeads = totalEmployees - employeegetLeads;
+    setEmployeesWithoutLeads(Math.max(0, donothaveLeads));
+    if (donothaveLeads < 0) {
+      setRemainingLeads(donothaveLeads);
     }
-
-    setLeadsPerEmployee(calculatedLeadsPerEmployee);
-
-    const employeesWithoutLeadsArray = Array.from(
-      { length: totalEmployees },
-      (_, index) => index + 1
-    )
-      .filter(
-        (employeeIndex) =>
-          employeeIndex > leads.length / calculatedLeadsPerEmployee
-      )
-      .slice(0, totalEmployees - leads.length);
-
-    setEmployeesWithoutLeads(employeesWithoutLeadsArray);
-  }, [leads, totalEmployees]);
+  }, [leads, totalEmployees,employeesWithoutLeads, leadsPerEmployee]);
 
   return (
     <>
@@ -44,7 +32,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         <input
           id="leadsInput"
           type="number"
-          min={"0"}
+          min={"1"}
+          max={leads.length}
           value={leadsPerEmployee}
           onChange={(e) => setLeadsPerEmployee(parseInt(e.target.value, 10))}
           className="border p-1"
@@ -53,8 +42,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
       <div className="mt-4">
         <p className="text-center">
-          {employeesWithoutLeads.length} out of {totalEmployees} employees will
-          not receive leads.
+          {remainingLeads >= 0
+            ? `${employeesWithoutLeads} out of ${totalEmployees} employees will not receive leads.`
+            : `${remainingLeads} leads are remaining, not assigned to anyone.`}
         </p>
       </div>
 
@@ -66,7 +56,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         <button
           className="btn btn-primary w-36"
           onClick={() => {
-            // Additional logic for lead assignment
             dispatch(
               showNotification({ message: "Leads assigned!", status: 1 })
             );
