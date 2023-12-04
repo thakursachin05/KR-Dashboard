@@ -4,7 +4,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import { closeModal } from '../features/common/modalSlice'
 import AddLeadModalBody from '../features/leads/components/AddLeadModalBody'
 import ConfirmationModalBody from '../features/common/components/ConfirmationModalBody'
-
+import DuplicateLeadModalBody from '../features/leads/components/DuplicateLeadModalBody'
+import AssignLeadModalBody from '../features/leads/components/AssignLeadModalBody'
+import ActiveLeadModalBody from '../features/leads/components/ActiveLeadModalBody'
 
 function ModalLayout(){
 
@@ -34,6 +36,10 @@ function ModalLayout(){
                     {
                              [MODAL_BODY_TYPES.LEAD_ADD_NEW] : <AddLeadModalBody closeModal={close} extraObject={extraObject}/>,
                              [MODAL_BODY_TYPES.CONFIRMATION] : <ConfirmationModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.DUPLICATE_LEADS] : <DuplicateLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_LEADS] : <AssignLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGNED_CHOSEN] : <ActiveLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             
                              [MODAL_BODY_TYPES.DEFAULT] : <div></div>
                     }[bodyType]
                 }

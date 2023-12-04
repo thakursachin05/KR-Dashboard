@@ -38,6 +38,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           {/* Place new routes over this */}
+
           <Route path="/app/*" element={<Layout />} />
 
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} replace />}/>

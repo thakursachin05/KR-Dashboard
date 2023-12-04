@@ -6,18 +6,25 @@ import UsersIcon from '@heroicons/react/24/outline/UsersIcon'
 
 const iconClasses = `h-6 w-6`
 
+
 const routes = [
+  {
+    path: "/app/dashboard",
+    icon: <Squares2X2Icon className={iconClasses} />,
+    name: "Dashboard",
+  },
+  {
+    path: "/app/leads", // url
+    icon: <InboxArrowDownIcon className={iconClasses} />, // icon component
+    name: "Leads", // name that appear in Sidebar
+  },
 
   {
-    path: '/app/dashboard',
-    icon: <Squares2X2Icon className={iconClasses}/>, 
-    name: 'Dashboard',
+    path: "/app/teamMembers", // url
+    icon: <UsersIcon className={submenuIconClasses} />, // icon component
+    name: "Team Members", // name that appear in Sidebar
   },
-  {
-    path: '/app/leads', // url
-    icon: <InboxArrowDownIcon className={iconClasses}/>, // icon component
-    name: 'Leads', // name that appear in Sidebar
-  },
+
   {
     path: '/app/profile', //url
     icon: <UserIcon className={iconClasses}/>, // icon component
@@ -32,5 +39,6 @@ const routes = [
 ]
 
 export default routes
+
 
 

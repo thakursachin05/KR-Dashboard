@@ -30,6 +30,7 @@ const routes = [
     path: '/profile',
     component: ProfileSettings,
   },
+
 ]
 
 export default routes

@@ -4,6 +4,12 @@ module.exports = Object.freeze({
         USER_DETAIL : "USER_DETAIL",
         LEAD_ADD_NEW : "LEAD_ADD_NEW",
         CONFIRMATION : "CONFIRMATION",
+        DUPLICATE_LEADS : "DUPLICATE_LEADS",
+        ASSIGN_LEADS : "ASSIGN_LEADS",
+        // ASSIGN_TO_ACTIVE : "ASSIGN_TO_ACTIVE",
+        // ASSIGN_TO_TOTAL : "ASSIGN_TO_TOTAL",
+        // ASSIGN_TO_INACTIVE : "ASSIGN_TO_INACTIVE",
+        ASSIGNED_CHOSEN : "ASSIGNED_CHOSEN",
         DEFAULT : "",
     },
 
@@ -14,5 +20,6 @@ module.exports = Object.freeze({
 
     CONFIRMATION_MODAL_CLOSE_TYPES : {
         LEAD_DELETE : "LEAD_DELETE",
+        MEMBER_DELETE : "MEMBER_DELETE"
     },
 });
