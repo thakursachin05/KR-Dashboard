@@ -229,7 +229,10 @@ function Leads() {
       dispatch(
         openModal({
           title: "Assign Leads",
-          bodyType: MODAL_BODY_TYPES.LEAD_ADD_NEW,
+          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
+          extraObject: {
+            message: `Choose employees to assign`,
+          },
         })
       );
     };

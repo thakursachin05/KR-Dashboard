@@ -4,7 +4,7 @@ import { DUPLICATE_LEADS } from "../../../utils/globalConstantUtil";
 import { showNotification } from "../../common/headerSlice";
 import { addNewLead } from "../leadSlice";
 
-function DuplicateLeadsModalBody({ extraObject, closeModal }) {
+function DuplicateLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
 
   const { message, type, allData, uniqueData } = extraObject;
@@ -55,4 +55,4 @@ function DuplicateLeadsModalBody({ extraObject, closeModal }) {
   );
 }
 
-export default DuplicateLeadsModalBody;
+export default DuplicateLeadModalBody;

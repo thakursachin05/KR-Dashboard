@@ -5,6 +5,11 @@ module.exports = Object.freeze({
         LEAD_ADD_NEW : "LEAD_ADD_NEW",
         CONFIRMATION : "CONFIRMATION",
         DUPLICATE_LEADS : "DUPLICATE_LEADS",
+        ASSIGN_LEADS : "ASSIGN_LEADS",
+        // ASSIGN_TO_ACTIVE : "ASSIGN_TO_ACTIVE",
+        // ASSIGN_TO_TOTAL : "ASSIGN_TO_TOTAL",
+        // ASSIGN_TO_INACTIVE : "ASSIGN_TO_INACTIVE",
+        ASSIGNED_CHOSEN : "ASSIGNED_CHOSEN",
         DEFAULT : "",
     },
 
