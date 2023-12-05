@@ -35,6 +35,11 @@ if (isAdmin) {
       icon: <UserIcon className={submenuIconClasses} />, 
       name: "Add New Member", 
     },
+    // {
+    //   path: "/app/addMember",
+    //   icon: <UserIcon className={submenuIconClasses} />, 
+    //   name: "Active Member", 
+    // },
   );
 }
 

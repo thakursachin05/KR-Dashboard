@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import {  getLeadsContent } from "../../leads/leadSlice";
 import { openModal } from "../../common/modalSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
@@ -9,31 +8,47 @@ import {
 } from "../../../utils/globalConstantUtil";
 import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
+import axios from "axios";
+import { API } from "../.../../../../utils/constants";
 
 function TeamMembers() {
   const dispatch = useDispatch();
-  const { leads } = useSelector((state) => state.lead);
-  const [localLeads, setLocalLeads] = useState([]);
+  const [employee, setEmployee] = useState([]);
   const [editableRows, setEditableRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortConfig, setSortConfig] = useState({
+    column: "name",
+    order: "asc",
+  });
+  const [filterValue, setFilterValue] = useState("");
 
   useEffect(() => {
-    dispatch(getLeadsContent());
-  }, [dispatch]);
+    const fetchData = async () => {
+      // const params = {
+      //   page: currentPage,
+      //   limit: itemsPerPage,
+      //   offset : ((Math.max(0,itemsPerPage-1))/10)
+      // };
+      const baseURL = `${API}/employee`
+      try {
+        const response = await axios.get(baseURL);
 
-  useEffect(() => {
-    setLocalLeads(leads);
-  }, [leads]);
+        localStorage.setItem(
+          "employee-details",
+          JSON.stringify(response.data)
+        );
+        // console.log("employees data", response.data.data);
+        setEmployee(response.data.data);
+      } catch (error) {
+        console.log("eror", error);
+      }
+    };
+    fetchData();
+  }, [itemsPerPage,currentPage]);
 
-  const getDummyStatus = (index) => {
-    if (index % 5 === 0) return <div className="badge">Not Interested</div>;
-    else if (index % 5 === 1)
-      return <div className="badge badge-primary">In Progress</div>;
-    else if (index % 5 === 2)
-      return <div className="badge badge-secondary">Sold</div>;
-    else if (index % 5 === 3)
-      return <div className="badge badge-accent">Need Followup</div>;
-    else return <div className="badge badge-ghost">Open</div>;
-  };
+  const employeeData = JSON.parse(localStorage.getItem("employee-details"))
+  // console.log("employueee data count",employeeData.count)
 
   const deleteCurrentLead = (index) => {
     dispatch(
@@ -49,32 +64,24 @@ function TeamMembers() {
     );
   };
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentLeads = localLeads.slice(indexOfFirstItem, indexOfLastItem);
-
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  const totalItems = localLeads.length;
+  const totalItems = employeeData.count;
   const itemsPerPageOptions = Array.from(
     { length: Math.ceil(totalItems / 10) },
     (_, index) => (index + 1) * 10
   );
 
-  const [sortConfig, setSortConfig] = useState({
-    column: "STUDENTNAME",
-    order: "asc",
-  });
+  // const indexOfLastItem = currentPage * itemsPerPage;
+  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // const currentMembers = employee.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -87,7 +94,7 @@ function TeamMembers() {
     }
   };
 
-  const sortedLeads = currentLeads.slice().sort((a, b) => {
+  const sortedLeads = employeeData.data.slice().sort((a, b) => {
     const aValue = a[sortConfig.column] || "";
     const bValue = b[sortConfig.column] || "";
 
@@ -98,19 +105,17 @@ function TeamMembers() {
     }
   });
 
-  const [filterValue, setFilterValue] = useState("");
-
   const handleFilterChange = (e) => {
     setFilterValue(e.target.value);
   };
 
   const filteredLeads = sortedLeads.filter((lead) => {
     return (
-      lead.STUDENTNAME.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.STCELLNO.includes(filterValue)
+      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.contact.includes(filterValue) ||
+      lead.activityStatus.includes(filterValue)
     );
   });
-
 
   const toggleEdit = (index) => {
     setEditableRows((prevEditableRows) => {
@@ -121,7 +126,7 @@ function TeamMembers() {
   };
 
   const handleEditChange = (index, field, value) => {
-    setLocalLeads((prevLeads) => {
+    setEmployee((prevLeads) => {
       const updatedLeads = [...prevLeads];
       const updatedLead = { ...updatedLeads[index], [field]: value };
       updatedLeads[index] = updatedLead;
@@ -130,7 +135,7 @@ function TeamMembers() {
   };
 
   const StatusEditRow = ({ index, initialStatus, onSave }) => {
-    const [selectedStatus, setSelectedStatus] = useState(initialStatus);
+  const [selectedStatus, setSelectedStatus] = useState(initialStatus);
 
     return (
       <td>
@@ -160,7 +165,7 @@ function TeamMembers() {
       <div className="mb-4 flex items-center">
         <input
           type="text"
-          placeholder="Filter by Name or Phone Number"
+          placeholder="Filter by Name or Phone or Status"
           value={filterValue}
           onChange={handleFilterChange}
           className="input input-sm input-bordered  w-full max-w-xs"
@@ -170,20 +175,19 @@ function TeamMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Team Members ${localLeads.length}`}
+          title={`Total Team Members ${employeeData.count}`}
           topMargin="mt-2"
-        //   TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
           <div className="overflow-x-auto w-full">
             <table className="table w-full">
               <thead>
                 <tr>
                   <th
-                    onClick={() => handleSort("STUDENTNAME")}
+                    onClick={() => handleSort("name")}
                     className={`cursor-pointer ${
-                      sortConfig.column === "STUDENTNAME" ? "font-bold" : ""
+                      sortConfig.column === "name" ? "font-bold" : ""
                     } ${
-                      sortConfig.column === "STUDENTNAME"
+                      sortConfig.column === "name"
                         ? sortConfig.order === "asc"
                           ? "sort-asc"
                           : "sort-desc"
@@ -195,11 +199,11 @@ function TeamMembers() {
 
                   <th>Email Id</th>
                   <th
-                    onClick={() => handleSort("STCELLNO")}
+                    onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
-                      sortConfig.column === "STCELLNO" ? "font-bold" : ""
+                      sortConfig.column === "contact" ? "font-bold" : ""
                     } ${
-                      sortConfig.column === "STCELLNO"
+                      sortConfig.column === "contact"
                         ? sortConfig.order === "asc"
                           ? "sort-asc"
                           : "sort-desc"
@@ -209,56 +213,23 @@ function TeamMembers() {
                     Phone Number
                   </th>
                   <th>Status</th>
-                  <th>Enrollment Number</th>
-                  <th className="text-center">Action</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLeads.map((l, k) => {
                   return (
                     <tr key={k}>
-                      <td>
-                        {editableRows[k] ? (
-                          <input
-                            type="text"
-                            value={l.STUDENTNAME}
-                            onChange={(e) =>
-                              handleEditChange(k, "STUDENTNAME", e.target.value)
-                            }
-                          />
-                        ) : (
-                          l.STUDENTNAME
-                        )}
-                      </td>
-
-                      <td>
-                        {editableRows[k] ? (
-                          <input
-                            type="text"
-                            value={l.STTIETEMAILID}
-                            onChange={(e) =>
-                              handleEditChange(
-                                k,
-                                "STTIETEMAILID",
-                                e.target.value
-                              )
-                            }
-                          />
-                        ) : (
-                          l.STTIETEMAILID
-                        )}
-                      </td>
-                      <td>{l.STCELLNO}</td>
-
+                      <td>{l.name}</td>
+                      <td>{l.email}</td>
+                      <td>{l.contact}</td>
                       <StatusEditRow
                         index={k}
-                        initialStatus={getDummyStatus(k)}
+                        initialStatus={l.activityStatus}
                         onSave={(index, newStatus) => {
-                          // Implement logic to save the new status
                           console.log("Saving status:", newStatus);
                         }}
                       />
-                      <td>{l.ENROLLMENTNO}</td>
                       <td>
                         <div className="flex item-center justify-between">
                           <button
@@ -266,12 +237,6 @@ function TeamMembers() {
                             onClick={() => deleteCurrentLead(k)}
                           >
                             <TrashIcon className="w-5" />
-                          </button>
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => toggleEdit(k)}
-                          >
-                            {editableRows[k] ? "Save" : "Edit"}
                           </button>
                         </div>
                       </td>
@@ -284,7 +249,7 @@ function TeamMembers() {
           <div className="flex item-center justify-between">
             <Pagination
               itemsPerPage={itemsPerPage}
-              totalItems={localLeads.length}
+              totalItems={employeeData.count}
               currentPage={currentPage}
               onPageChange={handlePageChange}
             />
