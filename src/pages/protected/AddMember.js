@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setPageTitle } from '../../features/common/headerSlice'
+
 import AddMember from '../../features/settings/addMember'
 
 function InternalPage(){
@@ -12,6 +13,7 @@ function InternalPage(){
 
 
     return(
+        // <AddMember/>
         <AddMember/>
     )
 }

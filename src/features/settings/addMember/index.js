@@ -4,37 +4,48 @@ import { useDispatch } from "react-redux";
 import ErrorText from "../../../components/Typography/ErrorText";
 import InputText from "../../../components/Input/InputText";
 import { showNotification } from "../../common/headerSlice";
+import axios from "axios";
+import { API } from "../../../utils/constants";
 
 function AddMember() {
   const INITIAL_REGISTER_OBJ = {
     name: "",
     password: "",
-    emailId: "",
-    phone : ""
+    email: "",
+    contact: "",
   };
-
+  
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
   const dispatch = useDispatch();
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     if (registerObj.name.trim() === "")
-      return setErrorMessage("Name is required! (use any value)");
-    if (registerObj.emailId.trim() === "")
-      return setErrorMessage("Email Id is required! (use any value)");
+      return setErrorMessage("Name is required!");
+    if (registerObj.email.trim() === "")
+      return setErrorMessage("Email Id is required!");
     if (registerObj.password.trim() === "")
-      return setErrorMessage("Password is required! (use any value)");
+      return setErrorMessage("Password is required!");
+    if (registerObj.contact.trim() === "")
+      return setErrorMessage("Phone number is required!");
     else {
       setLoading(true);
-      // Call API to check user credentials and save token in localstorage
-      localStorage.setItem("token", "DumyTokenHere");
+      try {
+        const response = await axios.post(`${API}/auth/signup`, registerObj);
+        if (response.status === 200) {
+          dispatch(
+            showNotification({ message: "New Member Added!", status: 1 })
+          );
+          
+          // window.location.href = "/app/teamMembers";
+        }
+      } catch (error) {
+        alert("Signup failed");
+      }
       setLoading(false);
-      dispatch(showNotification({ message: "New Member Added!", status: 1 }));
-
-      //   window.location.href = "/app/welcome";
     }
   };
 
@@ -62,16 +73,16 @@ function AddMember() {
                 />
 
                 <InputText
-                  defaultValue={registerObj.emailId}
-                  updateType="emailId"
+                  defaultValue={registerObj.email}
+                  updateType="email"
                   containerStyle="mt-4"
                   labelTitle="Email Id"
                   updateFormValue={updateFormValue}
                 />
                 <InputText
-                  defaultValue={registerObj.phone}
-                  type="text"
-                  updateType="phone"
+                  defaultValue={registerObj.contact}
+                  // type="text"
+                  updateType="contact"
                   containerStyle="mt-4"
                   labelTitle="Phone Number"
                   updateFormValue={updateFormValue}

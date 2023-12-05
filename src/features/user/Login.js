@@ -3,30 +3,55 @@ import {Link} from 'react-router-dom'
 import LandingIntro from './LandingIntro'
 import ErrorText from  '../../components/Typography/ErrorText'
 import InputText from '../../components/Input/InputText'
+import { API } from '../../utils/constants'
+import axios from 'axios'
+
 
 function Login(){
 
     const INITIAL_LOGIN_OBJ = {
         password : "",
-        emailId : ""
+        email : ""
     }
 
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
     const [loginObj, setLoginObj] = useState(INITIAL_LOGIN_OBJ)
 
-    const submitForm = (e) =>{
+    const submitForm = async(e) =>{
         e.preventDefault()
         setErrorMessage("")
 
-        if(loginObj.emailId.trim() === "")return setErrorMessage("Email Id is required! (use any value)")
-        if(loginObj.password.trim() === "")return setErrorMessage("Password is required! (use any value)")
+        if(loginObj.email.trim() === "")return setErrorMessage("Email Id is required!")
+        if(loginObj.password.trim() === "")return setErrorMessage("Password is required!")
         else{
             setLoading(true)
             // Call API to check user credentials and save token in localstorage
-            localStorage.setItem("token", "DumyTokenHere")
-            setLoading(false)
+            try {
+                const response = await axios.post(`${API}/auth/signin`, loginObj);
+                if (response.status === 200) {
+                  const user = response.data;
+                  localStorage.setItem("user", JSON.stringify(user));
+                  localStorage.setItem("isAdmin", JSON.stringify(user.isAdmin));
+
+                  const tokenExpiry = new Date().getTime() + 5 * 24 * 60 * 60 * 1000; // 5 days
+                  const tokenData = {
+                    token: user.accessToken,
+                    expiry: tokenExpiry,
+                  };
+                  localStorage.setItem("accessToken", JSON.stringify(tokenData));
             window.location.href = '/app/welcome'
+
+                }else{
+                  return  setErrorMessage("Email id or Password is Wrong")
+                }
+              } catch (error) {
+                if (error.response) {
+                    setErrorMessage("Email id or Password is Wrong")
+                    console.log("error",error.response)
+                }
+              }
+            setLoading(false)
         }
     }
 
@@ -48,7 +73,7 @@ function Login(){
 
                         <div className="mb-4">
 
-                            <InputText type="emailId" defaultValue={loginObj.emailId} updateType="emailId" containerStyle="mt-4" labelTitle="Email Id" updateFormValue={updateFormValue}/>
+                            <InputText type="email" defaultValue={loginObj.email} updateType="email" containerStyle="mt-4" labelTitle="Email Id" updateFormValue={updateFormValue}/>
 
                             <InputText defaultValue={loginObj.password} type="password" updateType="password" containerStyle="mt-4" labelTitle="Password" updateFormValue={updateFormValue}/>
 
