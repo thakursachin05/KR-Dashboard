@@ -17,8 +17,9 @@ function TeamMembers() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [teamMember, setTeamMember] = useState([]);
   const [sortConfig, setSortConfig] = useState({
-    column: "name",
+    column: "",
     order: "asc",
   });
   const [filterValue, setFilterValue] = useState("");
@@ -26,28 +27,38 @@ function TeamMembers() {
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
   
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      // const params = {
-      //   page: currentPage,
-      //   limit: itemsPerPage,
-      //   offset : ((Math.max(0,itemsPerPage-1))/10)
-      // };
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        offset: ((Math.max(0, currentPage-1)*10)),
+      };
       const baseURL = `${API}/employee`;
       try {
-        const response = await axios.get(baseURL);
-
+        const response = await axios.get(baseURL, { params: params });
         localStorage.setItem("employee-details", JSON.stringify(response.data));
+        setTeamMember(response.data.data)
       } catch (error) {
-        console.log("eror", error);
+        console.error("error", error);
       }
-      console.log("it iis running or not when status is changing",memberStatus)
-      dispatch(sliceMemberStatus(''))
+      // console.log("it is running or not when status is changing", memberStatus);
+      dispatch(sliceMemberStatus(''));
       dispatch(sliceMemberDeleted(false));
     };
+  
     fetchData();
-  }, [itemsPerPage, memberDeleted,memberStatus, dispatch, currentPage]);
-
+  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
+  
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
@@ -102,14 +113,7 @@ function TeamMembers() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  const handleItemsPerPageChange = (value) => {
-    setItemsPerPage(value);
-    setCurrentPage(1);
-  };
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   const totalItems = employeeData ? employeeData.count : 0;
   const itemsPerPageOptions = Array.from(
@@ -132,7 +136,7 @@ function TeamMembers() {
     }
   };
 
-  const sortedLeads = employeeData?.data?.slice().sort((a, b) => {
+  const sortedLeads = teamMember?.slice().sort((a, b) => {
     const aValue = a[sortConfig.column] || "";
     const bValue = b[sortConfig.column] || "";
 
