@@ -10,12 +10,11 @@ import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import { API } from "../.../../../../utils/constants";
-import { sliceMemberDeleted } from "../../leads/leadSlice";
+import { sliceMemberDeleted,sliceMemberStatus } from "../../leads/leadSlice";
+import { showNotification } from "../../common/headerSlice";
 
 function TeamMembers() {
   const dispatch = useDispatch();
-  // const [employee, setEmployee] = useState([]);
-  // const [editableRows, setEditableRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState({
@@ -25,7 +24,8 @@ function TeamMembers() {
   const [filterValue, setFilterValue] = useState("");
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
-
+  const memberStatus = useSelector((state) => state.lead.memberStatus);
+  
   useEffect(() => {
     const fetchData = async () => {
       // const params = {
@@ -41,10 +41,12 @@ function TeamMembers() {
       } catch (error) {
         console.log("eror", error);
       }
+      console.log("it iis running or not when status is changing",memberStatus)
+      dispatch(sliceMemberStatus(''))
       dispatch(sliceMemberDeleted(false));
     };
     fetchData();
-  }, [itemsPerPage, memberDeleted, dispatch, currentPage]);
+  }, [itemsPerPage, memberDeleted,memberStatus, dispatch, currentPage]);
 
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
@@ -61,6 +63,43 @@ function TeamMembers() {
         },
       })
     );
+  };
+
+  const handleStatusChange = async(memberId, newStatus) => {
+    try {
+      const storedToken = localStorage.getItem("accessToken");
+      const employeeData = {
+        activityStatus: newStatus,
+      };
+      if (storedToken) {
+        const accessToken = JSON.parse(storedToken).token;
+
+        if (accessToken) {
+          const headers = {
+            Authorization: `Bearer ${accessToken}`,
+          };
+
+          const response = await axios.put(`${API}/employee/${memberId}`,employeeData, {
+            headers,
+          });
+
+          console.log("status updated data",response.data)
+         dispatch(sliceMemberStatus(newStatus))
+          dispatch(
+            showNotification({ message: "Status Updated Successfully!", status: 1 })
+          );
+        }
+      } else {
+        dispatch(
+          showNotification({ message: "Access token not found", status: 1 })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        showNotification({ message: "Error Status updating", status: 1 })
+      );
+    }
+    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
   const handleItemsPerPageChange = (value) => {
@@ -115,51 +154,6 @@ function TeamMembers() {
       lead.activityStatus.includes(filterValue)
     );
   });
-
-  // const toggleEdit = (index) => {
-  //   setEditableRows((prevEditableRows) => {
-  //     const updatedRows = [...prevEditableRows];
-  //     updatedRows[index] = !updatedRows[index];
-  //     return updatedRows;
-  //   });
-  // };
-
-  // const handleEditChange = (index, field, value) => {
-  //   setEmployee((prevLeads) => {
-  //     const updatedLeads = [...prevLeads];
-  //     const updatedLead = { ...updatedLeads[index], [field]: value };
-  //     updatedLeads[index] = updatedLead;
-  //     return updatedLeads;
-  //   });
-  // };
-
-  const StatusEditRow = ({ initialStatus }) => {
-    // const [selectedStatus, setSelectedStatus] = useState(initialStatus);
-
-    return (
-      <td>
-        {/* {editableRows[index] ? (
-          <div>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              //   onChange={(e) =>
-              //     handleEditChange(index, "STATUS", e.target.value)
-              //   }
-            >
-              <option value="Hold">Hold</option>
-              <option value="Active">Active</option>
-              <option value="Dead">Dead</option>
-            </select>
-          </div>
-        ) : (
-          <span>{initialStatus}</span>
-        )} */}
-
-        <span>{initialStatus}</span>
-      </td>
-    );
-  };
 
   return (
     <>
@@ -224,13 +218,19 @@ function TeamMembers() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
-                      <StatusEditRow
-                        index={k}
-                        initialStatus={l.activityStatus}
-                        onSave={(index, newStatus) => {
-                          console.log("Saving status:", newStatus);
-                        }}
-                      />
+                      <td>
+                        <select
+                          value={l.activityStatus}
+                          onChange={(e) => handleStatusChange(l._id,e.target.value)
+                          }
+                          
+                          
+                        >
+                          <option value="hold">Hold</option>
+                          <option value="dead">Dead</option>
+                          <option value="active">Active</option>
+                        </select>
+                      </td>
                       <td>
                         <div className="flex item-center justify-between">
                           <button
