@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 // import axios from 'axios'
 import { CONFIRMATION_MODAL_CLOSE_TYPES } from "../../../utils/globalConstantUtil";
-import { deleteLead, sliceMemberDeleted } from "../../leads/leadSlice";
+import { deleteLead, sliceLeadDeleted, sliceMemberDeleted } from "../../leads/leadSlice";
 import { showNotification } from "../headerSlice";
 import axios from "axios";
 import { API } from "../../../utils/constants";
@@ -13,8 +13,35 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     if (type === CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE) {
-      dispatch(deleteLead({ index }));
-      dispatch(showNotification({ message: "Lead Deleted!", status: 1 }));
+      try {
+        const storedToken = localStorage.getItem("accessToken");
+
+        if (storedToken) {
+          const accessToken = JSON.parse(storedToken).token;
+
+          if (accessToken) {
+            const headers = {
+              Authorization: `Bearer ${accessToken}`,
+            };
+
+            await axios.delete(`${API}/lead/${index}`, {
+              headers,
+            });
+            dispatch(sliceLeadDeleted(true))
+            dispatch(
+              showNotification({ message: "Lead Deleted!", status: 1 })
+            );
+          }
+        } else {
+          dispatch(
+            showNotification({ message: "Access token not found", status: 1 })
+          );
+        }
+      } catch (error) {
+        dispatch(
+          showNotification({ message: "Error deleting Lead", status: 1 })
+        );
+      }
     }
     if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE) {
       try {
