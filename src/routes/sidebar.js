@@ -8,8 +8,19 @@ import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
 const iconClasses = `h-6 w-6`;
 const submenuIconClasses = `h-5 w-5`;
 const isAdmin = localStorage.getItem('isAdmin') === 'true';
+// const newJoiner = JSON.parse(localStorage.getItem('user'))
+
+// console.log("newjoiner deetails",newJoiner)
+
+// const newJoinee = newJoiner.role.length === 0;
+
+// if(newJoinee){
+//   Navigate('./newJoinee')
+// }
+
 
 const routes = [
+
   {
     path: "/app/leads",
     icon: <InboxArrowDownIcon className={iconClasses} />, 
@@ -20,9 +31,9 @@ const routes = [
     icon: <UserIcon className={submenuIconClasses} />, 
     name: "Profile", 
   },
+
 ];
 
-// Only add the following routes if isAdmin is true
 if (isAdmin) {
   routes.push(
     {
@@ -35,12 +46,11 @@ if (isAdmin) {
       icon: <UserIcon className={submenuIconClasses} />, 
       name: "Add New Member", 
     },
-    // {
-    //   path: "/app/addMember",
-    //   icon: <UserIcon className={submenuIconClasses} />, 
-    //   name: "Active Member", 
-    // },
   );
 }
 
 export default routes;
+
+
+
+

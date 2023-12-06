@@ -13,8 +13,8 @@ import { API } from "../.../../../../utils/constants";
 
 function TeamMembers() {
   const dispatch = useDispatch();
-  const [employee, setEmployee] = useState([]);
-  const [editableRows, setEditableRows] = useState([]);
+  // const [employee, setEmployee] = useState([]);
+  // const [editableRows, setEditableRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState({
@@ -30,27 +30,25 @@ function TeamMembers() {
       //   limit: itemsPerPage,
       //   offset : ((Math.max(0,itemsPerPage-1))/10)
       // };
-      const baseURL = `${API}/employee`
+      const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL);
 
-        localStorage.setItem(
-          "employee-details",
-          JSON.stringify(response.data)
-        );
+        localStorage.setItem("employee-details", JSON.stringify(response.data));
         // console.log("employees data", response.data.data);
-        setEmployee(response.data.data);
+        // setEmployee(response.data.data);
       } catch (error) {
         console.log("eror", error);
       }
     };
     fetchData();
-  }, [itemsPerPage,currentPage]);
+  }, [itemsPerPage, currentPage]);
 
-  const employeeData = JSON.parse(localStorage.getItem("employee-details"))
+  const employeeData = JSON.parse(localStorage.getItem("employee-details"));
   // console.log("employueee data count",employeeData.count)
 
-  const deleteCurrentLead = (index) => {
+  const   deleteCurrentLead = (id) => {
+    console.log("index os in delete popup",id)
     dispatch(
       openModal({
         title: "Confirmation",
@@ -58,7 +56,8 @@ function TeamMembers() {
         extraObject: {
           message: `Are you sure you want to delete this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-          index,
+            index : id
+          // index,
         },
       })
     );
@@ -73,7 +72,7 @@ function TeamMembers() {
     setCurrentPage(pageNumber);
   };
 
-  const totalItems = employeeData.count;
+  const totalItems = employeeData ? employeeData.count : 0;
   const itemsPerPageOptions = Array.from(
     { length: Math.ceil(totalItems / 10) },
     (_, index) => (index + 1) * 10
@@ -94,7 +93,7 @@ function TeamMembers() {
     }
   };
 
-  const sortedLeads = employeeData.data.slice().sort((a, b) => {
+  const sortedLeads = employeeData?.data?.slice().sort((a, b) => {
     const aValue = a[sortConfig.column] || "";
     const bValue = b[sortConfig.column] || "";
 
@@ -109,7 +108,7 @@ function TeamMembers() {
     setFilterValue(e.target.value);
   };
 
-  const filteredLeads = sortedLeads.filter((lead) => {
+  const filteredLeads = sortedLeads?.filter((lead) => {
     return (
       lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead.contact.includes(filterValue) ||
@@ -117,29 +116,29 @@ function TeamMembers() {
     );
   });
 
-  const toggleEdit = (index) => {
-    setEditableRows((prevEditableRows) => {
-      const updatedRows = [...prevEditableRows];
-      updatedRows[index] = !updatedRows[index];
-      return updatedRows;
-    });
-  };
+  // const toggleEdit = (index) => {
+  //   setEditableRows((prevEditableRows) => {
+  //     const updatedRows = [...prevEditableRows];
+  //     updatedRows[index] = !updatedRows[index];
+  //     return updatedRows;
+  //   });
+  // };
 
-  const handleEditChange = (index, field, value) => {
-    setEmployee((prevLeads) => {
-      const updatedLeads = [...prevLeads];
-      const updatedLead = { ...updatedLeads[index], [field]: value };
-      updatedLeads[index] = updatedLead;
-      return updatedLeads;
-    });
-  };
+  // const handleEditChange = (index, field, value) => {
+  //   setEmployee((prevLeads) => {
+  //     const updatedLeads = [...prevLeads];
+  //     const updatedLead = { ...updatedLeads[index], [field]: value };
+  //     updatedLeads[index] = updatedLead;
+  //     return updatedLeads;
+  //   });
+  // };
 
-  const StatusEditRow = ({ index, initialStatus, onSave }) => {
-  const [selectedStatus, setSelectedStatus] = useState(initialStatus);
+  const StatusEditRow = ({ initialStatus }) => {
+    // const [selectedStatus, setSelectedStatus] = useState(initialStatus);
 
     return (
       <td>
-        {editableRows[index] ? (
+        {/* {editableRows[index] ? (
           <div>
             <select
               value={selectedStatus}
@@ -155,7 +154,9 @@ function TeamMembers() {
           </div>
         ) : (
           <span>{initialStatus}</span>
-        )}
+        )} */}
+
+        <span>{initialStatus}</span>
       </td>
     );
   };
@@ -171,11 +172,11 @@ function TeamMembers() {
           className="input input-sm input-bordered  w-full max-w-xs"
         />
       </div>
-      {filteredLeads.length === 0 ? (
+      {filteredLeads?.length === 0 ? (
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Team Members ${employeeData.count}`}
+          title={`Total Team Members ${employeeData?.count}`}
           topMargin="mt-2"
         >
           <div className="overflow-x-auto w-full">
@@ -217,7 +218,7 @@ function TeamMembers() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLeads.map((l, k) => {
+                {filteredLeads?.map((l, k) => {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
@@ -234,7 +235,7 @@ function TeamMembers() {
                         <div className="flex item-center justify-between">
                           <button
                             className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(k)}
+                            onClick={() => deleteCurrentLead(l._id)}
                           >
                             <TrashIcon className="w-5" />
                           </button>
@@ -249,7 +250,7 @@ function TeamMembers() {
           <div className="flex item-center justify-between">
             <Pagination
               itemsPerPage={itemsPerPage}
-              totalItems={employeeData.count}
+              totalItems={employeeData?.count}
               currentPage={currentPage}
               onPageChange={handlePageChange}
             />
