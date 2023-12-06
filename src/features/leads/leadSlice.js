@@ -11,6 +11,7 @@ export const leadsSlice = createSlice({
   initialState: {
     isLoading: false,
     leads: [],
+    memberDeleted : false
   },
   reducers: {
     addNewLead: (state, action) => {
@@ -26,7 +27,10 @@ export const leadsSlice = createSlice({
     editLead: (state, action) => {
       const { index, updatedLead } = action.payload;
       state.leads[index] = updatedLead;
-    }
+    },
+    sliceMemberDeleted: (state, action) => {
+      state.memberDeleted = action.payload;
+    },
   },
 
   extraReducers: {
@@ -43,6 +47,6 @@ export const leadsSlice = createSlice({
   },
 });
 
-export const { addNewLead, deleteLead, editLead } = leadsSlice.actions;
+export const { addNewLead, deleteLead, editLead,sliceMemberDeleted } = leadsSlice.actions;
 
 export default leadsSlice.reducer;

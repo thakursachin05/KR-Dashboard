@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import { openModal } from "../../common/modalSlice";
 import {
@@ -10,6 +10,7 @@ import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import { API } from "../.../../../../utils/constants";
+import { sliceMemberDeleted } from "../../leads/leadSlice";
 
 function TeamMembers() {
   const dispatch = useDispatch();
@@ -23,6 +24,8 @@ function TeamMembers() {
   });
   const [filterValue, setFilterValue] = useState("");
 
+  const memberDeleted = useSelector((state) => state.lead.memberDeleted);
+
   useEffect(() => {
     const fetchData = async () => {
       // const params = {
@@ -35,20 +38,17 @@ function TeamMembers() {
         const response = await axios.get(baseURL);
 
         localStorage.setItem("employee-details", JSON.stringify(response.data));
-        // console.log("employees data", response.data.data);
-        // setEmployee(response.data.data);
       } catch (error) {
         console.log("eror", error);
       }
+      dispatch(sliceMemberDeleted(false));
     };
     fetchData();
-  }, [itemsPerPage, currentPage]);
+  }, [itemsPerPage, memberDeleted, dispatch, currentPage]);
 
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
-  // console.log("employueee data count",employeeData.count)
 
-  const   deleteCurrentLead = (id) => {
-    console.log("index os in delete popup",id)
+  const deleteCurrentLead = (id) => {
     dispatch(
       openModal({
         title: "Confirmation",
@@ -56,7 +56,7 @@ function TeamMembers() {
         extraObject: {
           message: `Are you sure you want to delete this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-            index : id
+          index: id,
           // index,
         },
       })
