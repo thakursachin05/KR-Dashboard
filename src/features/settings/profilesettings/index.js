@@ -1,51 +1,134 @@
-// import moment from "moment"
-// import { useEffect, useState } from "react"
-import { useDispatch } from "react-redux"
-import TitleCard from "../../../components/Cards/TitleCard"
-import { showNotification } from '../../common/headerSlice'
-import InputText from '../../../components/Input/InputText'
-import TextAreaInput from '../../../components/Input/TextAreaInput'
-import ToogleInput from '../../../components/Input/ToogleInput'
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import TitleCard from "../../../components/Cards/TitleCard";
+import ToogleInput from "../../../components/Input/ToogleInput";
+import { API } from "../../../utils/constants";
 
-function ProfileSettings(){
+const ProfileSettings = () => {
+    const [userData, setUserData] = useState([]);
 
+    useEffect(() => {
+      const fetchUserData = async (userId) => {
+        try {
+          const response = await axios.get(`${API}/employee/?id=${userId}`);
+          setUserData(response.data.data[0]);
+          console.log(response.data.data[0])
 
-    const dispatch = useDispatch()
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+  
+      const userDataString = localStorage.getItem("user");
+      const userData = JSON.parse(userDataString);
+      const userId = userData?._id;
+      if (userId) {
+        fetchUserData(userId);
+      }
+    }, []); 
 
-    // Call API to update profile settings changes
-    const updateProfile = () => {
-        dispatch(showNotification({message : "Profile Updated", status : 1}))    
-    }
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUserData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      };
 
-    const updateFormValue = ({updateType, value}) => {
-        console.log(updateType)
-    }
+      
+    const handleUpdate = async () => {
+        try {
+            const tokenResponse = localStorage.getItem("accessToken")
+            const tokenData = JSON.parse(tokenResponse);
+            const token = tokenData.token;
+            console.log(token)
+            // Set the Authorization header with the token
+            const config = {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            };
+          await axios.put(`${API}/employee/${userData._id}`, userData, config);
+          
+          console.log('Employee data updated successfully!');
+        } catch (error) {
+          console.error('Error updating employee data:', error);
+        }
+      };
 
-    return(
-        <>
-            
-            <TitleCard title="Profile Settings" topMargin="mt-2">
+  return (
+    <>
+      <TitleCard title="Profile Settings" topMargin="mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputText labelTitle="Name" defaultValue="Alex" updateFormValue={updateFormValue}/>
-                    <InputText labelTitle="Email Id" defaultValue="alex@dashwind.com" updateFormValue={updateFormValue}/>
-                    <InputText labelTitle="Title" defaultValue="UI/UX Designer" updateFormValue={updateFormValue}/>
-                    <InputText labelTitle="Place" defaultValue="California" updateFormValue={updateFormValue}/>
-                    <TextAreaInput labelTitle="About" defaultValue="Doing what I love, part time traveller" updateFormValue={updateFormValue}/>
-                </div>
-                <div className="divider" ></div>
+        <div>
+<label className="label">Name</label>
+  <input type="text" name="name" className="input input-bordered w-full" value={userData.name} onChange={handleInputChange} />
+</div>
+            <div>
+            <label className="label">Email</label>
+  <input type="text" name="email" disabled className="input input-bordered w-full" value={userData.email} onChange={handleInputChange} />
+            </div>
+  
+<div>
+  <label className="label">Password</label>
+  <input type="password" name="password" className="input input-bordered w-full" value={userData.password} onChange={handleInputChange} />
+  </div>
+  <div>
+  <label className="label">Gender</label>
+  <input type="text" name="gender" className="input input-bordered w-full" value={userData.gender} onChange={handleInputChange} />
+  </div>
+  <div>
+  <label className="label">Contact</label>
+  <input type="text" name="contact" className="input input-bordered w-full" value={userData.contact} onChange={handleInputChange} />
+  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputText labelTitle="Language" defaultValue="English" updateFormValue={updateFormValue}/>
-                    <InputText labelTitle="Timezone" defaultValue="IST" updateFormValue={updateFormValue}/>
-                    <ToogleInput updateType="syncData" labelTitle="Sync Data" defaultValue={true} updateFormValue={updateFormValue}/>
-                </div>
+  <div>
+  <label className="label">Date of Birth</label>
+  <input
+    type="date"
+    name="dob"
+    className="input input-bordered w-full"
+    value={userData.dob ? new Date(userData.dob).toISOString().split('T')[0] : ''}
+    onChange={handleInputChange}  />
+</div>
 
-                <div className="mt-16"><button className="btn btn-primary float-right" onClick={() => updateProfile()}>Update</button></div>
-            </TitleCard>
-        </>
-    )
-}
+<div>
+  <label className="label">Present Days</label>
+  <input type="text" name="presentDays" disabled className="input input-bordered w-full" value={userData.presentDays} onChange={handleInputChange} />
+  </div>
+  <div>
+  <label className="label">Status</label>
+  <input type="text" name="activityStatus" disabled className="input input-bordered w-full" value={userData.activityStatus} onChange={handleInputChange} />
+  </div>
+  <div>
+  <label className="label">Last Date on which Lead was Assigned</label>
+  <input type="text" name="lastDateLeadAssigned" disabled className="input input-bordered w-full" value={userData.lastDateLeadAssigned} onChange={handleInputChange} />
+  </div>
 
+  <div>
+  <label className="label">Role</label>
+  <input type="text" name="role" disabled className="input input-bordered w-full" value={userData.role} onChange={handleInputChange} />
+  </div>
+  <div>
+  <label className="label">Last Number Of Lead Assigned</label>
+  <input type="text" name="lastNumberOfLeadAssigned" disabled className="input input-bordered w-full" value={userData.lastNumberOfLeadAssigned} onChange={handleInputChange} />
+  </div>
+          <ToogleInput
+            updateType="syncData"
+            labelTitle="Sync Data"
+            defaultValue={userData.syncData}
+          />
+        </div>
 
-export default ProfileSettings
+        <div className="mt-16">
+          <button className="btn btn-primary float-right" onClick={handleUpdate} >
+            Update
+          </button>
+        </div>
+      </TitleCard>
+    </>
+  );
+};
+
+export default ProfileSettings;

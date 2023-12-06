@@ -21,7 +21,6 @@ function Login(){
     const submitForm = async(e) =>{
         e.preventDefault()
         setErrorMessage("")
-
         if(loginObj.email.trim() === "")return setErrorMessage("Email Id is required!")
         if(loginObj.password.trim() === "")return setErrorMessage("Password is required!")
         else{
