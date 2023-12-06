@@ -36,7 +36,7 @@ function Leads() {
   };
 
   const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  console.log("lead details from local storage", leadDetails);
+  // console.log("lead details from local storage", leadDetails);
   const leadDeleted = useSelector((state) => state.lead.leadDeleted);
 
   useEffect(() => {
@@ -50,7 +50,6 @@ function Leads() {
       try {
         const response = await axios.get(baseURL, { params: params });
         if (response.status === 200) {
-          console.log("repsonse lead data", response.data);
           localStorage.setItem("lead-details", JSON.stringify(response.data));
           setLeadData(response.data.data);
         } else {
@@ -66,17 +65,42 @@ function Leads() {
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
 
   // Function to find duplicates between two arrays
-  const findDuplicates = (arr1, arr2) => {
-    const duplicates = [];
-    const uniqueValues = new Set(arr1.map((item) => JSON.stringify(item)));
-
-    for (const item of arr2) {
-      if (uniqueValues.has(JSON.stringify(item))) {
-        duplicates.push(item);
+  const findDuplicates = async (arr2) => {
+    const params = {
+      page: 1,
+      limit: 10,
+      offset: 0,
+    };
+    const baseURL = `${API}/lead`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      if (response.status === 200) {
+        const allData = response.data.data;
+        const duplicates = [];
+        const uniqueValues = new Set(
+          arr2.map((item) => {
+            const jsonString = JSON.stringify({
+              name: item.name,
+              contact: item.contact.toString(), 
+            });
+            return jsonString;
+          })
+        );
+        for (const item of allData) {
+          const stringifiedData = JSON.stringify({ name: item.name, contact: item.contact });
+          if (uniqueValues.has(stringifiedData)) {
+            duplicates.push(item);
+          }
+          console.log("data of lead", JSON.stringify({ name: item.name, contact: item.contact }));
+        }
+        
+        return duplicates;
+      } else {
+        console.log("access token incorrect");
       }
+    } catch (error) {
+      console.error("error", error);
     }
-
-    return duplicates;
   };
 
   const handleFileChange = async (e) => {
@@ -93,49 +117,41 @@ function Leads() {
 
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-          for (const obj of jsonData) {
-            try {
-              const tokenResponse = localStorage.getItem("accessToken");
-              const tokenData = JSON.parse(tokenResponse);
-              const token = tokenData.token;
-
-              const singleLead = {
-                name: obj.name,
-                contact: obj.contact,
-              };
-
-              // Set the Authorization header with the token
-              const config = {
-                headers: {
-                  Authorization: `Bearer ${token}`,
+          const duplicates = await findDuplicates(jsonData);
+          // console.log(
+          //   "duplictes data and what is lleadDetails in localstorage",
+          //   duplicates,
+          //   leadDetails.data
+          // );
+          if (duplicates.length > 0) {
+            dispatch(
+              openModal({
+                title: `Confirmation`,
+                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
+                extraObject: {
+                  message: `${duplicates.length} Duplicates Found`,
+                  uniqueData: jsonData.filter(
+                    (item) => !duplicates.includes(item)
+                  ),
+                  allData: jsonData,
+                  duplicates: true,
                 },
-              };
-
-              const response = await axios.post(
-                `${API}/lead/`,
-                singleLead,
-                config
-              );
-
-              if (response.status === 201) {
-                dispatch(
-                  showNotification({
-                    message: "Lead inserted successfully!",
-                    status: 1,
-                  })
-                );
-                console.log("Lead data inserted successfully!");
-              } else {
-                console.log("Access token incorrect");
-              }
-            } catch (error) {
-              console.error("Error pushing lead data:", error);
-            }
+              })
+            );
+          } else {
+            dispatch(
+              openModal({
+                title: `Confirmation`,
+                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
+                extraObject: {
+                  message: `Have you cross checked Leads?`,
+                  uniqueData: jsonData,
+                  allData: jsonData,
+                  duplicates: false,
+                },
+              })
+            );
           }
-
-          dispatch(
-            showNotification({ message: "All leads added!", status: 1 })
-          );
         } catch (error) {
           console.error("Error reading XLSX file:", error);
         }
