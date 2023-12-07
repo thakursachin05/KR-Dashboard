@@ -7,45 +7,72 @@ import { showNotification } from "../../common/headerSlice";
 import axios from "axios";
 import { API } from "../../../utils/constants";
 
-function AddMember() {
+function ForgotPassword() {
   const INITIAL_REGISTER_OBJ = {
     name: "",
     password: "",
     email: "",
     contact: "",
   };
-  
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
   const dispatch = useDispatch();
+  let userId = ""
 
   const submitForm = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    if (registerObj.name.trim() === "")
-      return setErrorMessage("Name is required!");
-    if (registerObj.email.trim() === "")
-      return setErrorMessage("Email Id is required!");
     if (registerObj.password.trim() === "")
       return setErrorMessage("Password is required!");
     if (registerObj.contact.trim() === "")
       return setErrorMessage("Phone number is required!");
     else {
       setLoading(true);
+      await fetchData();
       try {
-        const response = await axios.post(`${API}/auth/signup`, registerObj);
+        const tokenResponse = localStorage.getItem("accessToken");
+        const tokenData = JSON.parse(tokenResponse);
+        const token = tokenData.token;
+        console.log(token);
+        // Set the Authorization header with the token
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+
+        const userData = {
+          password : registerObj.password
+        }
+        const response = await axios.put(`${API}/employee/${userId}`,userData,config);
         if (response.status === 200) {
           dispatch(
-            showNotification({ message: "New Member Added!", status: 1 })
+            showNotification({ message: "Password Updated Successfully!", status: 1 })
           );
-          
+
+          setRegisterObj(INITIAL_REGISTER_OBJ)
+
           // window.location.href = "/app/teamMembers";
         }
       } catch (error) {
         alert("Signup failed");
       }
       setLoading(false);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`${API}/employee?contact=${registerObj.contact}`);
+      if (response.status === 200) {
+        console.log("response dat of user",response.data);
+        userId = response.data.data[0]._id
+        // window.location.href = "/app/teamMembers";
+      }
+    } catch (error) {
+      alert("Signup failed");
     }
   };
 
@@ -60,11 +87,11 @@ function AddMember() {
         <div className="grid grid-cols-1  bg-base-100 rounded-xl">
           <div className="py-24 px-10">
             <h2 className="text-2xl font-semibold mb-2 text-center">
-              Register Member
+              Forgot Password
             </h2>
             <form onSubmit={(e) => submitForm(e)}>
               <div className="mb-4">
-                <InputText
+                {/* <InputText
                   defaultValue={registerObj.name}
                   updateType="name"
                   containerStyle="mt-4"
@@ -78,7 +105,7 @@ function AddMember() {
                   containerStyle="mt-4"
                   labelTitle="Email Id"
                   updateFormValue={updateFormValue}
-                />
+                /> */}
                 <InputText
                   defaultValue={registerObj.contact}
                   // type="text"
@@ -105,7 +132,7 @@ function AddMember() {
                   "btn mt-2 w-full btn-primary" + (loading ? " loading" : "")
                 }
               >
-                Add Member
+                Submit
               </button>
 
               {/* <div className='text-center mt-4'>Already have an account? <Link to="/login"><span className="  inline-block  hover:text-primary hover:underline hover:cursor-pointer transition duration-200">Login</span></Link></div> */}
@@ -117,4 +144,4 @@ function AddMember() {
   );
 }
 
-export default AddMember;
+export default ForgotPassword;

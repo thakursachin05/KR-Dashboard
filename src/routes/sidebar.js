@@ -21,11 +21,7 @@ const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
 const routes = [
 
-  {
-    path: "/app/leads",
-    icon: <InboxArrowDownIcon className={iconClasses} />, 
-    name: "Leads", 
-  },
+
   {
     path: "/app/settings-profile",
     icon: <UserIcon className={submenuIconClasses} />, 
@@ -37,14 +33,45 @@ const routes = [
 if (isAdmin) {
   routes.push(
     {
+      path: "/app/totalAssignedLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />, 
+      name: "Total Assigned Leads", 
+    },
+    {
+      path: "/app/leads",
+      icon: <InboxArrowDownIcon className={iconClasses} />, 
+      name: "Upload Leads", 
+    },
+    {
+      path: "/app/openLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />, 
+      name: "Open Leads", 
+    },
+    {
+      path: "/app/closedLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />, 
+      name: "Closed Leads", 
+    },
+    {
+      path: "/app/todayAssignedLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />, 
+      name: "Today Assigned Leads", 
+    },
+
+    {
       path: "/app/teamMembers",
       icon: <UsersIcon className={submenuIconClasses} />, 
       name: "Team Members", 
     },
     {
-      path: "/app/addMember",
+      path: "/app/forgot-password",
       icon: <UserIcon className={submenuIconClasses} />, 
-      name: "Add New Member", 
+      name: "Forgot Password", 
+    },
+    {
+      path: "/app/activeMembers",
+      icon: <UserIcon className={submenuIconClasses} />, 
+      name: "Today Present Member", 
     },
   );
 }

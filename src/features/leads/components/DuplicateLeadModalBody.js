@@ -19,10 +19,14 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
           const tokenResponse = localStorage.getItem("accessToken");
           const tokenData = JSON.parse(tokenResponse);
           const token = tokenData.token;
+          const todayDate = new Date().toISOString().split("T")[0];
 
           const singleLead = {
             name: obj.name,
             contact: obj.contact,
+            dateAdded : todayDate,
+            finalStatus : "OPENED",
+
           };
 
           // Set the Authorization header with the token

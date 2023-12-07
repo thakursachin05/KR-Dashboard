@@ -29,7 +29,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           {/* <Route path="/newJoinee" element={<NewJoinee />} /> */}
-
           <Route path="/app/*" element={<Layout />} />
           <Route
             path="*"
