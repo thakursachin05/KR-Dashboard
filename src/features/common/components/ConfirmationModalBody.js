@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 // import axios from 'axios'
 import { CONFIRMATION_MODAL_CLOSE_TYPES } from "../../../utils/globalConstantUtil";
-import { deleteLead, sliceLeadDeleted, sliceMemberDeleted } from "../../leads/leadSlice";
+import { sliceLeadDeleted, sliceMemberDeleted } from "../../leads/leadSlice";
 import { showNotification } from "../headerSlice";
 import axios from "axios";
 import { API } from "../../../utils/constants";
