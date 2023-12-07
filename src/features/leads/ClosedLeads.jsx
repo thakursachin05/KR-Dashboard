@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
-import {sliceLeadDeleted } from "./leadSlice";
+import { sliceLeadDeleted } from "./leadSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
@@ -10,12 +10,11 @@ import {
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 
 import Pagination from "../../components/Pagination";
-import * as XLSX from "xlsx";
 import { showNotification } from "../common/headerSlice";
 import axios from "axios";
 import { API } from "../../utils/constants";
 
-function Leads() {
+function ClosedLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,20 +40,19 @@ function Leads() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // const params = {
-      //   page: currentPage,
-      //   limit: itemsPerPage,
-      //   offset: Math.max(0, currentPage - 1) * 10,
-      //   modified: []
-      // };
-    
-      // console.log("params is", params);
-    
-      const baseURL = `https://krteleservices-backend.onrender.com/api/lead?page=1&limit=10&offset=0&modified=[]`;
-    
+      const todayDate = new Date();
+      const yesterdayDate = new Date(todayDate);
+      yesterdayDate.setDate(todayDate.getDate() - 1);
+      
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        offset: Math.max(0, currentPage - 1) * 10,
+        finalStatus: "CLOSED",
+      };
+      const baseURL = `${API}/lead`;
       try {
-        const response = await axios.get(baseURL);
-    
+        const response = await axios.get(baseURL, { params: params });
         if (response.status === 200) {
           localStorage.setItem("lead-details", JSON.stringify(response.data));
           setLeadData(response.data.data);
@@ -64,111 +62,11 @@ function Leads() {
       } catch (error) {
         console.error("error", error);
       }
-    
       dispatch(sliceLeadDeleted(false));
     };
-    
 
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
-
-  // Function to find duplicates between two arrays
-  const findDuplicates = async (arr2) => {
-    const params = {
-      page: 1,
-      limit: 200,
-      offset: 0,
-    };
-    const baseURL = `${API}/lead`;
-    try {
-      const response = await axios.get(baseURL, { params: params });
-      if (response.status === 200) {
-        const allData = response.data.data;
-        const duplicates = [];
-        const uniqueValues = new Set(
-          arr2.map((item) => {
-            const jsonString = JSON.stringify({
-              name: item?.name,
-              contact: item?.contact?.toString(), 
-            });
-            // console.log("jsonData, items",item)
-            return jsonString;
-          })
-        );
-        for (const item of allData) {
-          const stringifiedData = JSON.stringify({ name: item.name, contact: item.contact });
-          if (uniqueValues.has(stringifiedData)) {
-            duplicates.push(item);
-          }
-          // console.log("data of lead", JSON.stringify({ name: item.name, contact: item.contact }));
-        }
-        
-        return duplicates;
-      } else {
-        console.log("access token incorrect");
-      }
-    } catch (error) {
-      console.error("error", error);
-    }
-  };
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onload = async (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: "array" });
-          const sheetName = workbook.SheetNames[0];
-
-          const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-          // console.log("json data is ",jsonData)
-          const duplicates = await findDuplicates(jsonData);
-          // console.log(
-          //   "duplictes data and what is lleadDetails in localstorage",
-          //   duplicates,
-          //   leadDetails.data
-          // );
-          if (duplicates.length > 0) {
-            dispatch(
-              openModal({
-                title: `Confirmation`,
-                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
-                extraObject: {
-                  message: `${duplicates.length} Duplicates Found`,
-                  uniqueData: jsonData.filter(
-                    (item) => !duplicates.includes(item)
-                  ),
-                  allData: jsonData,
-                  duplicates: true,
-                },
-              })
-            );
-          } else {
-            dispatch(
-              openModal({
-                title: `Confirmation`,
-                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
-                extraObject: {
-                  message: `Have you cross checked Leads?`,
-                  uniqueData: jsonData,
-                  allData: jsonData,
-                  duplicates: false,
-                },
-              })
-            );
-          }
-        } catch (error) {
-          console.error("Error reading XLSX file:", error);
-        }
-      };
-
-      reader.readAsArrayBuffer(file);
-    }
-  };
 
   const deleteCurrentLead = (index) => {
     dispatch(
@@ -183,10 +81,6 @@ function Leads() {
       })
     );
   };
-
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentLeads = leadData?.slice(indexOfFirstItem, indexOfLastItem);
 
   const totalItems = leadDetails?.count;
   const itemsPerPageOptions = Array.from(
@@ -227,53 +121,7 @@ function Leads() {
     );
   });
 
-  const convertDataToXLSX = (data) => {
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-    const blob = XLSX.write(wb, {
-      bookType: "xlsx",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      type: "binary",
-    });
-
-    // Convert the binary string to a Blob
-    const blobData = new Blob([s2ab(blob)], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    return blobData;
-  };
-
-  // Utility function to convert binary string to ArrayBuffer
-  const s2ab = (s) => {
-    const buf = new ArrayBuffer(s.length);
-    const view = new Uint8Array(buf);
-    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
-    return buf;
-  };
-
-  // Function to trigger the download
-  const downloadXLSX = (data) => {
-    const blob = convertDataToXLSX(data);
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
-
-    downloadXLSX(dataToExport);
-  };
-
-  const TopSideButtons = ({ onExportXLSX }) => {
+  const TopSideButtons = () => {
     const dispatch = useDispatch();
 
     const openAddNewLeadModal = () => {
@@ -295,25 +143,6 @@ function Leads() {
           onClick={() => openAddNewLeadModal()}
         >
           Assign Leads
-        </button>
-        <label
-          htmlFor="xlsxInput"
-          className="ml-6 cursor-pointer btn px-6 btn-sm normal-case btn-primary"
-        >
-          Import XLSX
-        </label>
-        <input
-          type="file"
-          id="xlsxInput"
-          onChange={handleFileChange}
-          className="hidden"
-          accept=".xlsx"
-        />
-        <button
-          className="btn ml-6 px-6 btn-sm normal-case btn-primary"
-          onClick={onExportXLSX}
-        >
-          Export XLSX
         </button>
       </div>
     );
@@ -399,7 +228,7 @@ function Leads() {
         <TitleCard
           title={`Total Leads ${leadDetails.count}`}
           topMargin="mt-2"
-          TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
+          TopSideButtons={<TopSideButtons />}
         >
           <div className="overflow-x-auto w-full">
             <table className="table w-full">
@@ -526,4 +355,4 @@ function Leads() {
   );
 }
 
-export default Leads;
+export default ClosedLeads;
