@@ -121,10 +121,6 @@ function TeamMembers() {
     (_, index) => (index + 1) * 10
   );
 
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentMembers = employee.slice(indexOfFirstItem, indexOfLastItem);
-
   const handleSort = (column) => {
     if (column === sortConfig.column) {
       setSortConfig({

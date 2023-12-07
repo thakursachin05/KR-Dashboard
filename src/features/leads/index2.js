@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
-import {sliceLeadDeleted } from "./leadSlice";
+import { addNewLead, getLeadsContent } from "./leadSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
@@ -12,118 +12,52 @@ import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import Pagination from "../../components/Pagination";
 import * as XLSX from "xlsx";
 import { showNotification } from "../common/headerSlice";
-import axios from "axios";
-import { API } from "../../utils/constants";
 
 function Leads() {
   const dispatch = useDispatch();
-  const [leadData, setLeadData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [sortConfig, setSortConfig] = useState({
-    column: "name",
-    order: "asc",
-  });
-  const [filterValue, setFilterValue] = useState("");
-  const [currentlyEditing, setCurrentlyEditing] = useState(null);
-  const [editedData, setEditedData] = useState({ name: "", contact: "" });
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-  const handleItemsPerPageChange = (value) => {
-    setItemsPerPage(value);
-    setCurrentPage(1);
-  };
-
-  const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  // console.log("lead details from local storage", leadDetails);
-  const leadDeleted = useSelector((state) => state.lead.leadDeleted);
+  const { leads } = useSelector((state) => state.lead);
+  const [localLeads, setLocalLeads] = useState([]);
+  const [editableRows, setEditableRows] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const params = {
-        page: currentPage,
-        limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * 10,
-      };
-      const baseURL = `${API}/lead`;
-      try {
-        const response = await axios.get(baseURL, { params: params });
-        if (response.status === 200) {
-          localStorage.setItem("lead-details", JSON.stringify(response.data));
-          setLeadData(response.data.data);
-        } else {
-          console.log("access token incorrect");
-        }
-      } catch (error) {
-        console.error("error", error);
-      }
-      dispatch(sliceLeadDeleted(false));
-    };
+    dispatch(getLeadsContent());
+  }, [dispatch]);
 
-    fetchData();
-  }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
+  useEffect(() => {
+    setLocalLeads(leads);
+  }, [leads]);
 
   // Function to find duplicates between two arrays
-  const findDuplicates = async (arr2) => {
-    const params = {
-      page: 1,
-      limit: 200,
-      offset: 0,
-    };
-    const baseURL = `${API}/lead`;
-    try {
-      const response = await axios.get(baseURL, { params: params });
-      if (response.status === 200) {
-        const allData = response.data.data;
-        const duplicates = [];
-        const uniqueValues = new Set(
-          arr2.map((item) => {
-            const jsonString = JSON.stringify({
-              name: item?.name,
-              contact: item?.contact?.toString(), 
-            });
-            // console.log("jsonData, items",item)
-            return jsonString;
-          })
-        );
-        for (const item of allData) {
-          const stringifiedData = JSON.stringify({ name: item.name, contact: item.contact });
-          if (uniqueValues.has(stringifiedData)) {
-            duplicates.push(item);
-          }
-          // console.log("data of lead", JSON.stringify({ name: item.name, contact: item.contact }));
-        }
-        
-        return duplicates;
-      } else {
-        console.log("access token incorrect");
+  const findDuplicates = (arr1, arr2) => {
+    const duplicates = [];
+    const uniqueValues = new Set(arr1.map((item) => JSON.stringify(item)));
+
+    for (const item of arr2) {
+      if (uniqueValues.has(JSON.stringify(item))) {
+        duplicates.push(item);
       }
-    } catch (error) {
-      console.error("error", error);
     }
+
+    return duplicates;
   };
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
 
     if (file) {
       const reader = new FileReader();
 
-      reader.onload = async (e) => {
+      reader.onload = (e) => {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: "array" });
+
           const sheetName = workbook.SheetNames[0];
 
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-          // console.log("json data is ",jsonData)
-          const duplicates = await findDuplicates(jsonData);
-          // console.log(
-          //   "duplictes data and what is lleadDetails in localstorage",
-          //   duplicates,
-          //   leadDetails.data
-          // );
+
+          const duplicates = findDuplicates(localLeads, jsonData);
+
           if (duplicates.length > 0) {
             dispatch(
               openModal({
@@ -135,22 +69,14 @@ function Leads() {
                     (item) => !duplicates.includes(item)
                   ),
                   allData: jsonData,
-                  duplicates: true,
                 },
               })
             );
           } else {
+            const updatedLeads = [...leads, ...jsonData];
+            dispatch(addNewLead({ newLeadObj: updatedLeads }));
             dispatch(
-              openModal({
-                title: `Confirmation`,
-                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
-                extraObject: {
-                  message: `Have you cross checked Leads?`,
-                  uniqueData: jsonData,
-                  allData: jsonData,
-                  duplicates: false,
-                },
-              })
+              showNotification({ message: "New Lead Added!", status: 1 })
             );
           }
         } catch (error) {
@@ -162,6 +88,17 @@ function Leads() {
     }
   };
 
+  const getDummyStatus = (index) => {
+    if (index % 5 === 0) return <div className="badge">Not Interested</div>;
+    else if (index % 5 === 1)
+      return <div className="badge badge-primary">In Progress</div>;
+    else if (index % 5 === 2)
+      return <div className="badge badge-secondary">Sold</div>;
+    else if (index % 5 === 3)
+      return <div className="badge badge-accent">Need Followup</div>;
+    else return <div className="badge badge-ghost">Open</div>;
+  };
+
   const deleteCurrentLead = (index) => {
     dispatch(
       openModal({
@@ -170,21 +107,38 @@ function Leads() {
         extraObject: {
           message: `Are you sure you want to delete this lead?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE,
-          index: index,
+          index,
         },
       })
     );
   };
 
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentLeads = leadData?.slice(indexOfFirstItem, indexOfLastItem);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const totalItems = leadDetails?.count;
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentLeads = localLeads.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const totalItems = localLeads.length;
   const itemsPerPageOptions = Array.from(
     { length: Math.ceil(totalItems / 10) },
     (_, index) => (index + 1) * 10
   );
+
+  const [sortConfig, setSortConfig] = useState({
+    column: "STUDENTNAME",
+    order: "asc",
+  });
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -197,7 +151,7 @@ function Leads() {
     }
   };
 
-  const sortedLeads = leadData.slice().sort((a, b) => {
+  const sortedLeads = currentLeads.slice().sort((a, b) => {
     const aValue = a[sortConfig.column] || "";
     const bValue = b[sortConfig.column] || "";
 
@@ -208,17 +162,20 @@ function Leads() {
     }
   });
 
+  const [filterValue, setFilterValue] = useState("");
+
   const handleFilterChange = (e) => {
     setFilterValue(e.target.value);
   };
 
   const filteredLeads = sortedLeads.filter((lead) => {
     return (
-      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.contact.includes(filterValue)
+      lead.STUDENTNAME.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.STCELLNO.includes(filterValue)
     );
   });
 
+  // Function to convert the data to XLSX format
   const convertDataToXLSX = (data) => {
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -312,68 +269,27 @@ function Leads() {
   };
 
   const toggleEdit = (index) => {
-    setEditedData({
-      name: filteredLeads[index].name,
-      contact: filteredLeads[index].contact,
+    setEditableRows((prevEditableRows) => {
+      const updatedRows = [...prevEditableRows];
+      updatedRows[index] = !updatedRows[index];
+      return updatedRows;
     });
-
-    setCurrentlyEditing((prevIndex) => (prevIndex === index ? null : index));
   };
 
-  const handleSaveEdit = async (leadId, index) => {
-    try {
-      // Validate edited data (you can add more validation as needed)
-      if (!editedData.name || !editedData.contact) {
-        dispatch(
-          showNotification({
-            message: "Name and contact are required.",
-            status: 2,
-          })
-        );
-        return;
-      }
-      const tokenResponse = localStorage.getItem("accessToken");
-      const tokenData = JSON.parse(tokenResponse);
-      const token = tokenData.token;
-
-      // Set the Authorization header with the token
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const updatedLead = {
-        name: editedData.name,
-        contact: editedData.contact,
-      };
-
-      await axios.put(`${API}/lead/${leadId}`, updatedLead, config);
-      dispatch(sliceLeadDeleted(true));
-
-      dispatch(
-        showNotification({
-          message: "Lead updated successfully!",
-          status: 1,
-        })
-      );
-
-      // Clear the edited values and toggle off editing mode
-      setEditedData({ name: "", contact: "" });
-      setCurrentlyEditing(null);
-    } catch (error) {
-      console.error("Error updating lead:", error);
-
-      dispatch(
-        showNotification({
-          message: "Error updating lead. Please try again.",
-          status: 2,
-        })
-      );
-    }
+  const handleEditChange = (index, field, value) => {
+    setLocalLeads((prevLeads) => {
+      const updatedLeads = [...prevLeads];
+      const updatedLead = { ...updatedLeads[index], [field]: value };
+      updatedLeads[index] = updatedLead;
+      return updatedLeads;
+    });
   };
-  const handleChange = (key, value) => {
-    setEditedData((prevData) => ({ ...prevData, [key]: value }));
-  };
+
+  // const handleSaveEdit = async (index, updatedLead) => {
+  //   await dispatch(editLead({ index, updatedLead }));
+  // };
+
+
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -389,7 +305,7 @@ function Leads() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Leads ${leadDetails.count}`}
+          title={`Total Leads ${localLeads.length}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -398,11 +314,11 @@ function Leads() {
               <thead>
                 <tr>
                   <th
-                    onClick={() => handleSort("name")}
+                    onClick={() => handleSort("STUDENTNAME")}
                     className={`cursor-pointer ${
-                      sortConfig.column === "name" ? "font-bold" : ""
+                      sortConfig.column === "STUDENTNAME" ? "font-bold" : ""
                     } ${
-                      sortConfig.column === "name"
+                      sortConfig.column === "STUDENTNAME"
                         ? sortConfig.order === "asc"
                           ? "sort-asc"
                           : "sort-desc"
@@ -412,12 +328,13 @@ function Leads() {
                     Name
                   </th>
 
+                  <th>Email Id</th>
                   <th
-                    onClick={() => handleSort("contact")}
+                    onClick={() => handleSort("STCELLNO")}
                     className={`cursor-pointer ${
-                      sortConfig.column === "contact" ? "font-bold" : ""
+                      sortConfig.column === "STCELLNO" ? "font-bold" : ""
                     } ${
-                      sortConfig.column === "contact"
+                      sortConfig.column === "STCELLNO"
                         ? sortConfig.order === "asc"
                           ? "sort-asc"
                           : "sort-desc"
@@ -426,6 +343,8 @@ function Leads() {
                   >
                     Phone Number
                   </th>
+                  <th>Status</th>
+                  <th>Enrollment Number</th>
                   <th className="text-center">Action</th>
                 </tr>
               </thead>
@@ -434,51 +353,58 @@ function Leads() {
                   return (
                     <tr key={k}>
                       <td>
-                        {currentlyEditing === k ? (
+                        {editableRows[k] ? (
                           <input
                             type="text"
-                            value={editedData.name}
+                            value={l.STUDENTNAME}
                             onChange={(e) =>
-                              handleChange("name", e.target.value)
+                              handleEditChange(k, "STUDENTNAME", e.target.value)
                             }
                           />
                         ) : (
-                          l.name
+                          l.STUDENTNAME
                         )}
                       </td>
+
                       <td>
-                        {currentlyEditing === k ? (
+                        {editableRows[k] ? (
                           <input
                             type="text"
-                            value={editedData.contact}
+                            value={l.STTIETEMAILID}
                             onChange={(e) =>
-                              handleChange("contact", e.target.value)
+                              handleEditChange(
+                                k,
+                                "STTIETEMAILID",
+                                e.target.value
+                              )
                             }
                           />
                         ) : (
-                          l.contact
+                          l.STTIETEMAILID
                         )}
                       </td>
+                      <td>{l.STCELLNO}</td>
+
+                      <td>{getDummyStatus(k)}</td>
+                      <td>{l.ENROLLMENTNO}</td>
                       <td>
                         <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
-                          >
-                            <TrashIcon className="w-5" />
-                          </button>
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => toggleEdit(k)}
-                          >
-                            {currentlyEditing === k ? "Cancel" : "Edit"}
-                          </button>
-                          {currentlyEditing === k && (
-                            <button onClick={() => handleSaveEdit(l._id, k)}>
-                              SAVE
-                            </button>
-                          )}
+
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() => deleteCurrentLead(k)}
+                        >
+                          <TrashIcon className="w-5" />
+                        </button>
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() => toggleEdit(k)}
+                        >
+                            
+                          {editableRows[k] ? "Save" : "Edit"}
+                        </button>
                         </div>
+
                       </td>
                     </tr>
                   );
@@ -489,7 +415,7 @@ function Leads() {
           <div className="flex item-center justify-between">
             <Pagination
               itemsPerPage={itemsPerPage}
-              totalItems={leadDetails.count}
+              totalItems={localLeads.length}
               currentPage={currentPage}
               onPageChange={handlePageChange}
             />

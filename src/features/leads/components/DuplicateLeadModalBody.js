@@ -1,40 +1,66 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 // import axios from 'axios'
 import { DUPLICATE_LEADS } from "../../../utils/globalConstantUtil";
 import { showNotification } from "../../common/headerSlice";
-import { addNewLead } from "../leadSlice";
+import { API } from "../../../utils/constants";
+import axios from "axios";
 
 function DuplicateLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
 
-  const { message, type, allData, uniqueData } = extraObject;
+  const { message, type, allData, uniqueData, duplicates } = extraObject;
 
-  const state = useSelector((state) => state.lead);
   const proceedWithYes = async () => {
+    let leadData = allData
+    if (duplicates === true) leadData = uniqueData;
     if (type === DUPLICATE_LEADS) {
-      const updatedLeads = [...state.leads, ...allData];
-      dispatch(addNewLead({ newLeadObj: updatedLeads }));
-      dispatch(
-        showNotification({ message: "Duplicates Leads Added!", status: 1 })
-      );
+      for (const obj of leadData) {
+        try {
+          const tokenResponse = localStorage.getItem("accessToken");
+          const tokenData = JSON.parse(tokenResponse);
+          const token = tokenData.token;
+
+          const singleLead = {
+            name: obj.name,
+            contact: obj.contact,
+          };
+
+          // Set the Authorization header with the token
+          const config = {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          };
+
+          const response = await axios.post(`${API}/lead/`, singleLead, config);
+
+          if (response.status === 201) {
+            dispatch(
+              showNotification({
+                message: "Lead inserted successfully!",
+                status: 1,
+              })
+            );
+            console.log("Lead data inserted successfully!");
+          } else {
+            console.log("Access token incorrect");
+          }
+        } catch (error) {
+          console.error("Error pushing lead data:", error);
+        }
+      }
+
     }
     closeModal();
   };
 
   const proceedWithNo = async () => {
-    if (type === DUPLICATE_LEADS) {
-      const updatedLeads = [...state.leads, ...uniqueData];
-      dispatch(addNewLead({ newLeadObj: updatedLeads }));
-      dispatch(showNotification({ message: "Unique Leads Added!", status: 1 }));
-    }
     closeModal();
   };
 
   return (
     <>
-      <p className=" text-xl mt-8 text-center">
-        {message}, continue with duplicates ?
-      </p>
+      <p className=" text-xl mt-8 text-center">{message},</p>
 
       <div className="modal-action mt-12">
         <button
