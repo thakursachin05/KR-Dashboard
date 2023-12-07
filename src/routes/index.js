@@ -6,6 +6,7 @@ const Welcome = lazy(() => import("../pages/protected/Welcome"));
 const Page404 = lazy(() => import("../pages/protected/404"));
 const Leads = lazy(() => import("../pages/protected/Leads"));
 const OpenLeads = lazy(() => import("../pages/protected/OpenLeads"));
+
 const ClosedLeads = lazy(() => import("../pages/protected/ClosedLeads"));
 
 const TodayAssignedLeads = lazy(() =>
@@ -22,37 +23,20 @@ const ProfileSettings = lazy(() =>
 const GettingStarted = lazy(() => import("../pages/GettingStarted"));
 const ForgotPassword = lazy(() => import("../pages/protected/ForgotPassword"));
 const ActiveMembers = lazy(() => import("../pages/protected/ActiveMembers"));
+const NotApprovedMembers = lazy(() => import("../pages/protected/NotApprovedMembers"));
+const UserLeads = lazy(() => import("../pages/protected/UserLeads"));
+const UserClosedLeads = lazy(() => import("../pages/protected/UserClosedLeads"));
+
+
+
+const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
 const routes = [
   {
     path: "/welcome",
     component: Welcome,
   },
-  {
-    path: "/leads",
-    component: Leads,
-  },
-  {
-    path: "/openLeads",
-    component: OpenLeads,
-  },
-  {
-    path: "/closedLeads",
-    component: ClosedLeads,
-  },
 
-  {
-    path: "/todayAssignedLeads",
-    component: TodayAssignedLeads,
-  },
-  {
-    path: "/totalAssignedLeads",
-    component: TotalAssignedLeads,
-  },
-  {
-    path: "/teamMembers",
-    component: Team,
-  },
   {
     path: "/settings-profile",
     component: ProfileSettings,
@@ -66,14 +50,62 @@ const routes = [
     component: Page404,
   },
 
-  {
-    path: "/forgot-password",
-    component: ForgotPassword,
-  },
-  {
-    path: "/activeMembers",
-    component: ActiveMembers,
-  },
+
+
 ];
+
+if(isAdmin){
+  routes.push(
+    {
+      path: "/forgot-password",
+      component: ForgotPassword,
+    },
+    {
+      path: "/activeMembers",
+      component: ActiveMembers,
+    },
+    {
+      path: "/todayAssignedLeads",
+      component: TodayAssignedLeads,
+    },
+    {
+      path: "/totalAssignedLeads",
+      component: TotalAssignedLeads,
+    },
+    {
+      path: "/teamMembers",
+      component: Team,
+    },
+    {
+      path: "/uploadLeads",
+      component: Leads,
+    },
+    {
+      path: "/openLeads",
+      component: OpenLeads,
+    },
+    {
+      path: "/closedLeads",
+      component: ClosedLeads,
+    },
+    {
+      path: "/notApproved",
+      component: NotApprovedMembers,
+    },
+  )
+}else{
+  routes.push(
+    {
+      path: "/userLeads",
+      component: UserLeads,
+  },
+    
+    {
+      path: "/closedLeads",
+      component: UserClosedLeads,
+  },
+  
+  )
+}
 
 export default routes;

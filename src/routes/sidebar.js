@@ -7,7 +7,8 @@ import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
 
 const iconClasses = `h-6 w-6`;
 const submenuIconClasses = `h-5 w-5`;
-const isAdmin = localStorage.getItem('isAdmin') === 'true';
+const isAdmin = localStorage.getItem("isAdmin") === "true";
+const user = localStorage.getItem("user");
 // const newJoiner = JSON.parse(localStorage.getItem('user'))
 
 // console.log("newjoiner deetails",newJoiner)
@@ -18,66 +19,79 @@ const isAdmin = localStorage.getItem('isAdmin') === 'true';
 //   Navigate('./newJoinee')
 // }
 
-
 const routes = [
-
-
   {
     path: "/app/settings-profile",
-    icon: <UserIcon className={submenuIconClasses} />, 
-    name: "Profile", 
+    icon: <UserIcon className={submenuIconClasses} />,
+    name: "Profile",
   },
-
 ];
+
+if (user.approvedAt == null && !isAdmin) {
+  routes.push(
+    {
+      path: "/app/userLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Assigned Leads",
+    },
+    {
+      path: "/app/closedLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Previous Assigned Leads",
+    }
+  );
+}
 
 if (isAdmin) {
   routes.push(
     {
       path: "/app/totalAssignedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />, 
-      name: "Total Assigned Leads", 
+      icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Total Assigned Leads",
     },
     {
-      path: "/app/leads",
-      icon: <InboxArrowDownIcon className={iconClasses} />, 
-      name: "Upload Leads", 
+      path: "/app/uploadLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Upload Leads",
     },
     {
       path: "/app/openLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />, 
-      name: "Open Leads", 
+      icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Open Leads",
     },
     {
       path: "/app/closedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />, 
-      name: "Closed Leads", 
+      icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Closed Leads",
     },
     {
       path: "/app/todayAssignedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />, 
-      name: "Today Assigned Leads", 
+      icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Today Assigned Leads",
     },
 
     {
       path: "/app/teamMembers",
-      icon: <UsersIcon className={submenuIconClasses} />, 
-      name: "Team Members", 
+      icon: <UsersIcon className={submenuIconClasses} />,
+      name: "Team Members",
     },
     {
       path: "/app/forgot-password",
-      icon: <UserIcon className={submenuIconClasses} />, 
-      name: "Forgot Password", 
+      icon: <UserIcon className={submenuIconClasses} />,
+      name: "Forgot Password",
     },
     {
       path: "/app/activeMembers",
-      icon: <UserIcon className={submenuIconClasses} />, 
-      name: "Today Present Member", 
+      icon: <UserIcon className={submenuIconClasses} />,
+      name: "Today Present Member",
     },
+
+    {
+      path: "/app/notApproved",
+      icon: <UserIcon className={submenuIconClasses} />,
+      name: "Not Approved Members",
+    }
   );
 }
 
 export default routes;
-
-
-
-
