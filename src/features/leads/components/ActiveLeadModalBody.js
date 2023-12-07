@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { showNotification } from "../../common/headerSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
-import { data } from "autoprefixer";
-import { sliceLeadDeleted } from "../leadSlice";
 
 function ActiveLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
@@ -15,7 +13,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
 
-  const [remainingLeads, setRemainingLeads] = useState(0);
   // i want to count number of active employeees,
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
@@ -69,9 +66,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             setLeadsPerEmployee(1);
           } else {
             let perHead = Math.floor(totalLeads / activeEmployees.length);
-            let remainder = totalLeads % activeEmployees.length;
             setLeadsPerEmployee(perHead);
-            setRemainingLeads(remainder);
           }
         } else {
           console.log("access token incorrect");
@@ -81,7 +76,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, []);
+  }, [employeeDetails,totalLeads]);
 
   const proceedWithYes = async () => {
     try {
