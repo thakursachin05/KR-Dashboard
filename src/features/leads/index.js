@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
-import { addNewLead, getLeadsContent, sliceLeadDeleted } from "./leadSlice";
+import {sliceLeadDeleted } from "./leadSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
@@ -68,7 +68,7 @@ function Leads() {
   const findDuplicates = async (arr2) => {
     const params = {
       page: 1,
-      limit: 10,
+      limit: 200,
       offset: 0,
     };
     const baseURL = `${API}/lead`;
@@ -80,9 +80,10 @@ function Leads() {
         const uniqueValues = new Set(
           arr2.map((item) => {
             const jsonString = JSON.stringify({
-              name: item.name,
-              contact: item.contact.toString(), 
+              name: item?.name,
+              contact: item?.contact?.toString(), 
             });
+            // console.log("jsonData, items",item)
             return jsonString;
           })
         );
@@ -91,7 +92,7 @@ function Leads() {
           if (uniqueValues.has(stringifiedData)) {
             duplicates.push(item);
           }
-          console.log("data of lead", JSON.stringify({ name: item.name, contact: item.contact }));
+          // console.log("data of lead", JSON.stringify({ name: item.name, contact: item.contact }));
         }
         
         return duplicates;
@@ -116,7 +117,7 @@ function Leads() {
           const sheetName = workbook.SheetNames[0];
 
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
+          // console.log("json data is ",jsonData)
           const duplicates = await findDuplicates(jsonData);
           // console.log(
           //   "duplictes data and what is lleadDetails in localstorage",
