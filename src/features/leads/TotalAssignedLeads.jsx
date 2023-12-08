@@ -134,7 +134,7 @@ function TotalAssignedLeads() {
     return (
       <div className="inline-block float-right">
         <button
-          className="btn px-6 btn-sm normal-case btn-primary"
+          className="btn max-sm:text-[3vw] max-sm:px-[3vw]  sm:px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal()}
         >
           Assign Leads
@@ -214,7 +214,7 @@ function TotalAssignedLeads() {
           placeholder="Filter by Name or Phone Number"
           value={filterValue}
           onChange={handleFilterChange}
-          className="input input-sm input-bordered  w-full max-w-xs"
+          className="input input-sm input-bordered  w-full sm:max-w-xs"
         />
       </div>
       {filteredLeads.length === 0 ? (
@@ -226,12 +226,12 @@ function TotalAssignedLeads() {
           TopSideButtons={<TopSideButtons />}
         >
           <div className="overflow-x-auto w-full">
-            <table className="table w-full">
+            <table  className=" table w-full">
               <thead>
                 <tr>
                   <th
                     onClick={() => handleSort("name")}
-                    className={`cursor-pointer ${
+                    className={`cursor-pointer${
                       sortConfig.column === "name" ? "font-bold" : ""
                     } ${
                       sortConfig.column === "name"
@@ -258,7 +258,9 @@ function TotalAssignedLeads() {
                   >
                     Phone Number
                   </th>
-                  <th className="text-center">Action</th>
+                  <th className="text-center">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -318,26 +320,26 @@ function TotalAssignedLeads() {
               </tbody>
             </table>
           </div>
-          <div className="flex item-center justify-between">
+          <div className="flex max-sm:flex-col item-center justify-between">
             <Pagination
               itemsPerPage={itemsPerPage}
               totalItems={leadDetails.count}
               currentPage={currentPage}
               onPageChange={handlePageChange}
             />
-            <div className="flex items-center">
+            <div className="flex max-sm:mt-[15px] max-sm:mx-auto items-center">
               <label className="mr-2 text-sm font-medium">
                 Items Per Page:
               </label>
               <select
-                className="border rounded p-2"
+                className="border rounded  max-sm:p-[.5vw] p-2"
                 value={itemsPerPage}
                 onChange={(e) =>
                   handleItemsPerPageChange(Number(e.target.value))
                 }
               >
                 {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
+                  <option className="max-h-[1vh]"  key={option} value={option}>
                     {option}
                   </option>
                 ))}
