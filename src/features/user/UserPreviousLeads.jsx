@@ -10,7 +10,7 @@ import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
-import { sliceMemberDeleted,sliceMemberStatus } from "../leads/leadSlice";
+import { sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
 
 function UserPreviousLeads() {
@@ -25,8 +25,7 @@ function UserPreviousLeads() {
   const [filterValue, setFilterValue] = useState("");
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
-  const memberStatus = useSelector((state) => state.lead.memberStatus);
-  
+  const storeUserData = JSON.parse(localStorage.getItem("user"));
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -37,31 +36,32 @@ function UserPreviousLeads() {
   };
 
   useEffect(() => {
+    const todayDate = new Date().toISOString().split("T")[0];
+
     const fetchData = async () => {
-      const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: ((Math.max(0, currentPage-1)*10)),
-        presentDays: todayDate,
+        finalStatus : "OPENED",
+        offset: Math.max(0, currentPage - 1) * 10,
       };
-      const baseURL = `${API}/employee`;
+      const baseURL = `${API}/lead?assigneeId=${storeUserData?._id}`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("employee-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data)
+        localStorage.setItem("lead-details", JSON.stringify(response.data));
+        setTeamMember(response.data.data);
+        console.log("respones.sata",response.data.data)
       } catch (error) {
         console.error("error", error);
       }
       // console.log("it is running or not when status is changing", memberStatus);
-      dispatch(sliceMemberStatus(''));
       dispatch(sliceMemberDeleted(false));
     };
-  
+
     fetchData();
-  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-  
-  const employeeData = JSON.parse(localStorage.getItem("employee-details"));
+  }, [itemsPerPage, storeUserData._id, memberDeleted, dispatch, currentPage]);
+
+  const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
   const deleteCurrentLead = (id) => {
     dispatch(
@@ -78,7 +78,7 @@ function UserPreviousLeads() {
     );
   };
 
-  const handleStatusChange = async(memberId, newStatus) => {
+  const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
@@ -92,14 +92,21 @@ function UserPreviousLeads() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(`${API}/employee/${memberId}`,employeeData, {
-            headers,
-          });
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
+            {
+              headers,
+            }
+          );
 
-          console.log("status updated data",response.data)
-         dispatch(sliceMemberStatus(newStatus))
+          console.log("status updated data", response.data);
+          dispatch(sliceMemberStatus(newStatus));
           dispatch(
-            showNotification({ message: "Status Updated Successfully!", status: 1 })
+            showNotification({
+              message: "Status Updated Successfully!",
+              status: 1,
+            })
           );
         }
       } else {
@@ -114,8 +121,6 @@ function UserPreviousLeads() {
     }
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
-
-
 
   const totalItems = employeeData ? employeeData.count : 0;
   const itemsPerPageOptions = Array.from(
@@ -172,7 +177,7 @@ function UserPreviousLeads() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Team Members ${employeeData?.count}`}
+          title={`Today Assigned Leads ${employeeData?.count}`}
           topMargin="mt-2"
         >
           <div className="overflow-x-auto w-full">
@@ -194,7 +199,6 @@ function UserPreviousLeads() {
                     Name
                   </th>
 
-                  <th>Email Id</th>
                   <th
                     onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
@@ -218,15 +222,13 @@ function UserPreviousLeads() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
-                      <td>{l.email}</td>
                       <td>{l.contact}</td>
                       <td>
                         <select
                           value={l.activityStatus}
-                          onChange={(e) => handleStatusChange(l._id,e.target.value)
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
                           }
-                          
-                          
                         >
                           <option value="hold">Hold</option>
                           <option value="dead">Dead</option>
@@ -234,14 +236,14 @@ function UserPreviousLeads() {
                         </select>
                       </td>
                       <td>
-                        <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
-                          >
-                            <TrashIcon className="w-5" />
-                          </button>
-                        </div>
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() =>
+                            (window.location.href = `tel:${l._contact}`)
+                          }
+                        >
+                          Call
+                        </button>
                       </td>
                     </tr>
                   );

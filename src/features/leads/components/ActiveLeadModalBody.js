@@ -50,7 +50,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
         if (response.status === 200) {
           localStorage.setItem("active-details", JSON.stringify(response.data));
-          // Assuming employee.presentDays is the field containing an array of present days
           const activeEmployees = response.data.data;
           setActiveEmployees(activeEmployees.length);
           if (activeEmployees.length >= totalLeads) {
@@ -107,21 +106,16 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           console.log("supply of employee data", activeEmployees);
 
           // const employeeIteration = Math.min(activeEmployees.count,Math.floor())
-
+          let j= 0;
           // Assuming activeEmployees and leadDetails are arrays
           for (let i = 0; i < activeEmployees.count; i++) {
             let leadCount = leadsPerEmployee;
 
-            for (let j = 0; j < leadDetails.count && leadCount > 0; j++) {
-              // const employeeId = activeEmployees[i]._id;
+            for (; j < leadDetails.count && leadCount > 0; j++) {
               const leadId = leadDetails.data[j]._id;
-              // console.log("lead id in which i'm putting data",leadId)
               let assigneeId = activeEmployees.data[i]._id;
               let assigneeName = activeEmployees.data[i].name;
               let assigneeContact = activeEmployees.data[i].contact;
-              console.log("name of employee", assigneeName);
-              console.log("name of id", assigneeId);
-              console.log("name of contact", assigneeContact);
 
               const existingLeadResponse = await axios.get(
                 `${API}/lead/?id=${leadId}`

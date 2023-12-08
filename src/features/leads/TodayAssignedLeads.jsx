@@ -46,7 +46,7 @@ function TodayAssignedLeads() {
 
       // Format dates as strings in "YYYY-MM-DD" format
       const todayDateString = todayDate.toISOString().split("T")[0];
-    //   const yesterdayDateString = yesterdayDate.toISOString().split("T")[0];
+      //   const yesterdayDateString = yesterdayDate.toISOString().split("T")[0];
 
       const params = {
         page: currentPage,
@@ -215,6 +215,44 @@ function TodayAssignedLeads() {
   const handleChange = (key, value) => {
     setEditedData((prevData) => ({ ...prevData, [key]: value }));
   };
+
+  const handleStatusChange = async(leadId, newStatus) => {
+    try {
+      const storedToken = localStorage.getItem("accessToken");
+      const leadData = {
+        finalStatus: newStatus,
+      };
+      if (storedToken) {
+        const accessToken = JSON.parse(storedToken).token;
+
+        if (accessToken) {
+          const headers = {
+            Authorization: `Bearer ${accessToken}`,
+          };
+
+          const response = await axios.put(`${API}/lead/${leadId}`,leadData, {
+            headers,
+          });
+
+          console.log("status updated data",response.data)
+          dispatch(sliceLeadDeleted(true));
+
+          dispatch(
+            showNotification({ message: "Status Updated Successfully!", status: 1 })
+          );
+        }
+      } else {
+        dispatch(
+          showNotification({ message: "Access token not found", status: 1 })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        showNotification({ message: "Error Status updating", status: 1 })
+      );
+    }
+    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
+  };
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -267,6 +305,11 @@ function TodayAssignedLeads() {
                   >
                     Phone Number
                   </th>
+                  <th>Assignee Name</th>
+                  <th>Assignee Contact</th>
+                  <th>Assignee Status</th>
+                  <th>Final Status</th>
+
                   <th className="text-center">Action</th>
                 </tr>
               </thead>
@@ -300,6 +343,21 @@ function TodayAssignedLeads() {
                           l.contact
                         )}
                       </td>
+                      <td>{l.assigned.assignedTo}</td>
+                      <td>{l.assigned.assigneeContact}</td>
+                      <td>{l.assigned.assigneeStatus}</td>
+                      <td>
+                        <select
+                          value={l.finalStatus}
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
+                          }
+                        >
+                          <option value="OPENED">OPENED</option>
+                          <option value="CLOSED">CLOSED</option>
+                        </select>
+                      </td>
+
                       <td>
                         <div className="flex item-center justify-between">
                           <button
@@ -308,6 +366,8 @@ function TodayAssignedLeads() {
                           >
                             <TrashIcon className="w-5" />
                           </button>
+                          <div className="flex flex-col items-center justify-center">
+
                           <button
                             className="btn btn-square btn-ghost"
                             onClick={() => toggleEdit(k)}
@@ -319,6 +379,8 @@ function TodayAssignedLeads() {
                               SAVE
                             </button>
                           )}
+                          </div>
+
                         </div>
                       </td>
                     </tr>
