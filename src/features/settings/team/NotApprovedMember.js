@@ -9,11 +9,11 @@ import {
 import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
-import { API } from "../.../../../../utils/constants";
-import { sliceMemberDeleted,sliceMemberStatus } from "../../leads/leadSlice";
+import { API } from "../../../utils/constants";
+import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 
-function TeamMembers() {
+function NotApprovedMembers() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -26,7 +26,7 @@ function TeamMembers() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
-  
+
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -38,27 +38,28 @@ function TeamMembers() {
 
   useEffect(() => {
     const fetchData = async () => {
+      //   const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: ((Math.max(0, currentPage-1)*10)),
+        offset: Math.max(0, currentPage - 1) * 10,
       };
-      const baseURL = `${API}/employee`;
+      const baseURL = `${API}/employee?approvedAt=null`;
       try {
         const response = await axios.get(baseURL, { params: params });
         localStorage.setItem("employee-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data)
+        setTeamMember(response.data.data);
       } catch (error) {
         console.error("error", error);
       }
       // console.log("it is running or not when status is changing", memberStatus);
-      dispatch(sliceMemberStatus(''));
+      dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
-  
+
     fetchData();
   }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-  
+
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
@@ -76,11 +77,13 @@ function TeamMembers() {
     );
   };
 
-  const handleStatusChange = async(memberId, newStatus) => {
+  const handleStatusChange = async (memberId, newStatus) => {
+    const todayDate = new Date().toISOString().split("T")[0];
+
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
-        activityStatus: newStatus,
+        approvedAt: todayDate,
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
@@ -90,14 +93,16 @@ function TeamMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(`${API}/employee/${memberId}`,employeeData, {
+          await axios.put(`${API}/employee/${memberId}`, employeeData, {
             headers,
           });
+          dispatch(sliceMemberDeleted(true));
 
-          console.log("status updated data",response.data)
-         dispatch(sliceMemberStatus(newStatus))
           dispatch(
-            showNotification({ message: "Status Updated Successfully!", status: 1 })
+            showNotification({
+              message: "Member Approved Successfully!",
+              status: 1,
+            })
           );
         }
       } else {
@@ -107,13 +112,11 @@ function TeamMembers() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({ message: "Error Member updating", status: 1 })
       );
     }
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
-
-
 
   const totalItems = employeeData ? employeeData.count : 0;
   const itemsPerPageOptions = Array.from(
@@ -170,7 +173,7 @@ function TeamMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Team Members ${employeeData?.count}`}
+          title={`Total Not Approved Members ${employeeData?.count}`}
           topMargin="mt-2"
         >
           <div className="overflow-x-auto w-full">
@@ -207,7 +210,6 @@ function TeamMembers() {
                   >
                     Phone Number
                   </th>
-                  <td>Lead Assigned</td>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -219,18 +221,15 @@ function TeamMembers() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
-                      <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>
                         <select
                           value={l.activityStatus}
-                          onChange={(e) => handleStatusChange(l._id,e.target.value)
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
                           }
-                          
-                          
                         >
-                          <option value="hold">Hold</option>
-                          <option value="dead">Dead</option>
-                          <option value="active">Active</option>
+                          <option value="not-approved">Not Approved</option>
+                          <option value="approved">Approved</option>
                         </select>
                       </td>
                       <td>
@@ -281,4 +280,4 @@ function TeamMembers() {
   );
 }
 
-export default TeamMembers;
+export default NotApprovedMembers;

@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { openModal } from "../../common/modalSlice";
+import { openModal } from "../common/modalSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
-} from "../../../utils/globalConstantUtil";
-import TitleCard from "../../../components/Cards/TitleCard";
-import Pagination from "../../../components/Pagination";
+} from "../../utils/globalConstantUtil";
+import TitleCard from "../../components/Cards/TitleCard";
+import Pagination from "../../components/Pagination";
 import axios from "axios";
-import { API } from "../.../../../../utils/constants";
-import { sliceMemberDeleted,sliceMemberStatus } from "../../leads/leadSlice";
-import { showNotification } from "../../common/headerSlice";
+import { API } from "../../utils/constants";
+import { sliceMemberDeleted,sliceMemberStatus } from "../leads/leadSlice";
+import { showNotification } from "../common/headerSlice";
 
-function TeamMembers() {
+function UserTodayLeads() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -26,7 +26,8 @@ function TeamMembers() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
-  
+  const storeUserData = JSON.parse(localStorage.getItem('user'))
+  console.log("stored user data it id",storeUserData)
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -38,15 +39,18 @@ function TeamMembers() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: ((Math.max(0, currentPage-1)*10)),
-      };
-      const baseURL = `${API}/employee`;
+      }
+      const baseURL = `${API}/lead?modifieddate=${todayDate}&assigneeId=${storeUserData?._id}`;
+
+      // const baseURL = `${API}/lead`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("employee-details", JSON.stringify(response.data));
+        localStorage.setItem("lead-details", JSON.stringify(response.data));
         setTeamMember(response.data.data)
       } catch (error) {
         console.error("error", error);
@@ -57,7 +61,7 @@ function TeamMembers() {
     };
   
     fetchData();
-  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
+  }, [itemsPerPage,storeUserData._id, memberDeleted, memberStatus, dispatch, currentPage]);
   
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
@@ -192,7 +196,6 @@ function TeamMembers() {
                     Name
                   </th>
 
-                  <th>Email Id</th>
                   <th
                     onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
@@ -207,7 +210,6 @@ function TeamMembers() {
                   >
                     Phone Number
                   </th>
-                  <td>Lead Assigned</td>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -217,9 +219,7 @@ function TeamMembers() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
-                      <td>{l.email}</td>
                       <td>{l.contact}</td>
-                      <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>
                         <select
                           value={l.activityStatus}
@@ -281,4 +281,4 @@ function TeamMembers() {
   );
 }
 
-export default TeamMembers;
+export default UserTodayLeads;

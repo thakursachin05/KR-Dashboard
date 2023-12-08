@@ -44,18 +44,20 @@ i just know how many leads are their also the array of employees going to assign
 i have to run a loop of leads and in that
 
 
+employee araay , should be filter of active/inactive/total members
 
 int j = 0;
 for (i to n in employee array){
-   leadCount = leadPerEmployee
-    for (j to m in lead array){
+   leadCount = leadPerEmployee(assume 20)
+    for (j to m && leadCount > 0  in lead array){
         take id of employee and lead
         hit put api for lead and update assignee and modified array,
-        leadperEmployee--;
+        leadCount--;
         j++;
     }
     leadCount = leadPerEmployee
 }
+
 
 
 

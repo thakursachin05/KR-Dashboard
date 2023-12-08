@@ -26,13 +26,13 @@ function Header() {
   const [attendanceMarked, setAttendanceMarked] = useState(isTodayPresent);
   const dispatch = useDispatch();
   // Function to get today's date in the format "YYYY-MM-DD"
-//   function getTodayDateString() {
-//     const today = new Date();
-//     const year = today.getFullYear();
-//     const month = String(today.getMonth() + 1).padStart(2, "0");
-//     const day = String(today.getDate()).padStart(2, "0");
-//     return `${year}-${month}-${day}`;
-//   }
+  //   function getTodayDateString() {
+  //     const today = new Date();
+  //     const year = today.getFullYear();
+  //     const month = String(today.getMonth() + 1).padStart(2, "0");
+  //     const day = String(today.getDate()).padStart(2, "0");
+  //     return `${year}-${month}-${day}`;
+  //   }
 
   // const dispatch = useDispatch()
   // const {noOfNotifications, pageTitle} = useSelector(state => state.header)
@@ -134,16 +134,27 @@ function Header() {
         </div>
 
         <div className="order-last">
-          <div
-            className={
-              attendanceMarked
-                ? "text-black cursor-pointer bg-green-500 rounded p-1 mr-5"
-                : "text-black cursor-pointer bg-red-500 rounded p-1 mr-5"
-            }
-            onClick={handleAttendanceMarking}
-          >
-            {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
-          </div>
+          {storedUserData.isAdmin === false ? (
+            storedUserData.approvedAt !== null ? (
+              <div
+                className={
+                  attendanceMarked
+                    ? "text-black cursor-pointer bg-green-500 rounded p-1 mr-5"
+                    : "text-black cursor-pointer bg-red-500 rounded p-1 mr-5"
+                }
+                onClick={handleAttendanceMarking}
+              >
+                {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
+              </div>
+            ) : (
+              <h5 className="text-black cursor-pointer bg-cyan-500 rounded p-1 mr-5">
+                Not Approved User
+              </h5>
+            )
+          ) : (
+            ""
+          )}
+
           <label className="swap ">
             <input type="checkbox" />
             <SunIcon
