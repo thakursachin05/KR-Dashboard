@@ -482,8 +482,8 @@ function Leads() {
                             {currentlyEditing === k ? "Cancel" : "Edit"}
                           </button>
                           {currentlyEditing === k && (
-                            <button onClick={() => handleSaveEdit(l._id, k)}>
-                              SAVE
+                            <button className="max-sm:ml-[10px]" onClick={() => handleSaveEdit(l._id, k)}>
+                            SAVE
                             </button>
                           )}
                         </div>

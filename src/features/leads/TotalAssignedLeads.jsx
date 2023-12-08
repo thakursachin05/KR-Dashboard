@@ -302,13 +302,13 @@ function TotalAssignedLeads() {
                             <TrashIcon className="w-5" />
                           </button>
                           <button
-                            className="btn btn-square btn-ghost"
+                            className="btn  btn-square btn-ghost"
                             onClick={() => toggleEdit(k)}
                           >
                             {currentlyEditing === k ? "Cancel" : "Edit"}
                           </button>
                           {currentlyEditing === k && (
-                            <button onClick={() => handleSaveEdit(l._id, k)}>
+                            <button className="max-sm:ml-[10px]" onClick={() => handleSaveEdit(l._id, k)}>
                               SAVE
                             </button>
                           )}
