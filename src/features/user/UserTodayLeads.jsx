@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { openModal } from "../common/modalSlice";
-import {
-  CONFIRMATION_MODAL_CLOSE_TYPES,
-  MODAL_BODY_TYPES,
-} from "../../utils/globalConstantUtil";
 import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
-import { sliceMemberDeleted,sliceMemberStatus } from "../leads/leadSlice";
+import { sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
 
 function UserTodayLeads() {
@@ -25,9 +19,7 @@ function UserTodayLeads() {
   const [filterValue, setFilterValue] = useState("");
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
-  const memberStatus = useSelector((state) => state.lead.memberStatus);
-  const storeUserData = JSON.parse(localStorage.getItem('user'))
-  console.log("stored user data it id",storeUserData)
+  const storeUserData = JSON.parse(localStorage.getItem("user"));
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -43,44 +35,25 @@ function UserTodayLeads() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: ((Math.max(0, currentPage-1)*10)),
-      }
+        offset: Math.max(0, currentPage - 1) * 10,
+      };
       const baseURL = `${API}/lead?modifieddate=${todayDate}&assigneeId=${storeUserData?._id}`;
-
-      // const baseURL = `${API}/lead`;
       try {
         const response = await axios.get(baseURL, { params: params });
         localStorage.setItem("lead-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data)
+        setTeamMember(response.data.data);
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
-      dispatch(sliceMemberStatus(''));
       dispatch(sliceMemberDeleted(false));
     };
-  
+
     fetchData();
-  }, [itemsPerPage,storeUserData._id, memberDeleted, memberStatus, dispatch, currentPage]);
-  
-  const employeeData = JSON.parse(localStorage.getItem("employee-details"));
+  }, [itemsPerPage, storeUserData._id, memberDeleted, dispatch, currentPage]);
 
-  const deleteCurrentLead = (id) => {
-    dispatch(
-      openModal({
-        title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
-        extraObject: {
-          message: `Are you sure you want to delete this Member?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-          index: id,
-          // index,
-        },
-      })
-    );
-  };
+  const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
-  const handleStatusChange = async(memberId, newStatus) => {
+  const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
@@ -94,14 +67,21 @@ function UserTodayLeads() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(`${API}/employee/${memberId}`,employeeData, {
-            headers,
-          });
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
+            {
+              headers,
+            }
+          );
 
-          console.log("status updated data",response.data)
-         dispatch(sliceMemberStatus(newStatus))
+          console.log("status updated data", response.data);
+          dispatch(sliceMemberStatus(newStatus));
           dispatch(
-            showNotification({ message: "Status Updated Successfully!", status: 1 })
+            showNotification({
+              message: "Status Updated Successfully!",
+              status: 1,
+            })
           );
         }
       } else {
@@ -114,10 +94,7 @@ function UserTodayLeads() {
         showNotification({ message: "Error Status updating", status: 1 })
       );
     }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
-
-
 
   const totalItems = employeeData ? employeeData.count : 0;
   const itemsPerPageOptions = Array.from(
@@ -174,7 +151,7 @@ function UserTodayLeads() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Team Members ${employeeData?.count}`}
+          title={`Today Assigned Leads ${employeeData?.count}`}
           topMargin="mt-2"
         >
           <div className="overflow-x-auto w-full">
@@ -223,10 +200,9 @@ function UserTodayLeads() {
                       <td>
                         <select
                           value={l.activityStatus}
-                          onChange={(e) => handleStatusChange(l._id,e.target.value)
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
                           }
-                          
-                          
                         >
                           <option value="hold">Hold</option>
                           <option value="dead">Dead</option>
@@ -234,14 +210,14 @@ function UserTodayLeads() {
                         </select>
                       </td>
                       <td>
-                        <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
-                          >
-                            <TrashIcon className="w-5" />
-                          </button>
-                        </div>
+                        <button
+                          className="btn btn-square btn-ghost"
+                          onClick={() =>
+                            (window.location.href = `tel:${l._contact}`)
+                          }
+                        >
+                          Call
+                        </button>
                       </td>
                     </tr>
                   );
