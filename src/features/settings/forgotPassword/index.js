@@ -28,6 +28,9 @@ function ForgotPassword() {
       return setErrorMessage("Password is required!");
     if (registerObj.contact.trim() === "")
       return setErrorMessage("Phone number is required!");
+    if(!isPasswordValid(registerObj.password)){
+      return setErrorMessage("Password should contain atleast 8 digits, one uppercase character and one special character!");
+    }
     else {
       setLoading(true);
       await fetchData();
@@ -63,6 +66,20 @@ function ForgotPassword() {
     }
   };
 
+  const isPasswordValid = (password) => {
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /\d/.test(password)
+    );
+  };
+
+  // const isEmailValid = (email) => {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   return emailRegex.test(email);
+  // };
+
   const fetchData = async () => {
     try {
       const response = await axios.get(`${API}/employee?contact=${registerObj.contact}`);
@@ -87,7 +104,7 @@ function ForgotPassword() {
         <div className="grid grid-cols-1  bg-base-100 rounded-xl">
           <div className="py-24 px-10">
             <h2 className="text-2xl font-semibold mb-2 text-center">
-              Forgot Password
+              Reset Password
             </h2>
             <form onSubmit={(e) => submitForm(e)}>
               <div className="mb-4">

@@ -24,7 +24,9 @@ function Login() {
       return setErrorMessage("Email Id is required!");
     if (loginObj.password.trim() === "")
       return setErrorMessage("Password is required!");
-    else {
+    if (!isEmailValid(loginObj.email)) {
+      return setErrorMessage("Email is not valid!");
+    } else {
       setLoading(true);
       // Call API to check user credentials and save token in localstorage
       try {
@@ -52,6 +54,11 @@ function Login() {
       }
       setLoading(false);
     }
+  };
+
+  const isEmailValid = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const updateFormValue = ({ updateType, value }) => {
@@ -88,7 +95,7 @@ function Login() {
                   updateFormValue={updateFormValue}
                 />
               </div>
-{/* 
+              {/* 
               <div className="text-right text-primary">
                 <Link to="/forgot-password">
                   <span className="text-sm  inline-block  hover:text-primary hover:underline hover:cursor-pointer transition duration-200">

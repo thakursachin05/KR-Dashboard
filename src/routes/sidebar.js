@@ -81,9 +81,9 @@ if (isAdmin) {
       name: "Team Members",
     },
     {
-      path: "/app/forgot-password",
+      path: "/app/reset-password",
       icon: <UserIcon className={submenuIconClasses} />,
-      name: "Forgot Password",
+      name: "Reset Password",
     },
     {
       path: "/app/activeMembers",

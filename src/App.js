@@ -26,13 +26,23 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          {/* <Route path="/newJoinee" element={<NewJoinee />} /> */}
+          <Route
+            path="/login"
+            element={token ? <Navigate to="/app/welcome" replace /> : <Login />}
+          />
+          <Route
+            path="/register"
+            element={
+              token ? <Navigate to="/app/welcome" replace /> : <Register />
+            }
+          />
+
           <Route path="/app/*" element={<Layout />} />
           <Route
             path="*"
-            element={<Navigate to={token ? "/app/welcome" : "/login"} replace />}
+            element={
+              <Navigate to={token ? "/app/welcome" : "/login"} replace />
+            }
           />
         </Routes>
       </Router>

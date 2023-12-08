@@ -58,7 +58,7 @@ const routes = [
 if (isAdmin) {
   routes.push(
     {
-      path: "/forgot-password",
+      path: "/reset-password",
       component: ForgotPassword,
     },
     {
