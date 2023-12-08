@@ -23,13 +23,17 @@ const ProfileSettings = lazy(() =>
 const GettingStarted = lazy(() => import("../pages/GettingStarted"));
 const ForgotPassword = lazy(() => import("../pages/protected/ForgotPassword"));
 const ActiveMembers = lazy(() => import("../pages/protected/ActiveMembers"));
-const NotApprovedMembers = lazy(() => import("../pages/protected/NotApprovedMembers"));
-const UserLeads = lazy(() => import("../pages/protected/UserLeads"));
-const UserClosedLeads = lazy(() => import("../pages/protected/UserClosedLeads"));
-
-
-
-const isAdmin = localStorage.getItem('isAdmin') === 'true';
+const NotApprovedMembers = lazy(() =>
+  import("../pages/protected/NotApprovedMembers")
+);
+const UserTodayLeads = lazy(() => import("../pages/protected/UserTodayLeads"));
+const UserClosedLeads = lazy(() =>
+  import("../pages/protected/UserClosedLeads")
+);
+const UserPreviousLeads = lazy(() =>
+  import("../pages/protected/UserClosedLeads")
+);
+const isAdmin = localStorage.getItem("isAdmin") === "true";
 
 const routes = [
   {
@@ -49,12 +53,9 @@ const routes = [
     path: "/404",
     component: Page404,
   },
-
-
-
 ];
 
-if(isAdmin){
+if (isAdmin) {
   routes.push(
     {
       path: "/forgot-password",
@@ -91,21 +92,25 @@ if(isAdmin){
     {
       path: "/notApproved",
       component: NotApprovedMembers,
-    },
-  )
-}else{
+    }
+  );
+} else {
   routes.push(
     {
       path: "/userLeads",
-      component: UserLeads,
-  },
-    
+      component: UserTodayLeads,
+    },
+
     {
       path: "/closedLeads",
       component: UserClosedLeads,
-  },
-  
-  )
+    },
+
+    {
+      path: "/previousLeads",
+      component: UserPreviousLeads,
+    }
+  );
 }
 
 export default routes;

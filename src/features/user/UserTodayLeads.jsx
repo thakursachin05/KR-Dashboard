@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { openModal } from "../../common/modalSlice";
+import { openModal } from "../common/modalSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
-} from "../../../utils/globalConstantUtil";
-import TitleCard from "../../../components/Cards/TitleCard";
-import Pagination from "../../../components/Pagination";
+} from "../../utils/globalConstantUtil";
+import TitleCard from "../../components/Cards/TitleCard";
+import Pagination from "../../components/Pagination";
 import axios from "axios";
-import { API } from "../../../utils/constants";
-import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
-import { showNotification } from "../../common/headerSlice";
+import { API } from "../../utils/constants";
+import { sliceMemberDeleted,sliceMemberStatus } from "../leads/leadSlice";
+import { showNotification } from "../common/headerSlice";
 
-function NotApprovedMembers() {
+function UserTodayLeads() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -26,7 +26,8 @@ function NotApprovedMembers() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
-
+  const storeUserData = JSON.parse(localStorage.getItem('user'))
+  console.log("stored user data it id",storeUserData)
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -38,28 +39,30 @@ function NotApprovedMembers() {
 
   useEffect(() => {
     const fetchData = async () => {
-      //   const todayDate = new Date().toISOString().split("T")[0];
+      const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * 10,
-      };
-      const baseURL = `${API}/employee?approvedAt=null`;
+        offset: ((Math.max(0, currentPage-1)*10)),
+      }
+      const baseURL = `${API}/lead?modifieddate=${todayDate}&assigneeId=${storeUserData?._id}`;
+
+      // const baseURL = `${API}/lead`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("employee-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data);
+        localStorage.setItem("lead-details", JSON.stringify(response.data));
+        setTeamMember(response.data.data)
       } catch (error) {
         console.error("error", error);
       }
       // console.log("it is running or not when status is changing", memberStatus);
-      dispatch(sliceMemberStatus(""));
+      dispatch(sliceMemberStatus(''));
       dispatch(sliceMemberDeleted(false));
     };
-
+  
     fetchData();
-  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-
+  }, [itemsPerPage,storeUserData._id, memberDeleted, memberStatus, dispatch, currentPage]);
+  
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
@@ -77,13 +80,11 @@ function NotApprovedMembers() {
     );
   };
 
-  const handleStatusChange = async (memberId, newStatus) => {
-    const todayDate = new Date().toISOString().split("T")[0];
-
+  const handleStatusChange = async(memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
-        approvedAt: todayDate,
+        activityStatus: newStatus,
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
@@ -93,16 +94,14 @@ function NotApprovedMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          await axios.put(`${API}/employee/${memberId}`, employeeData, {
+          const response = await axios.put(`${API}/employee/${memberId}`,employeeData, {
             headers,
           });
-          dispatch(sliceMemberDeleted(true));
 
+          console.log("status updated data",response.data)
+         dispatch(sliceMemberStatus(newStatus))
           dispatch(
-            showNotification({
-              message: "Member Approved Successfully!",
-              status: 1,
-            })
+            showNotification({ message: "Status Updated Successfully!", status: 1 })
           );
         }
       } else {
@@ -112,11 +111,13 @@ function NotApprovedMembers() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Member updating", status: 1 })
+        showNotification({ message: "Error Status updating", status: 1 })
       );
     }
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
+
+
 
   const totalItems = employeeData ? employeeData.count : 0;
   const itemsPerPageOptions = Array.from(
@@ -173,7 +174,7 @@ function NotApprovedMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Not Approved Members ${employeeData?.count}`}
+          title={`Total Team Members ${employeeData?.count}`}
           topMargin="mt-2"
         >
           <div className="overflow-x-auto w-full">
@@ -195,7 +196,6 @@ function NotApprovedMembers() {
                     Name
                   </th>
 
-                  <th>Email Id</th>
                   <th
                     onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
@@ -219,17 +219,18 @@ function NotApprovedMembers() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
-                      <td>{l.email}</td>
                       <td>{l.contact}</td>
                       <td>
                         <select
                           value={l.activityStatus}
-                          onChange={(e) =>
-                            handleStatusChange(l._id, e.target.value)
+                          onChange={(e) => handleStatusChange(l._id,e.target.value)
                           }
+                          
+                          
                         >
-                          <option value="not-approved">Not Approved</option>
-                          <option value="approved">Approved</option>
+                          <option value="hold">Hold</option>
+                          <option value="dead">Dead</option>
+                          <option value="active">Active</option>
                         </select>
                       </td>
                       <td>
@@ -280,4 +281,4 @@ function NotApprovedMembers() {
   );
 }
 
-export default NotApprovedMembers;
+export default UserTodayLeads;

@@ -32,13 +32,18 @@ if (user.approvedAt == null && !isAdmin) {
     {
       path: "/app/userLeads",
       icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Assigned Leads",
+      name: "Today Assigned Leads",
     },
     {
       path: "/app/closedLeads",
       icon: <InboxArrowDownIcon className={iconClasses} />,
+      name: "Closed Leads",
+    },
+    {
+      path: "/app/previousLeads",
+      icon: <InboxArrowDownIcon className={iconClasses} />,
       name: "Previous Assigned Leads",
-    }
+    },
   );
 }
 

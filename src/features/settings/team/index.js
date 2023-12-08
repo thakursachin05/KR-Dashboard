@@ -207,6 +207,7 @@ function TeamMembers() {
                   >
                     Phone Number
                   </th>
+                  <td>Lead Assigned</td>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -218,6 +219,7 @@ function TeamMembers() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
+                      <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>
                         <select
                           value={l.activityStatus}

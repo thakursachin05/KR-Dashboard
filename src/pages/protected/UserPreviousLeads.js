@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setPageTitle } from '../../features/common/headerSlice'
-import UserLeads from '../../features/settings/team/UserLeads'
+import UserPreviousLeads from '../../features/user/UserPreviousLeads'
 
 function InternalPage(){
     const dispatch = useDispatch()
@@ -13,7 +13,7 @@ function InternalPage(){
 
 
     return(
-        <UserLeads />
+        <UserPreviousLeads />
     )
 }
 

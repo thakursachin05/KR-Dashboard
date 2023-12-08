@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { openModal } from "../../common/modalSlice";
+import { openModal } from "../common/modalSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
-} from "../../../utils/globalConstantUtil";
-import TitleCard from "../../../components/Cards/TitleCard";
-import Pagination from "../../../components/Pagination";
+} from "../../utils/globalConstantUtil";
+import TitleCard from "../../components/Cards/TitleCard";
+import Pagination from "../../components/Pagination";
 import axios from "axios";
-import { API } from "../../../utils/constants";
-import { sliceMemberDeleted,sliceMemberStatus } from "../../leads/leadSlice";
-import { showNotification } from "../../common/headerSlice";
+import { API } from "../../utils/constants";
+import { sliceMemberDeleted,sliceMemberStatus } from "../leads/leadSlice";
+import { showNotification } from "../common/headerSlice";
 
-function UserClosedLeads() {
+function UserPreviousLeads() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -281,4 +281,4 @@ function UserClosedLeads() {
   );
 }
 
-export default UserClosedLeads;
+export default UserPreviousLeads;

@@ -4,6 +4,7 @@ import { DUPLICATE_LEADS } from "../../../utils/globalConstantUtil";
 import { showNotification } from "../../common/headerSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
+import { sliceLeadDeleted } from "../leadSlice";
 
 function DuplicateLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
@@ -55,6 +56,8 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
       }
 
     }
+    dispatch(sliceLeadDeleted(true));
+
     closeModal();
   };
 

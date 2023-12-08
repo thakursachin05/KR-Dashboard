@@ -6,20 +6,21 @@ import axios from "axios";
 
 function ActiveLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
-  const [totalEmployees, setTotalEmployees] = useState(0);
   const [activeEmployees, setActiveEmployees] = useState(0);
   // const { leads } = useSelector((state) => state.lead);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
+  const todayDate = new Date().toISOString().split("T")[0];
 
   // i want to count number of active employeees,
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
   let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  const employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
+  let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
+  const totalEmployees = employeeDetails.count;
 
-  const totalLeads = leadDetails.count;
+  const totalLeads = leadDetails?.count;
   // console.log("lead details",leadDetails)
 
   useEffect(() => {
@@ -42,6 +43,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           page: 0,
           limit: employeeDetails.count,
           offset: 0,
+          presentDays: todayDate,
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -51,17 +53,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             JSON.stringify(response.data)
           );
           // Assuming employee.presentDays is the field containing an array of present days
-          const activeEmployees = response.data.data.filter((employee) => {
-            const presentDays = employee.presentDays;
-            // Check if the presentDays array includes today's date
-            const isTodayPresent = presentDays.some((date) => {
-              const today = new Date().toISOString().split("T")[0];
-              return date.split("T")[0] === today;
-            });
-            return isTodayPresent;
-          });
+          const activeEmployees = response.data.data;
           setActiveEmployees(activeEmployees.length);
-          setTotalEmployees(response.data.count);
           if (activeEmployees.length >= totalLeads) {
             setLeadsPerEmployee(1);
           } else {
@@ -76,7 +69,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [employeeDetails,totalLeads]);
+  }, [todayDate,employeeDetails.count,totalLeads]);
 
   const proceedWithYes = async () => {
     try {
@@ -92,7 +85,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           try {
             const params = {
               page: 0,
-              limit: leadDetails.count,
+              limit: leadDetails?.count,
               offset: 0,
             };
             const response = await axios.get(`${API}/lead`, { params: params });
@@ -111,16 +104,25 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             console.error("error", error);
           }
 
+          console.log("supply of leads data", leadDetails);
+          console.log("supply of employee data", employeeDetails);
+
+          // const employeeIteration = Math.min(employeeDetails.count,Math.floor())
+
           // Assuming employeeDetails and leadDetails are arrays
           for (let i = 0; i < employeeDetails.count; i++) {
             let leadCount = leadsPerEmployee;
-            const todayDate = new Date().toISOString().split("T")[0];
 
             for (let j = 0; j < leadDetails.count && leadCount > 0; j++) {
               // const employeeId = employeeDetails[i]._id;
               const leadId = leadDetails.data[j]._id;
+              // console.log("lead id in which i'm putting data",leadId)
               let assigneeId = employeeDetails.data[i]._id;
               let assigneeName = employeeDetails.data[i].name;
+              let assigneeContact = employeeDetails.data[i].contact;
+              console.log("name of employee", assigneeName);
+              console.log("name of id", assigneeId);
+              console.log("name of contact", assigneeContact);
 
               const existingLeadResponse = await axios.get(
                 `${API}/lead/?id=${leadId}`
@@ -131,7 +133,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
                 assignedTo: assigneeName,
                 assigneeId: assigneeId,
                 date: todayDate,
-                status: "open",
+                status: "OPENED",
+                contact: assigneeContact,
               };
 
               // Check if existingLeadData.modified is an array before spreading
@@ -143,22 +146,16 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               await axios.put(
                 `${API}/lead/${leadId}`,
                 {
-                  userData: {
-                    assigned: {
-                      assignedTo: assigneeName,
-                      assigneeId: assigneeId,
-                      assigneeStatus: "open",
-                    },
-                    modified: [...modifiedArray, newModifiedObject],
+                  assigned: {
+                    assignedTo: assigneeName,
+                    assigneeId: assigneeId,
+                    assigneeStatus: "OPENED",
+                    assigneeContact: assigneeContact,
                   },
+                  modified: [...modifiedArray, newModifiedObject],
                 },
                 { headers }
               );
-
-              // Update your state or whatever logic you need here
-              // dispatch(sliceLeadDeleted(true));
-
-              // Reduce the leadPerEmployee count
               leadCount--;
             }
 
@@ -168,14 +165,11 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               leadCount = leadsPerEmployee;
             }
 
-            // After completing the above put API, update employee data
-
             const updateData = {
               lastDateLeadAssigned: todayDate,
               lastNumberOfLeadAssigned: leadCount,
             };
 
-            // Update the employee data
             await axios.put(
               `${API}/employee/${employeeDetails.data[i]._id}`,
               updateData,
@@ -237,7 +231,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         <p className="text-center">
           {employeesWithoutLeads > 0
             ? `1 employee will recieve ${excessLeads} leads`
-            : `${totalLeads - (leadsPerEmployee*activeEmployees)} leads are remaining not assigned to anyone`}
+            : `${
+                totalLeads - leadsPerEmployee * activeEmployees
+              } leads are remaining not assigned to anyone`}
         </p>
       </div>
 
