@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { showNotification } from "../../common/headerSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
+import { sliceLeadDeleted } from "../leadSlice";
 
 function ActiveLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
@@ -48,10 +49,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         const response = await axios.get(baseURL, { params: params });
 
         if (response.status === 200) {
-          localStorage.setItem(
-            "employee-details",
-            JSON.stringify(response.data)
-          );
+          localStorage.setItem("active-details", JSON.stringify(response.data));
           // Assuming employee.presentDays is the field containing an array of present days
           const activeEmployees = response.data.data;
           setActiveEmployees(activeEmployees.length);
@@ -69,9 +67,10 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate,employeeDetails.count,totalLeads]);
+  }, [todayDate, employeeDetails.count, totalLeads]);
 
   const proceedWithYes = async () => {
+    const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
     try {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
@@ -88,7 +87,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               limit: leadDetails?.count,
               offset: 0,
             };
-            const response = await axios.get(`${API}/lead`, { params: params });
+            const response = await axios.get(`${API}/lead?modified=[]`, { params: params });
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -105,21 +104,21 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           }
 
           console.log("supply of leads data", leadDetails);
-          console.log("supply of employee data", employeeDetails);
+          console.log("supply of employee data", activeEmployees);
 
-          // const employeeIteration = Math.min(employeeDetails.count,Math.floor())
+          // const employeeIteration = Math.min(activeEmployees.count,Math.floor())
 
-          // Assuming employeeDetails and leadDetails are arrays
-          for (let i = 0; i < employeeDetails.count; i++) {
+          // Assuming activeEmployees and leadDetails are arrays
+          for (let i = 0; i < activeEmployees.count; i++) {
             let leadCount = leadsPerEmployee;
 
             for (let j = 0; j < leadDetails.count && leadCount > 0; j++) {
-              // const employeeId = employeeDetails[i]._id;
+              // const employeeId = activeEmployees[i]._id;
               const leadId = leadDetails.data[j]._id;
               // console.log("lead id in which i'm putting data",leadId)
-              let assigneeId = employeeDetails.data[i]._id;
-              let assigneeName = employeeDetails.data[i].name;
-              let assigneeContact = employeeDetails.data[i].contact;
+              let assigneeId = activeEmployees.data[i]._id;
+              let assigneeName = activeEmployees.data[i].name;
+              let assigneeContact = activeEmployees.data[i].contact;
               console.log("name of employee", assigneeName);
               console.log("name of id", assigneeId);
               console.log("name of contact", assigneeContact);
@@ -171,20 +170,19 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             };
 
             await axios.put(
-              `${API}/employee/${employeeDetails.data[i]._id}`,
+              `${API}/employee/${activeEmployees.data[i]._id}`,
               updateData,
               { headers }
             );
-            // dispatch(sliceLeadDeleted(false));
           }
-
-          dispatch(showNotification({ message: "Leads Assigned!", status: 1 }));
         }
+        dispatch(sliceLeadDeleted(true));
       } else {
         dispatch(
           showNotification({ message: "Access token not found", status: 1 })
         );
       }
+      dispatch(showNotification({ message: "Leads Assigned!", status: 1 }));
     } catch (error) {
       console.error("Error assigning leads", error);
 

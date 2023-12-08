@@ -51,7 +51,7 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
             console.log("Access token incorrect");
           }
         } catch (error) {
-          console.error("Error pushing lead data:", error);
+          // console.error("Error pushing lead data:", error);
         }
       }
 
@@ -67,7 +67,7 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
 
   return (
     <>
-      <p className=" text-xl mt-8 text-center">{message},</p>
+      <p className=" text-xl mt-8 text-center">{message}</p>
 
       <div className="modal-action mt-12">
         <button
