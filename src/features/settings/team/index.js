@@ -42,6 +42,7 @@ function TeamMembers() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
+        approvedAt : "notNull"
       };
       const baseURL = `${API}/employee`;
       try {

@@ -6,6 +6,7 @@ import axios from "axios";
 import { API } from "../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
+import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
 
 function UserTodayLeads() {
   const dispatch = useDispatch();
@@ -130,9 +131,10 @@ function UserTodayLeads() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.contact.includes(filterValue) ||
-      lead.activityStatus.includes(filterValue)
+      lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead?.contact?.includes(filterValue) ||
+      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase()) || 
+      lead?.assigned.assigneeStatus?.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 
@@ -204,9 +206,8 @@ function UserTodayLeads() {
                             handleStatusChange(l._id, e.target.value)
                           }
                         >
-                          <option value="hold">Hold</option>
-                          <option value="dead">Dead</option>
-                          <option value="active">Active</option>
+                          <option value="OPENED">Opened</option>
+                          <option value="CLOSED">Closed</option>
                         </select>
                       </td>
                       <td>
@@ -216,7 +217,7 @@ function UserTodayLeads() {
                             (window.location.href = `tel:${l._contact}`)
                           }
                         >
-                          Call
+                          <PhoneIcon className="w-5"/>
                         </button>
                       </td>
                     </tr>

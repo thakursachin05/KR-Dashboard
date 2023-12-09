@@ -31,7 +31,7 @@ const UserClosedLeads = lazy(() =>
   import("../pages/protected/UserClosedLeads")
 );
 const UserPreviousLeads = lazy(() =>
-  import("../pages/protected/UserClosedLeads")
+  import("../pages/protected/UserPreviousLeads")
 );
 const isAdmin = localStorage.getItem("isAdmin") === "true";
 

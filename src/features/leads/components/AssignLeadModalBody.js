@@ -15,8 +15,14 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
 
   const openAddNewLeadModal = async(optionType) => {
     const baseURL = `${API}/employee`;
+    const params = {
+      page: 1,
+      limit: 10,
+      offset: 0,
+      approvedAt : "notNull"
+    };
     try {
-      const response = await axios.get(baseURL);
+      const response = await axios.get(baseURL, { params: params });
 
       if (response.status === 200) {
         localStorage.setItem("employee-details", JSON.stringify(response.data));

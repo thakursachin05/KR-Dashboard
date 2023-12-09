@@ -45,6 +45,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           limit: employeeDetails.count,
           offset: 0,
           presentDays: todayDate,
+          approvedAt: "notNull",
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -246,17 +247,13 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
         <p className="text-center">
-          {(totalLeads - leadsPerEmployee * activeEmployees) > 0 ? (
-            <>
-              {employeesWithoutLeads > 0
-                ? `1 employee will recieve ${excessLeads} leads`
-                : `${
-                    totalLeads - leadsPerEmployee * activeEmployees
-                  } leads are remaining not assigned to anyone`}
-            </>
-          ) : (
-            "No leads are remaining"
-          )}
+          {employeesWithoutLeads > 0
+            ? excessLeads !== 0
+              ? `1 employee will recieve ${excessLeads} leads`
+              : "No Leads are Remaining"
+            : `${
+                totalLeads - leadsPerEmployee * activeEmployees
+              } leads are remaining not assigned to anyone`}
         </p>
       </div>
 

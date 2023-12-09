@@ -255,7 +255,7 @@ function TotalAssignedLeads() {
         />
       </div>
 
-      <TitleCard title={`Total Leads ${leadDetails.count}`} topMargin="mt-2">
+      <TitleCard title={`Total Leads ${leadDetails?.count}`} topMargin="mt-2">
         {filteredLeads.length === 0 ? (
           <p>No Data Found</p>
         ) : (

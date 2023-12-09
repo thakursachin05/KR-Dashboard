@@ -40,19 +40,11 @@ function OpenLeads() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const todayDate = new Date();
-      const yesterdayDate = new Date(todayDate);
-      yesterdayDate.setDate(todayDate.getDate() - 1);
-
-      // Format dates as strings in "YYYY-MM-DD" format
-      const todayDateString = todayDate.toISOString().split("T")[0];
-      //   const yesterdayDateString = yesterdayDate.toISOString().split("T")[0];
-
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
-        dateAdded: todayDateString,
+        modifiedDate: "notToday",
         finalStatus : "OPENED"
       };
       const baseURL = `${API}/lead`;

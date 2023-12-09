@@ -48,7 +48,10 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
         const response = await axios.get(baseURL, { params: params });
 
         if (response.status === 200) {
-          localStorage.setItem("active-details", JSON.stringify(response.data));
+          localStorage.setItem(
+            "total-lead-details",
+            JSON.stringify(response.data)
+          );
           const activeEmployees = response.data.data;
           setActiveEmployees(activeEmployees.length);
           if (activeEmployees.length >= totalLeads) {
@@ -68,7 +71,9 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   }, [todayDate, employeeDetails.count, totalLeads]);
 
   const proceedWithYes = async () => {
-    const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
+    const activeEmployees = JSON.parse(
+      localStorage.getItem("total-lead-details")
+    );
 
     if (
       totalLeads === 0 ||
@@ -242,17 +247,13 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
         <p className="text-center">
-          {totalLeads - leadsPerEmployee * activeEmployees > 0 ? (
-            <>
-              {employeesWithoutLeads > 0
-                ? `1 employee will recieve ${excessLeads} leads`
-                : `${
-                    totalLeads - leadsPerEmployee * activeEmployees
-                  } leads are remaining not assigned to anyone`}
-            </>
-          ) : (
-            "No leads are remaining"
-          )}
+          {employeesWithoutLeads > 0
+            ? excessLeads !== 0
+              ? `1 employee will recieve ${excessLeads} leads`
+              : "No Leads are Remaining"
+            : `${
+                totalLeads - leadsPerEmployee * activeEmployees
+              } leads are remaining not assigned to anyone`}
         </p>
       </div>
 
