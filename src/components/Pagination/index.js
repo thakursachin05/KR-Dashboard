@@ -39,14 +39,14 @@ const Pagination = ({
 
   return (
     <nav className="pagination">
-      <ul className="flex space-x-2">
+      <ul className="flex max-sm:mt-[15px]  space-x-2">
         <li>
           <button
             className={`${
               currentPage === 1
                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            } px-3 py-2 rounded-md`}
+            } max-sm:text-[3vw] max-sm:px-[3vw] max-sm:py-[2vw] px-3 py-2 rounded-md`}
             onClick={() => {
               if (currentPage > 1) {
                 onPageChange(currentPage - 1);
@@ -65,7 +65,7 @@ const Pagination = ({
                 number === currentPage
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              } px-3 py-2 rounded-md`}
+              }  max-sm:text-[3vw] max-sm:px-[3vw] max-sm:py-[2vw] px-3 py-2 rounded-md`}
               onClick={() => onPageChange(number)}
             >
               {number}
@@ -79,7 +79,7 @@ const Pagination = ({
               currentPage === totalPages
                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            } px-3 py-2 rounded-md`}
+            } px-3 py-2 max-sm:px-[2.5vw] max-sm:py-[2vw] max-sm:text-[3vw] rounded-md`}
             onClick={() => {
               if (currentPage < totalPages) {
                 onPageChange(currentPage + 1);
