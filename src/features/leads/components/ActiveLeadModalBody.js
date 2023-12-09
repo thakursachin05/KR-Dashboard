@@ -86,7 +86,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               limit: leadDetails?.count,
               offset: 0,
             };
-            const response = await axios.get(`${API}/lead?modified=[]`, { params: params });
+            const response = await axios.get(`${API}/lead?modified=[]`, {
+              params: params,
+            });
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -106,7 +108,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           console.log("supply of employee data", activeEmployees);
 
           // const employeeIteration = Math.min(activeEmployees.count,Math.floor())
-          let j= 0;
+          let j = 0;
           // Assuming activeEmployees and leadDetails are arrays
           for (let i = 0; i < activeEmployees.count; i++) {
             let leadCount = leadsPerEmployee;

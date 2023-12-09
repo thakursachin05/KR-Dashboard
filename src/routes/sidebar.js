@@ -8,26 +8,11 @@ import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
 const iconClasses = `h-6 w-6`;
 const submenuIconClasses = `h-5 w-5`;
 const isAdmin = localStorage.getItem("isAdmin") === "true";
-const user = localStorage.getItem("user");
-// const newJoiner = JSON.parse(localStorage.getItem('user'))
+const user = JSON.parse(localStorage.getItem("user"));
 
-// console.log("newjoiner deetails",newJoiner)
+const routes = [];
 
-// const newJoinee = newJoiner.role.length === 0;
-
-// if(newJoinee){
-//   Navigate('./newJoinee')
-// }
-
-const routes = [
-  {
-    path: "/app/settings-profile",
-    icon: <UserIcon className={submenuIconClasses} />,
-    name: "Profile",
-  },
-];
-
-if (user.approvedAt == null && !isAdmin) {
+if (user.approvedAt && !isAdmin) {
   routes.push(
     {
       path: "/app/userLeads",

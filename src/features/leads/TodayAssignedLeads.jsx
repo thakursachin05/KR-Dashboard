@@ -53,6 +53,7 @@ function TodayAssignedLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         dateAdded: todayDateString,
+        finalStatus : "OPENED"
       };
       const baseURL = `${API}/lead`;
       try {
@@ -87,9 +88,19 @@ function TodayAssignedLeads() {
   };
 
   const totalItems = leadDetails?.count;
+
+  const itemsPerPageOptionsCount = 4;
+  const stepSize = Math.ceil(totalItems / itemsPerPageOptionsCount);
+
   const itemsPerPageOptions = Array.from(
-    { length: Math.ceil(totalItems / 10) },
-    (_, index) => (index + 1) * 10
+    { length: itemsPerPageOptionsCount },
+    (_, index) => (index + 1) * stepSize
+  );
+
+  // Ensure the last value is not greater than the total items
+  itemsPerPageOptions[itemsPerPageOptionsCount - 1] = Math.min(
+    totalItems,
+    itemsPerPageOptions[itemsPerPageOptionsCount - 1]
   );
 
   const handleSort = (column) => {
@@ -120,37 +131,18 @@ function TodayAssignedLeads() {
 
   const filteredLeads = sortedLeads.filter((lead) => {
     return (
-      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.contact.includes(filterValue)
+      lead?.name?.toLowerCase().includes(filterValue?.toLowerCase()) ||
+      lead?.contact?.includes(filterValue) ||
+      lead?.assigned?.assignedTo
+        ?.toLowerCase()
+        .includes(filterValue.toLowerCase()) ||
+      lead?.assigned?.assigneeContact?.includes(filterValue) ||
+      lead?.assigned?.assigneeStatus
+        ?.toLowerCase()
+        .includes(filterValue.toLowerCase()) ||
+      lead?.finalStatus?.toLowerCase().includes(filterValue?.toLowerCase())
     );
   });
-
-  const TopSideButtons = () => {
-    const dispatch = useDispatch();
-
-    const openAddNewLeadModal = () => {
-      dispatch(
-        openModal({
-          title: "Assign Leads",
-          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
-          extraObject: {
-            message: `Choose employees to assign`,
-          },
-        })
-      );
-    };
-
-    return (
-      <div className="inline-block float-right">
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={() => openAddNewLeadModal()}
-        >
-          Assign Leads
-        </button>
-      </div>
-    );
-  };
 
   const toggleEdit = (index) => {
     setEditedData({
@@ -216,7 +208,7 @@ function TodayAssignedLeads() {
     setEditedData((prevData) => ({ ...prevData, [key]: value }));
   };
 
-  const handleStatusChange = async(leadId, newStatus) => {
+  const handleStatusChange = async (leadId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
       const leadData = {
@@ -230,15 +222,18 @@ function TodayAssignedLeads() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(`${API}/lead/${leadId}`,leadData, {
+          const response = await axios.put(`${API}/lead/${leadId}`, leadData, {
             headers,
           });
 
-          console.log("status updated data",response.data)
+          console.log("status updated data", response.data);
           dispatch(sliceLeadDeleted(true));
 
           dispatch(
-            showNotification({ message: "Status Updated Successfully!", status: 1 })
+            showNotification({
+              message: "Status Updated Successfully!",
+              status: 1,
+            })
           );
         }
       } else {
@@ -264,159 +259,186 @@ function TodayAssignedLeads() {
           className="input input-sm input-bordered  w-full max-w-xs"
         />
       </div>
-      {filteredLeads.length === 0 ? (
-        <p>No Data Found</p>
-      ) : (
-        <TitleCard
-          title={`Total Leads ${leadDetails.count}`}
-          topMargin="mt-2"
-          TopSideButtons={<TopSideButtons />}
-        >
-          <div className="overflow-x-auto w-full">
-            <table className="table w-full">
-              <thead>
-                <tr>
-                  <th
-                    onClick={() => handleSort("name")}
-                    className={`cursor-pointer ${
-                      sortConfig.column === "name" ? "font-bold" : ""
-                    } ${
-                      sortConfig.column === "name"
-                        ? sortConfig.order === "asc"
-                          ? "sort-asc"
-                          : "sort-desc"
-                        : ""
-                    }`}
-                  >
-                    Name
-                  </th>
 
-                  <th
-                    onClick={() => handleSort("contact")}
-                    className={`cursor-pointer ${
-                      sortConfig.column === "contact" ? "font-bold" : ""
-                    } ${
-                      sortConfig.column === "contact"
-                        ? sortConfig.order === "asc"
-                          ? "sort-asc"
-                          : "sort-desc"
-                        : ""
-                    }`}
-                  >
-                    Phone Number
-                  </th>
-                  <th>Assignee Name</th>
-                  <th>Assignee Contact</th>
-                  <th>Assignee Status</th>
-                  <th>Final Status</th>
+      <TitleCard title={`Total Leads ${leadDetails.count}`} topMargin="mt-2">
+        {filteredLeads.length === 0 ? (
+          <p>No Data Found</p>
+        ) : (
+          <>
+            <div className="overflow-x-auto w-full">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th
+                      onClick={() => handleSort("name")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "name" ? "font-bold" : ""
+                      } ${
+                        sortConfig.column === "name"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Name
+                    </th>
 
-                  <th className="text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLeads.map((l, k) => {
-                  return (
-                    <tr key={k}>
-                      <td>
-                        {currentlyEditing === k ? (
-                          <input
-                            type="text"
-                            value={editedData.name}
-                            onChange={(e) =>
-                              handleChange("name", e.target.value)
-                            }
-                          />
-                        ) : (
-                          l.name
-                        )}
-                      </td>
-                      <td>
-                        {currentlyEditing === k ? (
-                          <input
-                            type="text"
-                            value={editedData.contact}
-                            onChange={(e) =>
-                              handleChange("contact", e.target.value)
-                            }
-                          />
-                        ) : (
-                          l.contact
-                        )}
-                      </td>
-                      <td>{l.assigned.assignedTo}</td>
-                      <td>{l.assigned.assigneeContact}</td>
-                      <td>{l.assigned.assigneeStatus}</td>
-                      <td>
-                        <select
-                          value={l.finalStatus}
-                          onChange={(e) =>
-                            handleStatusChange(l._id, e.target.value)
-                          }
-                        >
-                          <option value="OPENED">OPENED</option>
-                          <option value="CLOSED">CLOSED</option>
-                        </select>
-                      </td>
+                    <th
+                      onClick={() => handleSort("contact")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "contact" ? "font-bold" : ""
+                      } ${
+                        sortConfig.column === "contact"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Phone Number
+                    </th>
+                    <th
+                      onClick={() => handleSort("assigneeName")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "assigneeName" ? "font-bold" : ""
+                      } ${
+                        sortConfig.column === "assigneeName"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Assignee Name
+                    </th>
+                    <th
+                      onClick={() => handleSort("assigneeContact")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "assigneeContact"
+                          ? "font-bold"
+                          : ""
+                      } ${
+                        sortConfig.column === "assigneeContact"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Assignee Contact
+                    </th>
+                    <th>Assignee Status</th>
+                    <th>Final Status</th>
 
-                      <td>
-                        <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
-                          >
-                            <TrashIcon className="w-5" />
-                          </button>
-                          <div className="flex flex-col items-center justify-center">
-
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => toggleEdit(k)}
-                          >
-                            {currentlyEditing === k ? "Cancel" : "Edit"}
-                          </button>
-                          {currentlyEditing === k && (
-                            <button onClick={() => handleSaveEdit(l._id, k)}>
-                              SAVE
-                            </button>
+                    <th className="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLeads.map((l, k) => {
+                    return (
+                      <tr key={k}>
+                        <td>
+                          {currentlyEditing === k ? (
+                            <input
+                              type="text"
+                              value={editedData.name}
+                              onChange={(e) =>
+                                handleChange("name", e.target.value)
+                              }
+                            />
+                          ) : (
+                            l.name
                           )}
-                          </div>
+                        </td>
+                        <td>
+                          {currentlyEditing === k ? (
+                            <input
+                              type="text"
+                              value={editedData.contact}
+                              onChange={(e) =>
+                                handleChange("contact", e.target.value)
+                              }
+                            />
+                          ) : (
+                            l.contact
+                          )}
+                        </td>
+                        <td>{l.assigned.assignedTo}</td>
+                        <td>{l.assigned.assigneeContact}</td>
+                        <td>{l.assigned.assigneeStatus}</td>
+                        <td>
+                          <select
+                            value={l.finalStatus}
+                            onChange={(e) =>
+                              handleStatusChange(l._id, e.target.value)
+                            }
+                          >
+                            <option value="OPENED">OPENED</option>
+                            <option value="CLOSED">CLOSED</option>
+                          </select>
+                        </td>
 
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex item-center justify-between">
-            <Pagination
-              itemsPerPage={itemsPerPage}
-              totalItems={leadDetails.count}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-            <div className="flex items-center">
-              <label className="mr-2 text-sm font-medium">
-                Items Per Page:
-              </label>
-              <select
-                className="border rounded p-2"
-                value={itemsPerPage}
-                onChange={(e) =>
-                  handleItemsPerPageChange(Number(e.target.value))
-                }
-              >
-                {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                        <td>
+                          <div className="flex item-center justify-between">
+                            <button
+                              className="btn btn-square btn-ghost"
+                              onClick={() => deleteCurrentLead(l._id)}
+                            >
+                              <TrashIcon className="w-5" />
+                            </button>
+                            <div className="flex flex-col items-center justify-center">
+                              <button
+                                className="btn btn-square btn-ghost"
+                                onClick={() => toggleEdit(k)}
+                              >
+                                {currentlyEditing === k ? "Cancel" : "Edit"}
+                              </button>
+                              {currentlyEditing === k && (
+                                <button
+                                  onClick={() => handleSaveEdit(l._id, k)}
+                                >
+                                  SAVE
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </TitleCard>
-      )}
+            <div className="flex item-center justify-between">
+              <Pagination
+                itemsPerPage={itemsPerPage}
+                totalItems={leadDetails.count}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+              <div className="flex items-center">
+                <label className="mr-2 text-sm font-medium">
+                  Items Per Page:
+                </label>
+                <select
+                  className="border rounded p-2"
+                  value={itemsPerPage}
+                  onChange={(e) =>
+                    handleItemsPerPageChange(Number(e.target.value))
+                  }
+                >
+                  {itemsPerPageOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </>
+        )}
+      </TitleCard>
     </>
   );
 }

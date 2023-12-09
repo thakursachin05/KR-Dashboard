@@ -2,9 +2,9 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import TitleCard from "../../../components/Cards/TitleCard";
-import ToogleInput from "../../../components/Input/ToogleInput";
 import { API } from "../../../utils/constants";
 import { showNotification } from "../../common/headerSlice";
+import { sliceLeadDeleted } from "../../leads/leadSlice";
 
 const ProfileSettings = () => {
   const [userData, setUserData] = useState([]);
@@ -50,12 +50,15 @@ const ProfileSettings = () => {
         },
       };
       await axios.put(`${API}/employee/${userData._id}`, userData, config);
+      dispatch(sliceLeadDeleted(true));
+
       dispatch(
         showNotification({
           message: "Profile Updated Successfully!",
           status: 1,
         })
       );
+
       console.log("Employee data updated successfully!");
     } catch (error) {
       console.error("Error updating employee data:", error);
@@ -94,7 +97,7 @@ const ProfileSettings = () => {
               type="password"
               name="password"
               className="input input-bordered w-full"
-              value={userData.password}
+              // value={userData.password}
               onChange={handleInputChange}
             />
           </div>
@@ -140,70 +143,58 @@ const ProfileSettings = () => {
               onChange={handleInputChange}
             />
           </div>
-
-          <div>
-            <label className="label">Present Days</label>
-            <input
-              type="text"
-              name="presentDays"
-              disabled
-              className="input input-bordered w-full"
-              value={userData.presentDays}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <label className="label">Status</label>
-            <input
-              type="text"
-              name="activityStatus"
-              disabled
-              className="input input-bordered w-full"
-              value={userData.activityStatus}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <label className="label">
-              Last Date on which Lead was Assigned
-            </label>
-            <input
-              type="text"
-              name="lastDateLeadAssigned"
-              disabled
-              className="input input-bordered w-full"
-              value={userData.lastDateLeadAssigned}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">Role</label>
-            <input
-              type="text"
-              name="role"
-              disabled
-              className="input input-bordered w-full"
-              value={userData.role}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <label className="label">Last Number Of Lead Assigned</label>
-            <input
-              type="text"
-              name="lastNumberOfLeadAssigned"
-              disabled
-              className="input input-bordered w-full"
-              value={userData.lastNumberOfLeadAssigned}
-              onChange={handleInputChange}
-            />
-          </div>
-          <ToogleInput
-            updateType="syncData"
-            labelTitle="Sync Data"
-            defaultValue={userData.syncData}
-          />
+          {userData.isAdmin === false ? (
+            <>
+              <div>
+                <label className="label">Present Days</label>
+                <input
+                  type="text"
+                  name="presentDays"
+                  disabled
+                  className="input input-bordered w-full"
+                  value={userData.presentDays?.length}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label className="label">Status</label>
+                <input
+                  type="text"
+                  name="activityStatus"
+                  disabled
+                  className="input input-bordered w-full"
+                  value={userData.activityStatus === null ? "New Joinee" : userData.activityStatus}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label className="label">
+                  Last Date on which Lead was Assigned
+                </label>
+                <input
+                  type="text"
+                  name="lastDateLeadAssigned"
+                  disabled
+                  className="input input-bordered w-full"
+                  value={userData.lastDateLeadAssigned}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label className="label">Last Number Of Lead Assigned</label>
+                <input
+                  type="text"
+                  name="lastNumberOfLeadAssigned"
+                  disabled
+                  className="input input-bordered w-full"
+                  value={userData.lastNumberOfLeadAssigned}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </>
+          ) : (
+            ""
+          )}
         </div>
 
         <div className="mt-16">

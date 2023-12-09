@@ -17,18 +17,17 @@ function InternalPage() {
       <div className="hero-content">
         <div className="max-w-md">
           <TemplatePointers />
-
-          <Link
-            to={`/app/${
-              user.isAdmin
-                ? "uploadLeads"
-                : user.approvedAt !== null
-                ? "settings-profile"
-                : "userLeads"
-            }`}
-          >
-            <button className="btn bg-base-100 btn-outline">Get Started</button>
-          </Link>
+          {user.approvedAt ? (
+            <div>
+              <Link to={`/app/${user.isAdmin ? "uploadLeads" : "userLeads"}`}>
+                <button className="btn bg-base-100 btn-outline">
+                  Get Started
+                </button>
+              </Link>
+            </div>
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </div>

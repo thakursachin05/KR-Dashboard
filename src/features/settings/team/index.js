@@ -10,7 +10,7 @@ import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import { API } from "../.../../../../utils/constants";
-import { sliceMemberDeleted,sliceMemberStatus } from "../../leads/leadSlice";
+import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 
 function TeamMembers() {
@@ -26,7 +26,7 @@ function TeamMembers() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
-  
+
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -41,24 +41,24 @@ function TeamMembers() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: ((Math.max(0, currentPage-1)*10)),
+        offset: Math.max(0, currentPage - 1) * 10,
       };
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
         localStorage.setItem("employee-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data)
+        setTeamMember(response.data.data);
       } catch (error) {
         console.error("error", error);
       }
       // console.log("it is running or not when status is changing", memberStatus);
-      dispatch(sliceMemberStatus(''));
+      dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
-  
+
     fetchData();
   }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-  
+
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
@@ -76,7 +76,7 @@ function TeamMembers() {
     );
   };
 
-  const handleStatusChange = async(memberId, newStatus) => {
+  const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
@@ -90,14 +90,21 @@ function TeamMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(`${API}/employee/${memberId}`,employeeData, {
-            headers,
-          });
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
+            {
+              headers,
+            }
+          );
 
-          console.log("status updated data",response.data)
-         dispatch(sliceMemberStatus(newStatus))
+          console.log("status updated data", response.data);
+          dispatch(sliceMemberStatus(newStatus));
           dispatch(
-            showNotification({ message: "Status Updated Successfully!", status: 1 })
+            showNotification({
+              message: "Status Updated Successfully!",
+              status: 1,
+            })
           );
         }
       } else {
@@ -113,12 +120,19 @@ function TeamMembers() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-
-
   const totalItems = employeeData ? employeeData.count : 0;
+  const itemsPerPageOptionsCount = 4;
+  const stepSize = Math.ceil(totalItems / itemsPerPageOptionsCount);
+
   const itemsPerPageOptions = Array.from(
-    { length: Math.ceil(totalItems / 10) },
-    (_, index) => (index + 1) * 10
+    { length: itemsPerPageOptionsCount },
+    (_, index) => (index + 1) * stepSize
+  );
+
+  // Ensure the last value is not greater than the total items
+  itemsPerPageOptions[itemsPerPageOptionsCount - 1] = Math.min(
+    totalItems,
+    itemsPerPageOptions[itemsPerPageOptionsCount - 1]
   );
 
   const handleSort = (column) => {
@@ -149,9 +163,9 @@ function TeamMembers() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.contact.includes(filterValue) ||
-      lead.activityStatus.includes(filterValue)
+      lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead?.contact?.includes(filterValue) ||
+      lead?.activityStatus?.includes(filterValue)
     );
   });
 
@@ -166,117 +180,119 @@ function TeamMembers() {
           className="input input-sm input-bordered  w-full max-w-xs"
         />
       </div>
-      {filteredLeads?.length === 0 ? (
-        <p>No Data Found</p>
-      ) : (
-        <TitleCard
-          title={`Total Team Members ${employeeData?.count}`}
-          topMargin="mt-2"
-        >
-          <div className="overflow-x-auto w-full">
-            <table className="table w-full">
-              <thead>
-                <tr>
-                  <th
-                    onClick={() => handleSort("name")}
-                    className={`cursor-pointer ${
-                      sortConfig.column === "name" ? "font-bold" : ""
-                    } ${
-                      sortConfig.column === "name"
-                        ? sortConfig.order === "asc"
-                          ? "sort-asc"
-                          : "sort-desc"
-                        : ""
-                    }`}
-                  >
-                    Name
-                  </th>
 
-                  <th>Email Id</th>
-                  <th
-                    onClick={() => handleSort("contact")}
-                    className={`cursor-pointer ${
-                      sortConfig.column === "contact" ? "font-bold" : ""
-                    } ${
-                      sortConfig.column === "contact"
-                        ? sortConfig.order === "asc"
-                          ? "sort-asc"
-                          : "sort-desc"
-                        : ""
-                    }`}
-                  >
-                    Phone Number
-                  </th>
-                  <td>Lead Assigned</td>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLeads?.map((l, k) => {
-                  return (
-                    <tr key={k}>
-                      <td>{l.name}</td>
-                      <td>{l.email}</td>
-                      <td>{l.contact}</td>
-                      <td>{l.lastNumberOfLeadAssigned}</td>
-                      <td>
-                        <select
-                          value={l.activityStatus}
-                          onChange={(e) => handleStatusChange(l._id,e.target.value)
-                          }
-                          
-                          
-                        >
-                          <option value="hold">Hold</option>
-                          <option value="dead">Dead</option>
-                          <option value="active">Active</option>
-                        </select>
-                      </td>
-                      <td>
-                        <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
+      <TitleCard
+        title={`Total Team Members ${employeeData?.count}`}
+        topMargin="mt-2"
+      >
+        {filteredLeads?.length === 0 ? (
+          <p>No Data Found</p>
+        ) : (
+          <>
+            <div className="overflow-x-auto w-full">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th
+                      onClick={() => handleSort("name")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "name" ? "font-bold" : ""
+                      } ${
+                        sortConfig.column === "name"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Name
+                    </th>
+
+                    <th>Email Id</th>
+                    <th
+                      onClick={() => handleSort("contact")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "contact" ? "font-bold" : ""
+                      } ${
+                        sortConfig.column === "contact"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Phone Number
+                    </th>
+                    <td>Lead Assigned</td>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLeads?.map((l, k) => {
+                    return (
+                      <tr key={k}>
+                        <td>{l.name}</td>
+                        <td>{l.email}</td>
+                        <td>{l.contact}</td>
+                        <td>{l.lastNumberOfLeadAssigned}</td>
+                        <td>
+                          <select
+                            value={l.activityStatus}
+                            onChange={(e) =>
+                              handleStatusChange(l._id, e.target.value)
+                            }
                           >
-                            <TrashIcon className="w-5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex item-center justify-between">
-            <Pagination
-              itemsPerPage={itemsPerPage}
-              totalItems={employeeData?.count}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-            <div className="flex items-center">
-              <label className="mr-2 text-sm font-medium">
-                Items Per Page:
-              </label>
-              <select
-                className="border rounded p-2"
-                value={itemsPerPage}
-                onChange={(e) =>
-                  handleItemsPerPageChange(Number(e.target.value))
-                }
-              >
-                {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                            <option value="hold">Hold</option>
+                            <option value="dead">Dead</option>
+                            <option value="active">Active</option>
+                          </select>
+                        </td>
+                        <td>
+                          <div className="flex item-center justify-between">
+                            <button
+                              className="btn btn-square btn-ghost"
+                              onClick={() => deleteCurrentLead(l._id)}
+                            >
+                              <TrashIcon className="w-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </TitleCard>
-      )}
+            <div className="flex item-center justify-between">
+              <Pagination
+                itemsPerPage={itemsPerPage}
+                totalItems={employeeData?.count}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+              <div className="flex items-center">
+                <label className="mr-2 text-sm font-medium">
+                  Items Per Page:
+                </label>
+                <select
+                  className="border rounded p-2"
+                  value={itemsPerPage}
+                  onChange={(e) =>
+                    handleItemsPerPageChange(Number(e.target.value))
+                  }
+                >
+                  {itemsPerPageOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </>
+        )}
+      </TitleCard>
     </>
   );
 }

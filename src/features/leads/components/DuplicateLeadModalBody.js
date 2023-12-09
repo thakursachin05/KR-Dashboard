@@ -12,7 +12,7 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
   const { message, type, allData, uniqueData, duplicates } = extraObject;
 
   const proceedWithYes = async () => {
-    let leadData = allData
+    let leadData = allData;
     if (duplicates === true) leadData = uniqueData;
     if (type === DUPLICATE_LEADS) {
       for (const obj of leadData) {
@@ -25,9 +25,8 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
           const singleLead = {
             name: obj.name,
             contact: obj.contact,
-            dateAdded : todayDate,
-            finalStatus : "OPENED",
-
+            dateAdded: todayDate,
+            finalStatus: "OPENED",
           };
 
           // Set the Authorization header with the token
@@ -54,7 +53,6 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
           // console.error("Error pushing lead data:", error);
         }
       }
-
     }
     dispatch(sliceLeadDeleted(true));
 
@@ -74,14 +72,14 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
           className="btn btn-outline  w-36 "
           onClick={() => proceedWithNo()}
         >
-          No
+          Cancel
         </button>
 
         <button
           className="btn btn-primary w-36"
           onClick={() => proceedWithYes()}
         >
-          Yes
+          Continue
         </button>
       </div>
     </>
