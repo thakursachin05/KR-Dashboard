@@ -177,7 +177,7 @@ function TeamMembers() {
           placeholder="Filter by Name or Phone or Status"
           value={filterValue}
           onChange={handleFilterChange}
-          className="input input-sm input-bordered  w-full max-w-xs"
+          className="input input-sm input-bordered  w-full sm:max-w-xs"
         />
       </div>
 
@@ -264,19 +264,19 @@ function TeamMembers() {
                 </tbody>
               </table>
             </div>
-            <div className="flex item-center justify-between">
+            <div className="flex  max-sm:flex-col item-center justify-between">
               <Pagination
                 itemsPerPage={itemsPerPage}
                 totalItems={employeeData?.count}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />
-              <div className="flex items-center">
-                <label className="mr-2 text-sm font-medium">
+              <div className="flex items-center max-sm:mt-[20px] justify-center">
+                <label className="mr-2   text-sm font-medium">
                   Items Per Page:
                 </label>
                 <select
-                  className="border rounded p-2"
+                  className="border rounded p-2 max-sm:p-[.5vw]"
                   value={itemsPerPage}
                   onChange={(e) =>
                     handleItemsPerPageChange(Number(e.target.value))

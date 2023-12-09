@@ -26,7 +26,6 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
             name: obj.name,
             contact: obj.contact,
             dateAdded: todayDate,
-            finalStatus: "OPENED",
           };
 
           // Set the Authorization header with the token

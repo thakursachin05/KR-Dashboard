@@ -71,7 +71,11 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
 
-    if (totalLeads === 0 || totalEmployees === 0 || activeEmployees.count === 0) {
+    if (
+      totalLeads === 0 ||
+      totalEmployees === 0 ||
+      activeEmployees.count === 0
+    ) {
       dispatch(
         showNotification({
           message: "Leads or members is empty",
@@ -152,6 +156,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               await axios.put(
                 `${API}/lead/${leadId}`,
                 {
+                  finalStatus: "OPENED",
                   assigned: {
                     assignedTo: assigneeName,
                     assigneeId: assigneeId,
@@ -241,11 +246,17 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
         <p className="text-center">
-          {employeesWithoutLeads > 0
-            ? `1 employee will recieve ${excessLeads} leads`
-            : `${
-                totalLeads - leadsPerEmployee * activeEmployees
-              } leads are remaining not assigned to anyone`}
+          {(totalLeads - leadsPerEmployee * activeEmployees) > 0 ? (
+            <>
+              {employeesWithoutLeads > 0
+                ? `1 employee will recieve ${excessLeads} leads`
+                : `${
+                    totalLeads - leadsPerEmployee * activeEmployees
+                  } leads are remaining not assigned to anyone`}
+            </>
+          ) : (
+            "No leads are remaining"
+          )}
         </p>
       </div>
 

@@ -302,7 +302,7 @@ function Leads() {
     };
 
     return (
-      <div className="inline-block float-right">
+      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center ">
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal()}
@@ -311,7 +311,7 @@ function Leads() {
         </button>
         <label
           htmlFor="xlsxInput"
-          className="ml-6 cursor-pointer btn px-6 btn-sm normal-case btn-primary"
+          className="cursor-pointer btn px-6 btn-sm normal-case btn-primary"
         >
           Import XLSX
         </label>
@@ -323,7 +323,7 @@ function Leads() {
           accept=".xlsx"
         />
         <button
-          className="btn ml-6 px-6 btn-sm normal-case btn-primary"
+          className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
           Export XLSX
@@ -403,7 +403,7 @@ function Leads() {
           placeholder="Filter by Name or Phone Number"
           value={filterValue}
           onChange={handleFilterChange}
-          className="input input-sm input-bordered  w-full max-w-xs"
+          className="input input-sm input-bordered  w-full sm:max-w-xs"
         />
       </div>
 
@@ -512,26 +512,26 @@ function Leads() {
                 </tbody>
               </table>
             </div>
-            <div className="flex item-center justify-between">
+            <div className="flex item-center max-sm:flex-col justify-between">
               <Pagination
                 itemsPerPage={itemsPerPage}
                 totalItems={leadData.count}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />
-              <div className="flex items-center">
+              <div className="flex items-center max-sm:mt-[15px] max-sm:mx-auto ">
                 <label className="mr-2 text-sm font-medium">
                   Items Per Page:
                 </label>
                 <select
-                  className="border rounded p-2"
+                  className="border rounded p-2  max-sm:p-[.5vw]"
                   value={itemsPerPage}
                   onChange={(e) =>
                     handleItemsPerPageChange(Number(e.target.value))
                   }
                 >
                   {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
+                    <option  className="max-h-[1vh]"  key={option} value={option}>
                       {option}
                     </option>
                   ))}

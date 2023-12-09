@@ -31,7 +31,6 @@
     animation: spin 2s linear infinite;
 }
 
-/* Add these styles to your Tailwind CSS file or in your style tag */
 .sort-asc::after {
   content: " ↑";
   display: inline-block;
@@ -44,4 +43,9 @@
   display: inline-block;
   margin-left: 10px;
   font-size: 14px;
+}
+
+
+.table th:first-child {
+  position: relative;
 }
