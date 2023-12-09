@@ -7,6 +7,7 @@ import { API } from "../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
 import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
+import { format } from "date-fns";
 
 function UserPreviousLeads() {
   const dispatch = useDispatch();
@@ -37,7 +38,7 @@ function UserPreviousLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         finalStatus: "OPENED",
-        modifiedDate: "notToday"
+        modifiedDate: "notToday",
       };
       const baseURL = `${API}/lead?&assigneeId=${storeUserData?._id}`;
       try {
@@ -192,6 +193,8 @@ function UserPreviousLeads() {
                   >
                     Phone Number
                   </th>
+                  <th>Assigned Date</th>
+
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -214,6 +217,14 @@ function UserPreviousLeads() {
                         </select>
                       </td>
                       <td>
+                        {l.modified?.slice(-1)[0]?.date
+                          ? format(
+                              new Date(l?.modified?.slice(-1)[0]?.date),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
+                      <td>
                         <button
                           className="btn btn-square btn-ghost"
                           onClick={() =>
@@ -229,19 +240,19 @@ function UserPreviousLeads() {
               </tbody>
             </table>
           </div>
-          <div className="flex item-center justify-between">
+          <div className="flex  max-sm:flex-col item-center justify-between">
             <Pagination
               itemsPerPage={itemsPerPage}
               totalItems={employeeData?.count}
               currentPage={currentPage}
               onPageChange={handlePageChange}
             />
-            <div className="flex items-center">
-              <label className="mr-2 text-sm font-medium">
+            <div className="flex items-center max-sm:mt-[20px] justify-center">
+              <label className="mr-2   text-sm font-medium">
                 Items Per Page:
               </label>
               <select
-                className="border rounded p-2"
+                className="border rounded p-2 max-sm:p-[.5vw]"
                 value={itemsPerPage}
                 onChange={(e) =>
                   handleItemsPerPageChange(Number(e.target.value))
