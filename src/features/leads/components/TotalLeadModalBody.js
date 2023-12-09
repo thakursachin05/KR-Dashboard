@@ -5,17 +5,22 @@ import { API } from "../../../utils/constants";
 import axios from "axios";
 import { sliceLeadDeleted } from "../leadSlice";
 
-function TotalLeadModalBody({ extraObject, closeModal }) {
+function InActiveLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [activeEmployees, setActiveEmployees] = useState(0);
+  // const { leads } = useSelector((state) => state.lead);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
+
+  // i want to count number of active employeees,
+  // by checking the employee last present days,
+  // if it has today date, then it will be marked as active member else not
   let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
   let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
   const totalEmployees = employeeDetails.count;
-
+  const minimumLead = 1;
   const totalLeads = leadDetails?.count;
   // console.log("lead details",leadDetails)
 
@@ -43,7 +48,7 @@ function TotalLeadModalBody({ extraObject, closeModal }) {
         const response = await axios.get(baseURL, { params: params });
 
         if (response.status === 200) {
-          localStorage.setItem("total-lead-details", JSON.stringify(response.data));
+          localStorage.setItem("active-details", JSON.stringify(response.data));
           const activeEmployees = response.data.data;
           setActiveEmployees(activeEmployees.length);
           if (activeEmployees.length >= totalLeads) {
@@ -63,7 +68,18 @@ function TotalLeadModalBody({ extraObject, closeModal }) {
   }, [todayDate, employeeDetails.count, totalLeads]);
 
   const proceedWithYes = async () => {
-    const activeEmployees = JSON.parse(localStorage.getItem("total-lead-details"));
+    const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
+
+    if (totalLeads === 0 || totalEmployees === 0 || activeEmployees.count === 0) {
+      dispatch(
+        showNotification({
+          message: "Leads or members is empty",
+          status: 0,
+        })
+      );
+      closeModal();
+      return;
+    }
     try {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
@@ -200,23 +216,30 @@ function TotalLeadModalBody({ extraObject, closeModal }) {
         <input
           id="leadsInput"
           type="number"
-          min={"1"}
+          min={minimumLead}
           max={totalLeads}
           value={leadsPerEmployee}
-          onChange={(e) => setLeadsPerEmployee(parseInt(e.target.value, 10))}
+          onChange={(e) => {
+            const newValue = parseInt(e.target.value, 10);
+            if (newValue === 0) {
+              setLeadsPerEmployee(1);
+            } else {
+              setLeadsPerEmployee(newValue);
+            }
+          }}
           className="border p-1"
         />
       </div>
 
       <div className="mt-4">
         <p className="text-center">
-          {`${employeesWithoutLeads} out of ${totalEmployees} employees will not receive leads.`}
+          {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
         <p className="text-center">
           {employeesWithoutLeads > 0
             ? `1 employee will recieve ${excessLeads} leads`
             : `${
-                totalLeads - leadsPerEmployee * totalEmployees
+                totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
         </p>
       </div>
@@ -237,4 +260,4 @@ function TotalLeadModalBody({ extraObject, closeModal }) {
   );
 }
 
-export default TotalLeadModalBody;
+export default InActiveLeadModalBody;

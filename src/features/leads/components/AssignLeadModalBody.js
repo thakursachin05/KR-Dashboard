@@ -31,7 +31,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
         dispatch(
           openModal({
             title: "Assign Leads to Active Employees",
-            bodyType: MODAL_BODY_TYPES.ASSIGNED_CHOSEN,
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_ACTIVE,
           })
         );
         break;
@@ -39,7 +39,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
         dispatch(
           openModal({
             title: "Assign Leads to InActive Employees",
-            bodyType: MODAL_BODY_TYPES.ASSIGNED_CHOSEN
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE
             ,
           })
         );
@@ -48,7 +48,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
         dispatch(
           openModal({
             title: "Assign Leads to All Employees",
-            bodyType: MODAL_BODY_TYPES.ASSIGNED_CHOSEN,
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_TOTAL,
           })
         );
         break;

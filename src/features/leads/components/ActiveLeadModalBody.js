@@ -20,7 +20,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
   let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
   const totalEmployees = employeeDetails.count;
-
+  const minimumLead = 1;
   const totalLeads = leadDetails?.count;
   // console.log("lead details",leadDetails)
 
@@ -70,6 +70,17 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
+
+    if (totalLeads === 0 || totalEmployees === 0 || activeEmployees.count === 0) {
+      dispatch(
+        showNotification({
+          message: "Leads or members is empty",
+          status: 0,
+        })
+      );
+      closeModal();
+      return;
+    }
     try {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
@@ -210,10 +221,17 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         <input
           id="leadsInput"
           type="number"
-          min={"1"}
+          min={minimumLead}
           max={totalLeads}
           value={leadsPerEmployee}
-          onChange={(e) => setLeadsPerEmployee(parseInt(e.target.value, 10))}
+          onChange={(e) => {
+            const newValue = parseInt(e.target.value, 10);
+            if (newValue === 0) {
+              setLeadsPerEmployee(1);
+            } else {
+              setLeadsPerEmployee(newValue);
+            }
+          }}
           className="border p-1"
         />
       </div>

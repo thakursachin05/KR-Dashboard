@@ -70,10 +70,16 @@ function Leads() {
   const findDuplicates = async (arr2) => {
     let totalLeads = 0;
     try {
+      const params = {
+        page: 1,
+        limit: 10,
+        offset: 0,
+      };
       const LeadbaseURL = `${API}/lead`;
-      const response = await axios.get(LeadbaseURL);
+      const response = await axios.get(LeadbaseURL, { params: params });
       if (response.status === 200) {
         totalLeads = response.data.count;
+        console.log("total count of leads to check duplicates",response.data.count)
       }
     } catch (error) {
       console.log("error", error);
