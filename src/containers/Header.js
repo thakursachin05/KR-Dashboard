@@ -147,9 +147,7 @@ function Header() {
                 {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
               </div>
             ) : (
-              <h5 className="text-black cursor-pointer bg-cyan-500 rounded p-1 mr-5">
-                Not Approved User
-              </h5>
+              ""
             )
           ) : (
             ""

@@ -68,9 +68,26 @@ function Leads() {
 
   // Function to find duplicates between two arrays
   const findDuplicates = async (arr2) => {
+    let totalLeads = 0;
+    try {
+      const params = {
+        page: 1,
+        limit: 10,
+        offset: 0,
+      };
+      const LeadbaseURL = `${API}/lead`;
+      const response = await axios.get(LeadbaseURL, { params: params });
+      if (response.status === 200) {
+        totalLeads = response.data.count;
+        console.log("total count of leads to check duplicates",response.data.count)
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+
     const params = {
       page: 1,
-      limit: leadData?.count,
+      limit: totalLeads,
       offset: 0,
     };
     const baseURL = `${API}/lead`;
@@ -110,7 +127,8 @@ function Leads() {
   };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+    const fileInput = e.target;
+    const file = fileInput.files[0];
 
     if (file) {
       const reader = new FileReader();
@@ -124,6 +142,7 @@ function Leads() {
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
           // console.log("json data is ",jsonData)
           const duplicates = await findDuplicates(jsonData);
+          const uniqueDataLength = jsonData?.length - duplicates?.length;
           // console.log(
           //   "duplictes data and what is lleadDetails in localstorage",
           //   duplicates,
@@ -135,9 +154,9 @@ function Leads() {
                 title: `Confirmation`,
                 bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
                 extraObject: {
-                  message: `${duplicates.length} Duplicates Found`,
-                  uniqueData: jsonData.filter(
-                    (item) => !duplicates.includes(item)
+                  message: `${duplicates?.length} Duplicates Found and ${uniqueDataLength} Unique Data`,
+                  uniqueData: jsonData?.filter(
+                    (item) => !duplicates?.includes(item)
                   ),
                   allData: jsonData,
                   duplicates: true,
@@ -165,6 +184,7 @@ function Leads() {
 
       reader.readAsArrayBuffer(file);
     }
+    fileInput.value = null;
   };
 
   const deleteCurrentLead = (index) => {
@@ -180,10 +200,6 @@ function Leads() {
       })
     );
   };
-
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentLeads = leadData?.slice(indexOfFirstItem, indexOfLastItem);
 
   const totalItems = leadData?.count;
   const itemsPerPageOptions = Array.from(
@@ -286,7 +302,7 @@ function Leads() {
     };
 
     return (
-      <div className="inline-block float-right">
+      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center ">
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal()}
@@ -295,7 +311,7 @@ function Leads() {
         </button>
         <label
           htmlFor="xlsxInput"
-          className="ml-6 cursor-pointer btn px-6 btn-sm normal-case btn-primary"
+          className="cursor-pointer btn px-6 btn-sm normal-case btn-primary"
         >
           Import XLSX
         </label>
@@ -307,7 +323,7 @@ function Leads() {
           accept=".xlsx"
         />
         <button
-          className="btn ml-6 px-6 btn-sm normal-case btn-primary"
+          className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
           Export XLSX
@@ -387,7 +403,7 @@ function Leads() {
           placeholder="Filter by Name or Phone Number"
           value={filterValue}
           onChange={handleFilterChange}
-          className="input input-sm input-bordered  w-full max-w-xs"
+          className="input input-sm input-bordered  w-full sm:max-w-xs"
         />
       </div>
 
@@ -467,7 +483,7 @@ function Leads() {
                           )}
                         </td>
                         <td>
-                          <div className="flex item-center justify-between">
+                          <div className="flex item-center justify-center items-center">
                             <button
                               className="btn btn-square btn-ghost"
                               onClick={() => deleteCurrentLead(l._id)}
@@ -481,7 +497,10 @@ function Leads() {
                               {currentlyEditing === k ? "Cancel" : "Edit"}
                             </button>
                             {currentlyEditing === k && (
-                              <button onClick={() => handleSaveEdit(l._id, k)}>
+                              <button
+                                className="btn btn-square btn-ghost ml-3"
+                                onClick={() => handleSaveEdit(l._id, k)}
+                              >
                                 SAVE
                               </button>
                             )}
@@ -493,26 +512,26 @@ function Leads() {
                 </tbody>
               </table>
             </div>
-            <div className="flex item-center justify-between">
+            <div className="flex item-center max-sm:flex-col justify-between">
               <Pagination
                 itemsPerPage={itemsPerPage}
                 totalItems={leadData.count}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />
-              <div className="flex items-center">
+              <div className="flex items-center max-sm:mt-[15px] max-sm:mx-auto ">
                 <label className="mr-2 text-sm font-medium">
                   Items Per Page:
                 </label>
                 <select
-                  className="border rounded p-2"
+                  className="border rounded p-2  max-sm:p-[.5vw]"
                   value={itemsPerPage}
                   onChange={(e) =>
                     handleItemsPerPageChange(Number(e.target.value))
                   }
                 >
                   {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
+                    <option  className="max-h-[1vh]"  key={option} value={option}>
                       {option}
                     </option>
                   ))}

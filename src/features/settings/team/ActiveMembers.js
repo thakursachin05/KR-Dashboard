@@ -43,6 +43,7 @@ function ActiveMembers() {
         page: currentPage,
         limit: itemsPerPage,
         offset: ((Math.max(0, currentPage-1)*10)),
+        approvedAt : "notNull",
         presentDays: todayDate,
       };
       const baseURL = `${API}/employee`;

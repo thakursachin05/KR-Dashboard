@@ -20,7 +20,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
   let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
   const totalEmployees = employeeDetails.count;
-
+  const minimumLead = 1;
   const totalLeads = leadDetails?.count;
   // console.log("lead details",leadDetails)
 
@@ -45,6 +45,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           limit: employeeDetails.count,
           offset: 0,
           presentDays: todayDate,
+          approvedAt: "notNull",
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -70,6 +71,21 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
+
+    if (
+      totalLeads === 0 ||
+      totalEmployees === 0 ||
+      activeEmployees.count === 0
+    ) {
+      dispatch(
+        showNotification({
+          message: "Leads or members is empty",
+          status: 0,
+        })
+      );
+      closeModal();
+      return;
+    }
     try {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
@@ -86,7 +102,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               limit: leadDetails?.count,
               offset: 0,
             };
-            const response = await axios.get(`${API}/lead?modified=[]`, { params: params });
+            const response = await axios.get(`${API}/lead?modified=[]`, {
+              params: params,
+            });
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -106,7 +124,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           console.log("supply of employee data", activeEmployees);
 
           // const employeeIteration = Math.min(activeEmployees.count,Math.floor())
-          let j= 0;
+          let j = 0;
           // Assuming activeEmployees and leadDetails are arrays
           for (let i = 0; i < activeEmployees.count; i++) {
             let leadCount = leadsPerEmployee;
@@ -139,6 +157,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               await axios.put(
                 `${API}/lead/${leadId}`,
                 {
+                  finalStatus: "OPENED",
                   assigned: {
                     assignedTo: assigneeName,
                     assigneeId: assigneeId,
@@ -208,10 +227,17 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         <input
           id="leadsInput"
           type="number"
-          min={"1"}
+          min={minimumLead}
           max={totalLeads}
           value={leadsPerEmployee}
-          onChange={(e) => setLeadsPerEmployee(parseInt(e.target.value, 10))}
+          onChange={(e) => {
+            const newValue = parseInt(e.target.value, 10);
+            if (newValue === 0) {
+              setLeadsPerEmployee(1);
+            } else {
+              setLeadsPerEmployee(newValue);
+            }
+          }}
           className="border p-1"
         />
       </div>
@@ -222,7 +248,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         </p>
         <p className="text-center">
           {employeesWithoutLeads > 0
-            ? `1 employee will recieve ${excessLeads} leads`
+            ? excessLeads !== 0
+              ? `1 employee will recieve ${excessLeads} leads`
+              : "No Leads are Remaining"
             : `${
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}

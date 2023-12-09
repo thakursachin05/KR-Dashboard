@@ -4,8 +4,8 @@ import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
-import { sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
-import { showNotification } from "../common/headerSlice";
+import { sliceMemberDeleted } from "../leads/leadSlice";
+import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
 
 function UserClosedLeads() {
   const dispatch = useDispatch();
@@ -34,7 +34,7 @@ function UserClosedLeads() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        finalStatus : "CLOSED",
+        finalStatus: "CLOSED",
         offset: Math.max(0, currentPage - 1) * 10,
       };
       const baseURL = `${API}/lead?assigneeId=${storeUserData?._id}`;
@@ -52,49 +52,6 @@ function UserClosedLeads() {
   }, [itemsPerPage, storeUserData._id, memberDeleted, dispatch, currentPage]);
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
-
-  const handleStatusChange = async (memberId, newStatus) => {
-    try {
-      const storedToken = localStorage.getItem("accessToken");
-      const employeeData = {
-        activityStatus: newStatus,
-      };
-      if (storedToken) {
-        const accessToken = JSON.parse(storedToken).token;
-
-        if (accessToken) {
-          const headers = {
-            Authorization: `Bearer ${accessToken}`,
-          };
-
-          const response = await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
-            {
-              headers,
-            }
-          );
-
-          console.log("status updated data", response.data);
-          dispatch(sliceMemberStatus(newStatus));
-          dispatch(
-            showNotification({
-              message: "Status Updated Successfully!",
-              status: 1,
-            })
-          );
-        }
-      } else {
-        dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
-        );
-      }
-    } catch (error) {
-      dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
-      );
-    }
-  };
 
   const totalItems = employeeData ? employeeData.count : 0;
   const itemsPerPageOptions = Array.from(
@@ -130,9 +87,9 @@ function UserClosedLeads() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.contact.includes(filterValue) ||
-      lead.activityStatus.includes(filterValue)
+      lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead?.contact?.includes(filterValue) ||
+      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 
@@ -151,7 +108,7 @@ function UserClosedLeads() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Today Assigned Leads ${employeeData?.count}`}
+          title={`All Closed Leads ${employeeData?.count}`}
           topMargin="mt-2"
         >
           <div className="overflow-x-auto w-full">
@@ -187,7 +144,6 @@ function UserClosedLeads() {
                   >
                     Phone Number
                   </th>
-                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -198,25 +154,13 @@ function UserClosedLeads() {
                       <td>{l.name}</td>
                       <td>{l.contact}</td>
                       <td>
-                        <select
-                          value={l.activityStatus}
-                          onChange={(e) =>
-                            handleStatusChange(l._id, e.target.value)
-                          }
-                        >
-                          <option value="hold">Hold</option>
-                          <option value="dead">Dead</option>
-                          <option value="active">Active</option>
-                        </select>
-                      </td>
-                      <td>
                         <button
                           className="btn btn-square btn-ghost"
                           onClick={() =>
                             (window.location.href = `tel:${l._contact}`)
                           }
                         >
-                          Call
+                          <PhoneIcon className="w-5" />
                         </button>
                       </td>
                     </tr>

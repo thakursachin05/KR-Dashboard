@@ -84,6 +84,7 @@ function NotApprovedMembers() {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
         approvedAt: todayDate,
+        activityStatus : "ACTIVE"
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;

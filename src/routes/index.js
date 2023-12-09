@@ -31,7 +31,7 @@ const UserClosedLeads = lazy(() =>
   import("../pages/protected/UserClosedLeads")
 );
 const UserPreviousLeads = lazy(() =>
-  import("../pages/protected/UserClosedLeads")
+  import("../pages/protected/UserPreviousLeads")
 );
 const isAdmin = localStorage.getItem("isAdmin") === "true";
 
@@ -58,7 +58,7 @@ const routes = [
 if (isAdmin) {
   routes.push(
     {
-      path: "/forgot-password",
+      path: "/reset-password",
       component: ForgotPassword,
     },
     {

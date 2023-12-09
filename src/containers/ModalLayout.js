@@ -7,6 +7,8 @@ import ConfirmationModalBody from '../features/common/components/ConfirmationMod
 import DuplicateLeadModalBody from '../features/leads/components/DuplicateLeadModalBody'
 import AssignLeadModalBody from '../features/leads/components/AssignLeadModalBody'
 import ActiveLeadModalBody from '../features/leads/components/ActiveLeadModalBody'
+import InActiveLeadModalBody from '../features/leads/components/InActiveLeadModalBody'
+import TotalLeadModalBody from '../features/leads/components/TotalLeadModalBody'
 
 function ModalLayout(){
 
@@ -38,7 +40,9 @@ function ModalLayout(){
                              [MODAL_BODY_TYPES.CONFIRMATION] : <ConfirmationModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.DUPLICATE_LEADS] : <DuplicateLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_LEADS] : <AssignLeadModalBody extraObject={extraObject} closeModal={close}/>,
-                             [MODAL_BODY_TYPES.ASSIGNED_CHOSEN] : <ActiveLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_TO_ACTIVE] : <ActiveLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE] : <InActiveLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_TO_TOTAL] : <TotalLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              
                              [MODAL_BODY_TYPES.DEFAULT] : <div></div>
                     }[bodyType]

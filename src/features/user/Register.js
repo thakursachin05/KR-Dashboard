@@ -31,7 +31,14 @@ function Register() {
       return setErrorMessage("Password is required!");
     if (registerObj.contact.trim() === "")
       return setErrorMessage("Phone number is required!");
-    else {
+    if (!isEmailValid(registerObj.email)) {
+      return setErrorMessage("Email is not valid!");
+    }
+    if (!isPasswordValid(registerObj.password)) {
+      return setErrorMessage(
+        "Password should contain atleast 8 digits, one uppercase character and one special character!"
+      );
+    } else {
       try {
         const response = await axios.post(`${API}/auth/signup`, registerObj);
         if (response.status === 200) {
@@ -45,6 +52,20 @@ function Register() {
         alert("Signup failed");
       }
     }
+  };
+
+  const isPasswordValid = (password) => {
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /\d/.test(password)
+    );
+  };
+
+  const isEmailValid = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const updateFormValue = ({ updateType, value }) => {
