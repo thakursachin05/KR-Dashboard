@@ -14,6 +14,7 @@ import * as XLSX from "xlsx";
 import { showNotification } from "../common/headerSlice";
 import axios from "axios";
 import { API } from "../../utils/constants";
+import { format } from "date-fns";
 
 function Leads() {
   const dispatch = useDispatch();
@@ -79,7 +80,10 @@ function Leads() {
       const response = await axios.get(LeadbaseURL, { params: params });
       if (response.status === 200) {
         totalLeads = response.data.count;
-        console.log("total count of leads to check duplicates",response.data.count)
+        console.log(
+          "total count of leads to check duplicates",
+          response.data.count
+        );
       }
     } catch (error) {
       console.log("error", error);
@@ -235,8 +239,8 @@ function Leads() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.contact.includes(filterValue)
+      lead.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.contact?.includes(filterValue)
     );
   });
 
@@ -420,6 +424,7 @@ function Leads() {
               <table className="table w-full">
                 <thead>
                   <tr>
+                    <th>Date</th>
                     <th
                       onClick={() => handleSort("name")}
                       className={`cursor-pointer ${
@@ -456,6 +461,14 @@ function Leads() {
                   {filteredLeads?.map((l, k) => {
                     return (
                       <tr key={k}>
+                        <td>
+                          {l?.dateAdded
+                            ? format(
+                                new Date(l?.dateAdded),
+                                "dd/MM/yyyy"
+                              )
+                            : "N/A"}
+                        </td>
                         <td>
                           {currentlyEditing === k ? (
                             <input
@@ -531,7 +544,7 @@ function Leads() {
                   }
                 >
                   {itemsPerPageOptions.map((option) => (
-                    <option  className="max-h-[1vh]"  key={option} value={option}>
+                    <option className="max-h-[1vh]" key={option} value={option}>
                       {option}
                     </option>
                   ))}

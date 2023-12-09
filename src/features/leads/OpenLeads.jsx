@@ -13,6 +13,7 @@ import Pagination from "../../components/Pagination";
 import { showNotification } from "../common/headerSlice";
 import axios from "axios";
 import { API } from "../../utils/constants";
+import { format } from "date-fns";
 
 function OpenLeads() {
   const dispatch = useDispatch();
@@ -45,7 +46,7 @@ function OpenLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         modifiedDate: "notToday",
-        finalStatus : "OPENED"
+        finalStatus: "OPENED",
       };
       const baseURL = `${API}/lead`;
       try {
@@ -81,18 +82,9 @@ function OpenLeads() {
 
   const totalItems = leadDetails?.count;
 
-  const itemsPerPageOptionsCount = 4;
-  const stepSize = Math.ceil(totalItems / itemsPerPageOptionsCount);
-
   const itemsPerPageOptions = Array.from(
-    { length: itemsPerPageOptionsCount },
-    (_, index) => (index + 1) * stepSize
-  );
-
-  // Ensure the last value is not greater than the total items
-  itemsPerPageOptions[itemsPerPageOptionsCount - 1] = Math.min(
-    totalItems,
-    itemsPerPageOptions[itemsPerPageOptionsCount - 1]
+    { length: Math.ceil(totalItems / 10) },
+    (_, index) => (index + 1) * 10
   );
 
   const handleSort = (column) => {
@@ -121,7 +113,7 @@ function OpenLeads() {
     setFilterValue(e.target.value);
   };
 
-  const filteredLeads = sortedLeads.filter((lead) => {
+  const filteredLeads = sortedLeads?.filter((lead) => {
     return (
       lead?.name?.toLowerCase().includes(filterValue?.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
@@ -252,8 +244,8 @@ function OpenLeads() {
         />
       </div>
 
-      <TitleCard title={`Total Leads ${leadDetails.count}`} topMargin="mt-2">
-        {filteredLeads.length === 0 ? (
+      <TitleCard title={`Total Leads ${leadDetails?.count}`} topMargin="mt-2">
+        {filteredLeads?.length === 0 ? (
           <p>No Data Found</p>
         ) : (
           <>
@@ -261,6 +253,7 @@ function OpenLeads() {
               <table className="table w-full">
                 <thead>
                   <tr>
+                    <th>Date</th>
                     <th
                       onClick={() => handleSort("name")}
                       className={`cursor-pointer ${
@@ -327,9 +320,17 @@ function OpenLeads() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLeads.map((l, k) => {
+                  {filteredLeads?.map((l, k) => {
                     return (
                       <tr key={k}>
+                        <td>
+                          {l.modified?.slice(-1)[0]?.date
+                            ? format(
+                                new Date(l?.modified?.slice(-1)[0]?.date),
+                                "dd/MM/yyyy"
+                              )
+                            : "N/A"}
+                        </td>
                         <td>
                           {currentlyEditing === k ? (
                             <input
@@ -402,14 +403,14 @@ function OpenLeads() {
                 </tbody>
               </table>
             </div>
-            <div className="flex item-center justify-between">
+            <div className="flex item-center max-sm:flex-col justify-between">
               <Pagination
                 itemsPerPage={itemsPerPage}
                 totalItems={leadDetails.count}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />
-              <div className="flex items-center">
+              <div className="flex items-center max-sm:mt-[15px] max-sm:mx-auto">
                 <label className="mr-2 text-sm font-medium">
                   Items Per Page:
                 </label>

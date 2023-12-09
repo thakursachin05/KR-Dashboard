@@ -12,6 +12,7 @@ import axios from "axios";
 import { API } from "../.../../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
+import { format } from "date-fns";
 
 function TeamMembers() {
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ function TeamMembers() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
-        approvedAt : "notNull"
+        approvedAt: "notNull",
       };
       const baseURL = `${API}/employee`;
       try {
@@ -122,18 +123,9 @@ function TeamMembers() {
   };
 
   const totalItems = employeeData ? employeeData.count : 0;
-  const itemsPerPageOptionsCount = 4;
-  const stepSize = Math.ceil(totalItems / itemsPerPageOptionsCount);
-
   const itemsPerPageOptions = Array.from(
-    { length: itemsPerPageOptionsCount },
-    (_, index) => (index + 1) * stepSize
-  );
-
-  // Ensure the last value is not greater than the total items
-  itemsPerPageOptions[itemsPerPageOptionsCount - 1] = Math.min(
-    totalItems,
-    itemsPerPageOptions[itemsPerPageOptionsCount - 1]
+    { length: Math.ceil(totalItems / 10) },
+    (_, index) => (index + 1) * 10
   );
 
   const handleSort = (column) => {
@@ -166,7 +158,7 @@ function TeamMembers() {
     return (
       lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
-      lead?.activityStatus?.includes(filterValue)
+      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 
@@ -194,6 +186,7 @@ function TeamMembers() {
               <table className="table w-full">
                 <thead>
                   <tr>
+                    <th>Joined Date</th>
                     <th
                       onClick={() => handleSort("name")}
                       className={`cursor-pointer ${
@@ -233,6 +226,14 @@ function TeamMembers() {
                   {filteredLeads?.map((l, k) => {
                     return (
                       <tr key={k}>
+                        <td>
+                          {l.approvedAt
+                            ? format(
+                                new Date(l?.approvedAt),
+                                "dd/MM/yyyy"
+                              )
+                            : "N/A"}
+                        </td>
                         <td>{l.name}</td>
                         <td>{l.email}</td>
                         <td>{l.contact}</td>

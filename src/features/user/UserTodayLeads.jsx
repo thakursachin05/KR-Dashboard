@@ -97,11 +97,14 @@ function UserTodayLeads() {
     }
   };
 
-  const totalItems = employeeData ? employeeData.count : 0;
+  const totalItems =  employeeData?.count;
+
+ 
   const itemsPerPageOptions = Array.from(
     { length: Math.ceil(totalItems / 10) },
     (_, index) => (index + 1) * 10
   );
+  
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -226,32 +229,32 @@ function UserTodayLeads() {
               </tbody>
             </table>
           </div>
-          <div className="flex item-center justify-between">
-            <Pagination
-              itemsPerPage={itemsPerPage}
-              totalItems={employeeData?.count}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-            <div className="flex items-center">
-              <label className="mr-2 text-sm font-medium">
-                Items Per Page:
-              </label>
-              <select
-                className="border rounded p-2"
-                value={itemsPerPage}
-                onChange={(e) =>
-                  handleItemsPerPageChange(Number(e.target.value))
-                }
-              >
-                {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+          <div className="flex  max-sm:flex-col item-center justify-between">
+              <Pagination
+                itemsPerPage={itemsPerPage}
+                totalItems={employeeData?.count}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+              <div className="flex items-center max-sm:mt-[20px] justify-center">
+                <label className="mr-2   text-sm font-medium">
+                  Items Per Page:
+                </label>
+                <select
+                  className="border rounded p-2 max-sm:p-[.5vw]"
+                  value={itemsPerPage}
+                  onChange={(e) =>
+                    handleItemsPerPageChange(Number(e.target.value))
+                  }
+                >
+                  {itemsPerPageOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
         </TitleCard>
       )}
     </>

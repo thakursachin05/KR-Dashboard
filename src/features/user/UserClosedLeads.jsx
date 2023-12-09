@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
+import { format } from "date-fns";
 import { API } from "../../utils/constants";
 import { sliceMemberDeleted } from "../leads/leadSlice";
 import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
@@ -144,6 +145,7 @@ function UserClosedLeads() {
                   >
                     Phone Number
                   </th>
+                  <th>Assigned Date</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -153,6 +155,15 @@ function UserClosedLeads() {
                     <tr key={k}>
                       <td>{l.name}</td>
                       <td>{l.contact}</td>
+                      <td>
+                        {l.modified?.slice(-1)[0]?.date
+                          ? format(
+                              new Date(l.modified.slice(-1)[0].date),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
+
                       <td>
                         <button
                           className="btn btn-square btn-ghost"
@@ -169,19 +180,19 @@ function UserClosedLeads() {
               </tbody>
             </table>
           </div>
-          <div className="flex item-center justify-between">
+          <div className="flex  max-sm:flex-col item-center justify-between">
             <Pagination
               itemsPerPage={itemsPerPage}
               totalItems={employeeData?.count}
               currentPage={currentPage}
               onPageChange={handlePageChange}
             />
-            <div className="flex items-center">
-              <label className="mr-2 text-sm font-medium">
+            <div className="flex items-center max-sm:mt-[20px] justify-center">
+              <label className="mr-2   text-sm font-medium">
                 Items Per Page:
               </label>
               <select
-                className="border rounded p-2"
+                className="border rounded p-2 max-sm:p-[.5vw]"
                 value={itemsPerPage}
                 onChange={(e) =>
                   handleItemsPerPageChange(Number(e.target.value))

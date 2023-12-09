@@ -35,7 +35,6 @@ function TodayAssignedLeads() {
   };
 
   const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  // console.log("lead details from local storage", leadDetails);
   const leadDeleted = useSelector((state) => state.lead.leadDeleted);
 
   useEffect(() => {
@@ -46,14 +45,12 @@ function TodayAssignedLeads() {
 
       // Format dates as strings in "YYYY-MM-DD" format
       const todayDateString = todayDate.toISOString().split("T")[0];
-      //   const yesterdayDateString = yesterdayDate.toISOString().split("T")[0];
-
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         dateAdded: todayDateString,
-        finalStatus : "OPENED"
+        finalStatus: "OPENED",
       };
       const baseURL = `${API}/lead`;
       try {
@@ -89,18 +86,9 @@ function TodayAssignedLeads() {
 
   const totalItems = leadDetails?.count;
 
-  const itemsPerPageOptionsCount = 4;
-  const stepSize = Math.ceil(totalItems / itemsPerPageOptionsCount);
-
   const itemsPerPageOptions = Array.from(
-    { length: itemsPerPageOptionsCount },
-    (_, index) => (index + 1) * stepSize
-  );
-
-  // Ensure the last value is not greater than the total items
-  itemsPerPageOptions[itemsPerPageOptionsCount - 1] = Math.min(
-    totalItems,
-    itemsPerPageOptions[itemsPerPageOptionsCount - 1]
+    { length: Math.ceil(totalItems / 10) },
+    (_, index) => (index + 1) * 10
   );
 
   const handleSort = (column) => {
@@ -129,7 +117,7 @@ function TodayAssignedLeads() {
     setFilterValue(e.target.value);
   };
 
-  const filteredLeads = sortedLeads.filter((lead) => {
+  const filteredLeads = sortedLeads?.filter((lead) => {
     return (
       lead?.name?.toLowerCase().includes(filterValue?.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
@@ -256,12 +244,12 @@ function TodayAssignedLeads() {
           placeholder="Filter by Name or Phone Number"
           value={filterValue}
           onChange={handleFilterChange}
-          className="input input-sm input-bordered  w-full max-w-xs"
+          className="input input-sm input-bordered  w-full sm:max-w-xs"
         />
       </div>
 
       <TitleCard title={`Total Leads ${leadDetails?.count}`} topMargin="mt-2">
-        {filteredLeads.length === 0 ? (
+        {filteredLeads?.length === 0 ? (
           <p>No Data Found</p>
         ) : (
           <>
@@ -335,7 +323,7 @@ function TodayAssignedLeads() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLeads.map((l, k) => {
+                  {filteredLeads?.map((l, k) => {
                     return (
                       <tr key={k}>
                         <td>
@@ -395,7 +383,7 @@ function TodayAssignedLeads() {
                                 {currentlyEditing === k ? "Cancel" : "Edit"}
                               </button>
                               {currentlyEditing === k && (
-                                <button
+                                <button  className="max-sm:ml-[10px]"
                                   onClick={() => handleSaveEdit(l._id, k)}
                                 >
                                   SAVE
@@ -410,26 +398,26 @@ function TodayAssignedLeads() {
                 </tbody>
               </table>
             </div>
-            <div className="flex item-center justify-between">
+            <div className="flex item-center max-sm:flex-col justify-between">
               <Pagination
                 itemsPerPage={itemsPerPage}
-                totalItems={leadDetails.count}
+                totalItems={leadData.count}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />
-              <div className="flex items-center">
+              <div className="flex items-center max-sm:mt-[15px] max-sm:mx-auto ">
                 <label className="mr-2 text-sm font-medium">
                   Items Per Page:
                 </label>
                 <select
-                  className="border rounded p-2"
+                  className="border rounded p-2  max-sm:p-[.5vw]"
                   value={itemsPerPage}
                   onChange={(e) =>
                     handleItemsPerPageChange(Number(e.target.value))
                   }
                 >
                   {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
+                    <option  className="max-h-[1vh]"  key={option} value={option}>
                       {option}
                     </option>
                   ))}
