@@ -1,34 +1,28 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { useDispatch } from "react-redux";
 import TitleCard from "../../../components/Cards/TitleCard";
 import { API } from "../../../utils/constants";
 import { showNotification } from "../../common/headerSlice";
 import { sliceLeadDeleted } from "../../leads/leadSlice";
-import ErrorText from "../../../components/Typography/ErrorText";
+// import ErrorText from "../../../components/Typography/ErrorText";
 
 const ProfileSettings = () => {
-  const [userData, setUserData] = useState([]);
+  const user = JSON.parse(localStorage.getItem('user'))
+  const [userData, setUserData] = useState(user);
   const dispatch = useDispatch();
-  const [errorMessage, setErrorMessage] = useState("");
-  useEffect(() => {
-    const fetchUserData = async (userId) => {
-      try {
-        const response = await axios.get(`${API}/employee/?id=${userId}`);
-        setUserData(response.data.data[0]);
-        console.log(response.data.data[0]);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
+  // const [errorMessage, setErrorMessage] = useState("");
 
-    const userDataString = localStorage.getItem("user");
-    const userData = JSON.parse(userDataString);
-    const userId = userData?._id;
-    if (userId) {
-      fetchUserData(userId);
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`${API}/employee/?id=${user._id}`);
+      setUserData(response.data.data[0]);
+      localStorage.setItem('user',JSON.stringify(response.data.data[0]));
+      console.log(response.data.data[0]);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
     }
-  }, []);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,27 +32,27 @@ const ProfileSettings = () => {
     }));
   };
 
-  const isPasswordValid = (password) => {
-    return (
-      password.length >= 8 &&
-      /[A-Z]/.test(password) &&
-      /[a-z]/.test(password) &&
-      /\d/.test(password)
-    );
-  };
+  // const isPasswordValid = (password) => {
+  //   return (
+  //     password.length >= 8 &&
+  //     /[A-Z]/.test(password) &&
+  //     /[a-z]/.test(password) &&
+  //     /\d/.test(password)
+  //   );
+  // };
 
   const handleUpdate = async () => {
-    if (!isPasswordValid(userData.password)) {
-      dispatch(
-        showNotification({
-          message: "Password format is wrong!",
-          status:0,
-        })
-      );
-      return setErrorMessage(
-        "Password should contain atleast 8 digits, one uppercase character and one special character!"
-      );
-    }
+    // if (userData.password && !isPasswordValid(userData.password)) {
+    //   dispatch(
+    //     showNotification({
+    //       message: "Password format is wrong!",
+    //       status:0,
+    //     })
+    //   );
+    //   return setErrorMessage(
+    //     "Password should contain atleast 8 digits, one uppercase character and one special character!"
+    //   );
+    // }
     try {
       const tokenResponse = localStorage.getItem("accessToken");
       const tokenData = JSON.parse(tokenResponse);
@@ -72,7 +66,7 @@ const ProfileSettings = () => {
       };
       await axios.put(`${API}/employee/${userData._id}`, userData, config);
       dispatch(sliceLeadDeleted(true));
-
+      await fetchUserData()
       dispatch(
         showNotification({
           message: "Profile Updated Successfully!",
@@ -221,7 +215,7 @@ const ProfileSettings = () => {
             ""
           )}
         </div>
-        <ErrorText styleClass="mt-8">{errorMessage}</ErrorText>
+        {/* <ErrorText styleClass="mt-8">{errorMessage}</ErrorText> */}
 
         <div className="mt-16">
           <button
