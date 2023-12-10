@@ -25,7 +25,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   // console.log("lead details",leadDetails)
 
   useEffect(() => {
-    let employeegetLeads = Math.floor(totalLeads / leadsPerEmployee);
+    let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
     const donothaveLeads = activeEmployees - employeegetLeads;
     setEmployeesWithoutLeads(Math.max(0, donothaveLeads));
 

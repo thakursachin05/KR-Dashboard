@@ -35,11 +35,6 @@ if (user.approvedAt && !isAdmin) {
 if (isAdmin) {
   routes.push(
     {
-      path: "/app/totalAssignedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Total Assigned Leads",
-    },
-    {
       path: "/app/uploadLeads",
       icon: <InboxArrowDownIcon className={iconClasses} />,
       name: "Upload Leads",
