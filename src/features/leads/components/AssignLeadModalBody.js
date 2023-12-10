@@ -41,15 +41,15 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           })
         );
         break;
-      case "inactive":
-        dispatch(
-          openModal({
-            title: "Assign Leads to InActive Employees",
-            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE
-            ,
-          })
-        );
-        break;
+      // case "inactive":
+      //   dispatch(
+      //     openModal({
+      //       title: "Assign Leads to InActive Employees",
+      //       bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE
+      //       ,
+      //     })
+      //   );
+      //   break;
       case "all":
         dispatch(
           openModal({
@@ -75,12 +75,12 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           Assign Leads to Active
         </button>
 
-        <button
+        {/* <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("inactive")}
         >
           Assign Leads to Inactive
-        </button>
+        </button> */}
 
         <button
           className="btn px-6 btn-sm normal-case btn-primary"

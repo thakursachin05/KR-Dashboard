@@ -12,9 +12,6 @@ const ClosedLeads = lazy(() => import("../pages/protected/ClosedLeads"));
 const TodayAssignedLeads = lazy(() =>
   import("../pages/protected/TodayAssignedLeads")
 );
-const TotalAssignedLeads = lazy(() =>
-  import("../pages/protected/TotalAssignedLeads")
-);
 
 const Team = lazy(() => import("../pages/protected/Team"));
 const ProfileSettings = lazy(() =>
@@ -68,10 +65,6 @@ if (isAdmin) {
     {
       path: "/todayAssignedLeads",
       component: TodayAssignedLeads,
-    },
-    {
-      path: "/totalAssignedLeads",
-      component: TotalAssignedLeads,
     },
     {
       path: "/teamMembers",
