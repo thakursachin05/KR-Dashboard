@@ -3,9 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
 import { sliceLeadDeleted } from "./leadSlice";
-import {
-  MODAL_BODY_TYPES,
-} from "../../utils/globalConstantUtil";
+import { MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
 
 import Pagination from "../../components/Pagination";
 import * as XLSX from "xlsx";
@@ -40,9 +38,10 @@ function Leads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
+        assignedTo : "null"
       };
 
-      const baseURL = `${API}/lead?modified=[]`;
+      const baseURL = `${API}/lead?`;
       try {
         const response = await axios.get(baseURL, { params: params });
 
@@ -61,6 +60,85 @@ function Leads() {
 
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
+
+  const handleCSVFileChange = (e) => {
+    const fileInput = e.target;
+    const file = fileInput.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const csvData = e.target.result;
+          const jsonData = csvToJSON(csvData);
+          const duplicates = await findDuplicates(jsonData);
+          const uniqueDataLength = jsonData?.length - duplicates?.length;
+          if (duplicates.length > 0) {
+            dispatch(
+              openModal({
+                title: `Confirmation`,
+                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
+                extraObject: {
+                  message: `${duplicates?.length} Duplicates Found and ${uniqueDataLength} Unique Data`,
+                  uniqueData: jsonData?.filter(
+                    (item) => !duplicates?.includes(item)
+                  ),
+                  allData: jsonData,
+                  duplicates: true,
+                },
+              })
+            );
+          } else {
+            dispatch(
+              openModal({
+                title: `Confirmation`,
+                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
+                extraObject: {
+                  message: `Have you cross checked Leads?`,
+                  uniqueData: jsonData,
+                  allData: jsonData,
+                  duplicates: false,
+                },
+              })
+            );
+          }
+          // Now you can use the jsonData as needed
+          console.log(jsonData);
+        } catch (error) {
+          console.error("Error parsing CSV file:", error);
+        }
+      };
+
+      reader.readAsText(file);
+    }
+    fileInput.value = null;
+  };
+
+  const csvToJSON = (csvData) => {
+    const lines = csvData.split('\n');
+    const result = [];
+  
+    // Trim headers to remove leading and trailing spaces
+    const headers = lines[0].split(',').map(header => header.trim());
+  
+    for (let i = 1; i < lines.length; i++) {
+      const currentLine = lines[i].split(',');
+  
+      if (currentLine.length === headers.length) {
+        const entry = {};
+        for (let j = 0; j < headers.length; j++) {
+          const value = currentLine[j].trim();
+          entry[headers[j]] = isNaN(value) ? value : parseFloat(value.replace(/[^\d.]/g, ''));
+        }
+        result.push(entry);
+      }
+    }
+  
+    return result;
+  };
+  
+  
 
   // Function to find duplicates between two arrays
   const findDuplicates = async (arr2) => {
@@ -139,14 +217,9 @@ function Leads() {
           const sheetName = workbook.SheetNames[0];
 
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-          // console.log("json data is ",jsonData)
           const duplicates = await findDuplicates(jsonData);
+          console.log("json data of excel file",jsonData)
           const uniqueDataLength = jsonData?.length - duplicates?.length;
-          // console.log(
-          //   "duplictes data and what is lleadDetails in localstorage",
-          //   duplicates,
-          //   leadDetails.data
-          // );
           if (duplicates.length > 0) {
             dispatch(
               openModal({
@@ -287,13 +360,14 @@ function Leads() {
     };
 
     return (
-      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center ">
+      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal()}
         >
           Assign Leads
         </button>
+
         <label
           htmlFor="xlsxInput"
           className="cursor-pointer btn px-6 btn-sm normal-case btn-primary"
@@ -307,11 +381,26 @@ function Leads() {
           className="hidden"
           accept=".xlsx"
         />
+
+        <label
+          htmlFor="csvInput"
+          className="cursor-pointer btn px-6 btn-sm normal-case btn-primary"
+        >
+          Import CSV
+        </label>
+        <input
+          type="file"
+          id="csvInput"
+          onChange={handleCSVFileChange}
+          className="hidden"
+          accept=".csv"
+        />
+
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export XLSX
+          Export
         </button>
       </div>
     );
@@ -381,18 +470,11 @@ function Leads() {
                       <tr key={k}>
                         <td>
                           {l?.dateAdded
-                            ? format(
-                                new Date(l?.dateAdded),
-                                "dd/MM/yyyy"
-                              )
+                            ? format(new Date(l?.dateAdded), "dd/MM/yyyy")
                             : "N/A"}
                         </td>
-                        <td>
-                          { l.name}
-                        </td>
-                        <td>
-                          { l.contact}
-                        </td>
+                        <td>{l.name}</td>
+                        <td>{l.contact}</td>
                       </tr>
                     );
                   })}

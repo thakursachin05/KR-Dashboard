@@ -35,7 +35,7 @@ function ClosedLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         modifiedDate: "notToday",
-        finalStatus: "CLOSED",
+        assigneeStatus: "CLOSED",
       };
       const baseURL = `${API}/lead`;
       try {
