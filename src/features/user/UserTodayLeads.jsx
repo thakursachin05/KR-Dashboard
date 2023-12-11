@@ -4,7 +4,7 @@ import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
-import { sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
+import { sliceLeadDeleted } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
 import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
 
@@ -19,7 +19,6 @@ function UserTodayLeads() {
   });
   const [filterValue, setFilterValue] = useState("");
 
-  const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const storeUserData = JSON.parse(localStorage.getItem("user"));
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
@@ -29,6 +28,8 @@ function UserTodayLeads() {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+  const leadDeleted = useSelector((state) => state.lead.leadDeleted);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,20 +47,19 @@ function UserTodayLeads() {
       } catch (error) {
         console.error("error", error);
       }
-      dispatch(sliceMemberDeleted(false));
+      dispatch(sliceLeadDeleted(false));
+
     };
 
     fetchData();
-  }, [itemsPerPage, storeUserData._id, memberDeleted, dispatch, currentPage]);
+  }, [itemsPerPage,leadDeleted, storeUserData._id, dispatch, currentPage]);
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
-  const handleStatusChange = async (memberId, newStatus) => {
+  const handleStatusChange = async (leadId, newStatus) => {
+    console.log("member id", leadId);
     try {
       const storedToken = localStorage.getItem("accessToken");
-      const employeeData = {
-        activityStatus: newStatus,
-      };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
 
@@ -69,15 +69,19 @@ function UserTodayLeads() {
           };
 
           const response = await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
+            `${API}/lead/${leadId}`,
+            {
+              assigned: {
+                assigneeStatus: newStatus,
+              },
+            },
             {
               headers,
             }
           );
 
           console.log("status updated data", response.data);
-          dispatch(sliceMemberStatus(newStatus));
+          dispatch(sliceLeadDeleted(true));
           dispatch(
             showNotification({
               message: "Status Updated Successfully!",
@@ -92,19 +96,17 @@ function UserTodayLeads() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({ message: "Error Status updating", status: 0 })
       );
     }
   };
 
-  const totalItems =  employeeData?.count;
+  const totalItems = employeeData?.count;
 
- 
   const itemsPerPageOptions = Array.from(
     { length: Math.ceil(totalItems / 10) },
     (_, index) => (index + 1) * 10
   );
-  
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -136,8 +138,10 @@ function UserTodayLeads() {
     return (
       lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
-      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase()) || 
-      lead?.assigned.assigneeStatus?.toLowerCase().includes(filterValue.toLowerCase())
+      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead?.assigned.assigneeStatus
+        ?.toLowerCase()
+        .includes(filterValue.toLowerCase())
     );
   });
 
@@ -204,7 +208,7 @@ function UserTodayLeads() {
                       <td>{l.contact}</td>
                       <td>
                         <select
-                          value={l.activityStatus}
+                          value={l.assigned.assigneeStatus}
                           onChange={(e) =>
                             handleStatusChange(l._id, e.target.value)
                           }
@@ -220,7 +224,7 @@ function UserTodayLeads() {
                             (window.location.href = `tel:${l._contact}`)
                           }
                         >
-                          <PhoneIcon className="w-5"/>
+                          <PhoneIcon className="w-5" />
                         </button>
                       </td>
                     </tr>
@@ -230,31 +234,31 @@ function UserTodayLeads() {
             </table>
           </div>
           <div className="flex  max-sm:flex-col item-center justify-between">
-              <Pagination
-                itemsPerPage={itemsPerPage}
-                totalItems={employeeData?.count}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
-              <div className="flex items-center max-sm:mt-[20px] justify-center">
-                <label className="mr-2   text-sm font-medium">
-                  Items Per Page:
-                </label>
-                <select
-                  className="border rounded p-2 max-sm:p-[.5vw]"
-                  value={itemsPerPage}
-                  onChange={(e) =>
-                    handleItemsPerPageChange(Number(e.target.value))
-                  }
-                >
-                  {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={employeeData?.count}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+            <div className="flex items-center max-sm:mt-[20px] justify-center">
+              <label className="mr-2   text-sm font-medium">
+                Items Per Page:
+              </label>
+              <select
+                className="border rounded p-2 max-sm:p-[.5vw]"
+                value={itemsPerPage}
+                onChange={(e) =>
+                  handleItemsPerPageChange(Number(e.target.value))
+                }
+              >
+                {itemsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
         </TitleCard>
       )}
     </>

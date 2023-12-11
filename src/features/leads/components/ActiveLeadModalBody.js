@@ -112,7 +112,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
                 JSON.stringify(response.data)
               );
               leadDetails = response.data;
-              console.log("all elad data", response.data);
+              console.log("all lead data", response.data);
             } else {
               console.log("access token incorrect");
             }

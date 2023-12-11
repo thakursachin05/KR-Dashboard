@@ -6,6 +6,7 @@ import InputText from "../../components/Input/InputText";
 import { API } from "../../utils/constants";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 function Login() {
   const INITIAL_LOGIN_OBJ = {
@@ -16,6 +17,11 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loginObj, setLoginObj] = useState(INITIAL_LOGIN_OBJ);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -86,14 +92,26 @@ function Login() {
                   updateFormValue={updateFormValue}
                 />
 
-                <InputText
-                  defaultValue={loginObj.password}
-                  type="password"
-                  updateType="password"
-                  containerStyle="mt-4"
-                  labelTitle="Password"
-                  updateFormValue={updateFormValue}
-                />
+                <div className="relative">
+                  <InputText
+                    type={showPassword ? "text" : "password"}
+                    updateType="password"
+                    containerStyle="mt-4"
+                    labelTitle="Password"
+                    updateFormValue={updateFormValue}
+                  />
+                  <button
+                    className="text-sm absolute right-0 top-[62%] mr-2"
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {!showPassword ? (
+                      <EyeIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
               {/* 
               <div className="text-right text-primary">

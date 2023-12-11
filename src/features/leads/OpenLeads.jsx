@@ -35,7 +35,7 @@ function OpenLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         modifiedDate: "notToday",
-        finalStatus: "OPENED",
+        assigneeStatus: "OPENED",
       };
       const baseURL = `${API}/lead`;
       try {

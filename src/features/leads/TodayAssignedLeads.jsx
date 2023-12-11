@@ -40,7 +40,7 @@ function TodayAssignedLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         dateAdded: todayDateString,
-        finalStatus: "OPENED",
+        assignedTo: "notNull",
       };
       const baseURL = `${API}/lead`;
       try {
