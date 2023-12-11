@@ -5,14 +5,6 @@ import { lazy } from "react";
 const Welcome = lazy(() => import("../pages/protected/Welcome"));
 const Page404 = lazy(() => import("../pages/protected/404"));
 const Leads = lazy(() => import("../pages/protected/Leads"));
-const OpenLeads = lazy(() => import("../pages/protected/OpenLeads"));
-
-const ClosedLeads = lazy(() => import("../pages/protected/ClosedLeads"));
-
-const TodayAssignedLeads = lazy(() =>
-  import("../pages/protected/TodayAssignedLeads")
-);
-
 const Team = lazy(() => import("../pages/protected/Team"));
 const ProfileSettings = lazy(() =>
   import("../pages/protected/ProfileSettings")
@@ -63,25 +55,26 @@ if (isAdmin) {
       component: ActiveMembers,
     },
     {
-      path: "/todayAssignedLeads",
-      component: TodayAssignedLeads,
+      path: "/uploadLeads",
+      component: Leads,
     },
+    // {
+    //   path: "/openLeads",
+    //   component: OpenLeads,
+    // },
+    // {
+    //   path: "/closedLeads",
+    //   component: ClosedLeads,
+    // },
+    // {
+    //   path: "/todayAssignedLeads",
+    //   component: TodayAssignedLeads,
+    // },
     {
       path: "/teamMembers",
       component: Team,
     },
-    {
-      path: "/uploadLeads",
-      component: Leads,
-    },
-    {
-      path: "/openLeads",
-      component: OpenLeads,
-    },
-    {
-      path: "/closedLeads",
-      component: ClosedLeads,
-    },
+
     {
       path: "/notApproved",
       component: NotApprovedMembers,

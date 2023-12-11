@@ -39,21 +39,21 @@ if (isAdmin) {
       icon: <InboxArrowDownIcon className={iconClasses} />,
       name: "Upload Leads",
     },
-    {
-      path: "/app/openLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Open Leads",
-    },
-    {
-      path: "/app/closedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Closed Leads",
-    },
-    {
-      path: "/app/todayAssignedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Today Assigned Leads",
-    },
+    // {
+    //   path: "/app/openLeads",
+    //   icon: <InboxArrowDownIcon className={iconClasses} />,
+    //   name: "Open Leads",
+    // },
+    // {
+    //   path: "/app/closedLeads",
+    //   icon: <InboxArrowDownIcon className={iconClasses} />,
+    //   name: "Closed Leads",
+    // },
+    // {
+    //   path: "/app/todayAssignedLeads",
+    //   icon: <InboxArrowDownIcon className={iconClasses} />,
+    //   name: "Today Assigned Leads",
+    // },
 
     {
       path: "/app/teamMembers",
