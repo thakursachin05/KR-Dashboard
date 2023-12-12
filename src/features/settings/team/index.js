@@ -308,9 +308,9 @@ function TeamMembers() {
                               handleStatusChange(l._id, e.target.value)
                             }
                           >
-                            <option value="hold">Hold</option>
-                            <option value="dead">Dead</option>
-                            <option value="active">Active</option>
+                            <option value="HOLD">Hold</option>
+                            <option value="DEAD">Dead</option>
+                            <option value="ACTIVE">Active</option>
                           </select>
                         </td>
                         <td>
