@@ -19,7 +19,8 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       page: 1,
       limit: 10,
       offset: 0,
-      approvedAt : "notNull"
+      approvedAt : "notNull",
+      isAdmin: "false",
     };
     try {
       const response = await axios.get(baseURL, { params: params });

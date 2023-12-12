@@ -44,8 +44,10 @@ function NotApprovedMembers() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
+        approvedAt: "null",
+        isAdmin: "false",
       };
-      const baseURL = `${API}/employee?approvedAt=null`;
+      const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
         localStorage.setItem("employee-details", JSON.stringify(response.data));
@@ -287,12 +289,14 @@ function NotApprovedMembers() {
                       <td>
                         <select
                           value={l.activityStatus}
-                          onChange={(e) =>
-                            handleStatusChange(l._id, e.target.value)
+                            onChange={(e) => {
+                              console.log("checiing the stays", l.activityStatus);
+                              handleStatusChange(l._id, e.target.value)
+                            }
                           }
                         >
-                          <option value="not-approved">Not Approved</option>
-                          <option value="approved">Approved</option>
+                          <option value="null">Not Approved</option>
+                          <option value="ACTIVE">Approved</option>
                         </select>
                       </td>
                       <td>

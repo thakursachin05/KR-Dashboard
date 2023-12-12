@@ -39,13 +39,12 @@ function ActiveMembers() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: ((Math.max(0, currentPage-1)*10)),
+        offset: Math.max(0, (currentPage-1)*itemsPerPage),
         approvedAt : "notNull",
-        presentDays: todayDate,
+        isAdmin: "false",
       };
       const baseURL = `${API}/employee`;
       try {

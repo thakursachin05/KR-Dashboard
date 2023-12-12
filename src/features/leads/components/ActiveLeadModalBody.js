@@ -46,7 +46,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           offset: 0,
           presentDays: todayDate,
           approvedAt: "notNull",
-          activityStatus: 'ACTIVE'
+          activityStatus: 'ACTIVE',
         };
         const response = await axios.get(baseURL, { params: params });
 
