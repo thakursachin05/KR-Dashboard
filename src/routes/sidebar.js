@@ -1,9 +1,11 @@
-// import Squares2X2Icon from "@heroicons/react/24/outline/Squares2X2Icon";
-// import WalletIcon from "@heroicons/react/24/outline/WalletIcon";
+import Squares2X2Icon from "@heroicons/react/24/outline/Squares2X2Icon";
+import WalletIcon from "@heroicons/react/24/outline/WalletIcon";
 import UserIcon from "@heroicons/react/24/outline/UserIcon";
-// import CurrencyDollarIcon from "@heroicons/react/24/outline/CurrencyDollarIcon";
+import ArrowRightOnRectangleIcon from "@heroicons/react/24/outline/ArrowRightOnRectangleIcon";
 import InboxArrowDownIcon from "@heroicons/react/24/outline/InboxArrowDownIcon";
+import SparklesIcon from "@heroicons/react/24/outline/SparklesIcon"
 import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
+import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon"
 
 const iconClasses = `h-6 w-6`;
 const submenuIconClasses = `h-5 w-5`;
@@ -21,12 +23,12 @@ if (user.approvedAt && !isAdmin) {
     },
     {
       path: "/app/closedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
+      icon: <Squares2X2Icon className={iconClasses} />,
       name: "Closed Leads",
     },
     {
       path: "/app/previousLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
+      icon: <ArrowRightOnRectangleIcon className={iconClasses} />,
       name: "Previous Assigned Leads",
     },
   );
@@ -35,9 +37,9 @@ if (user.approvedAt && !isAdmin) {
 if (isAdmin) {
   routes.push(
     {
-      path: "/app/totalAssignedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Total Assigned Leads",
+      path: "/app/assignedLeads",
+      icon: <Squares2X2Icon className={iconClasses} />,
+      name: "Assigned Leads",
     },
     {
       path: "/app/uploadLeads",
@@ -45,21 +47,15 @@ if (isAdmin) {
       name: "Upload Leads",
     },
     {
-      path: "/app/openLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Open Leads",
+      path: "/app/notAssigned",
+      icon: <ArrowRightOnRectangleIcon className={iconClasses} />,
+      name: "Not Assigned Leads",
     },
     {
       path: "/app/closedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
+      icon: <WalletIcon className={iconClasses} />,
       name: "Closed Leads",
     },
-    {
-      path: "/app/todayAssignedLeads",
-      icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Today Assigned Leads",
-    },
-
     {
       path: "/app/teamMembers",
       icon: <UsersIcon className={submenuIconClasses} />,
@@ -72,13 +68,13 @@ if (isAdmin) {
     },
     {
       path: "/app/activeMembers",
-      icon: <UserIcon className={submenuIconClasses} />,
+      icon: <SparklesIcon className={submenuIconClasses} />,
       name: "Today Present Member",
     },
 
     {
       path: "/app/notApproved",
-      icon: <UserIcon className={submenuIconClasses} />,
+      icon: <QuestionMarkCircleIcon className={submenuIconClasses} />,
       name: "Not Approved Members",
     }
   );

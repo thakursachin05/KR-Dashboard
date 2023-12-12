@@ -19,7 +19,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   // if it has today date, then it will be marked as active member else not
   let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
   let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
-  const totalEmployees = employeeDetails.count;
+  const totalEmployees = employeeDetails?.count;
   const minimumLead = 1;
   const totalLeads = leadDetails?.count;
   // console.log("lead details",leadDetails)
@@ -42,7 +42,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       try {
         const params = {
           page: 0,
-          limit: employeeDetails.count,
+          limit: 0,
           offset: 0,
           presentDays: todayDate,
           approvedAt: "notNull",
@@ -50,7 +50,10 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         const response = await axios.get(baseURL, { params: params });
 
         if (response.status === 200) {
-          localStorage.setItem("active-details", JSON.stringify(response.data));
+          localStorage.setItem(
+            "active-member-count",
+            JSON.stringify(response.data.count)
+          );
           const activeEmployees = response.data.data;
           setActiveEmployees(activeEmployees.length);
           if (activeEmployees.length >= totalLeads) {
@@ -67,7 +70,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, employeeDetails.count, totalLeads]);
+  }, [todayDate, employeeDetails?.count, totalLeads]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
@@ -246,7 +249,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         <p className="text-center">
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
-        <p className="text-center">
+        {/* <p className="text-center">
           {employeesWithoutLeads > 0
             ? excessLeads !== 0
               ? `1 employee will recieve ${excessLeads} leads`
@@ -254,7 +257,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             : `${
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
-        </p>
+        </p> */}
       </div>
 
       <div className="modal-action mt-12">

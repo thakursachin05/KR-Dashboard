@@ -9,48 +9,53 @@ import { sliceLeadDeleted } from "../leadSlice";
 function DuplicateLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
 
-  const { message, type, allData, uniqueData, duplicates } = extraObject;
+  const { message, type, allData } = extraObject;
 
   const proceedWithYes = async () => {
-    let leadData = allData;
-    if (duplicates === true) leadData = uniqueData;
     if (type === DUPLICATE_LEADS) {
-      for (const obj of leadData) {
-        try {
-          const tokenResponse = localStorage.getItem("accessToken");
-          const tokenData = JSON.parse(tokenResponse);
-          const token = tokenData.token;
-          const todayDate = new Date().toISOString().split("T")[0];
+      try {
+        const tokenResponse = localStorage.getItem("accessToken");
+        const tokenData = JSON.parse(tokenResponse);
+        const token = tokenData.token;
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const chunkSize = 1000
+        const leadLength = allData.length;
 
-          const singleLead = {
-            name: obj.name,
-            contact: obj.contact,
-            dateAdded: todayDate,
-          };
 
-          // Set the Authorization header with the token
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          };
+        for (let offset = 0; offset < leadLength; offset += chunkSize) {
+          try {
+            // Extract a chunk of 700 records
+            const chunk = allData.slice(offset, offset + chunkSize);
+            console.log("chunk data!",chunk);
 
-          const response = await axios.post(`${API}/lead/`, singleLead, config);
-
-          if (response.status === 201) {
-            dispatch(
-              showNotification({
-                message: "Lead inserted successfully!",
-                status: 1,
-              })
+            const response = await axios.post(
+              `${API}/lead/bulk`,
+              chunk,
+              config
             );
-            console.log("Lead data inserted successfully!");
-          } else {
-            console.log("Access token incorrect");
+
+            if (response.status === 200) {
+              dispatch(
+                showNotification({
+                  message: "Lead batch inserted successfully!",
+                  status: 1,
+                })
+              );
+              localStorage.setItem("unassigned-lead-count",leadLength)
+              console.log("Lead batch inserted successfully!",response.data);
+            } else {
+              console.log("Access token incorrect");
+            }
+          } catch (error) {
+            console.error("Error pushing lead data:", error);
           }
-        } catch (error) {
-          // console.error("Error pushing lead data:", error);
         }
+      } catch (error) {
+        // console.error("Error pushing lead data:", error);
       }
     }
     dispatch(sliceLeadDeleted(true));

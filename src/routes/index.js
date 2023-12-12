@@ -9,9 +9,6 @@ const OpenLeads = lazy(() => import("../pages/protected/OpenLeads"));
 
 const ClosedLeads = lazy(() => import("../pages/protected/ClosedLeads"));
 
-const TodayAssignedLeads = lazy(() =>
-  import("../pages/protected/TodayAssignedLeads")
-);
 const TotalAssignedLeads = lazy(() =>
   import("../pages/protected/TotalAssignedLeads")
 );
@@ -66,11 +63,7 @@ if (isAdmin) {
       component: ActiveMembers,
     },
     {
-      path: "/todayAssignedLeads",
-      component: TodayAssignedLeads,
-    },
-    {
-      path: "/totalAssignedLeads",
+      path: "/assignedLeads",
       component: TotalAssignedLeads,
     },
     {
@@ -82,7 +75,7 @@ if (isAdmin) {
       component: Leads,
     },
     {
-      path: "/openLeads",
+      path: "/notAssigned",
       component: OpenLeads,
     },
     {

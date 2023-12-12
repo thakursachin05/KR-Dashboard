@@ -13,6 +13,7 @@ import { API } from "../.../../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import { format } from "date-fns";
+import * as XLSX from "xlsx";
 
 function TeamMembers() {
   const dispatch = useDispatch();
@@ -162,6 +163,80 @@ function TeamMembers() {
     );
   });
 
+  const convertDataToXLSX = (data) => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    const blob = XLSX.write(wb, {
+      bookType: "xlsx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      type: "binary",
+    });
+
+    // Convert the binary string to a Blob
+    const blobData = new Blob([s2ab(blob)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    return blobData;
+  };
+
+  // Utility function to convert binary string to ArrayBuffer
+  const s2ab = (s) => {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
+    return buf;
+  };
+
+  // Function to trigger the download
+  const downloadXLSX = (data) => {
+    const blob = convertDataToXLSX(data);
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "exported_data.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportXLSX = () => {
+    // Assuming you have an array of objects representing the table data
+    const dataToExport = filteredLeads;
+
+    downloadXLSX(dataToExport);
+  };
+
+  const TopSideButtons = ({ onExportXLSX }) => {
+    const dispatch = useDispatch();
+
+    const openAddNewLeadModal = () => {
+      dispatch(
+        openModal({
+          title: "Assign Leads",
+          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
+          extraObject: {
+            message: `Choose employees to assign`,
+          },
+        })
+      );
+    };
+
+    return (
+      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export
+        </button>
+      </div>
+    );
+  };
+
+
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -177,6 +252,7 @@ function TeamMembers() {
       <TitleCard
         title={`Total Team Members ${employeeData?.count}`}
         topMargin="mt-2"
+        TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >
         {filteredLeads?.length === 0 ? (
           <p>No Data Found</p>

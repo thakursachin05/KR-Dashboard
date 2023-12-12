@@ -12,6 +12,7 @@ import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import Pagination from "../../components/Pagination";
 import { showNotification } from "../common/headerSlice";
 import axios from "axios";
+import * as XLSX from "xlsx";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
 
@@ -44,9 +45,9 @@ function OpenLeads() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * 10,
-        modifiedDate: "notToday",
-        finalStatus: "OPENED",
+        offset: Math.max(0, currentPage - 1) * itemsPerPage,
+        assignedTo: "null",
+        dateClosed: "null",
       };
       const baseURL = `${API}/lead`;
       try {
@@ -82,10 +83,7 @@ function OpenLeads() {
 
   const totalItems = leadDetails?.count;
 
-  const itemsPerPageOptions = Array.from(
-    { length: Math.ceil(totalItems / 10) },
-    (_, index) => (index + 1) * 10
-  );
+  const itemsPerPageOptions = [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -117,13 +115,9 @@ function OpenLeads() {
     return (
       lead?.name?.toLowerCase().includes(filterValue?.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
-      lead?.assigned?.assignedTo
-        ?.toLowerCase()
-        .includes(filterValue.toLowerCase()) ||
-      lead?.assigned?.assigneeContact?.includes(filterValue) ||
-      lead?.assigned?.assigneeStatus
-        ?.toLowerCase()
-        .includes(filterValue.toLowerCase()) ||
+      lead?.assignedTo?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead?.assigneeContact?.includes(filterValue) ||
+      lead?.assigneeStatus?.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead?.finalStatus?.toLowerCase().includes(filterValue?.toLowerCase())
     );
   });
@@ -192,46 +186,85 @@ function OpenLeads() {
     setEditedData((prevData) => ({ ...prevData, [key]: value }));
   };
 
-  const handleStatusChange = async (leadId, newStatus) => {
-    try {
-      const storedToken = localStorage.getItem("accessToken");
-      const leadData = {
-        finalStatus: newStatus,
-      };
-      if (storedToken) {
-        const accessToken = JSON.parse(storedToken).token;
+  const convertDataToXLSX = (data) => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-        if (accessToken) {
-          const headers = {
-            Authorization: `Bearer ${accessToken}`,
-          };
+    const blob = XLSX.write(wb, {
+      bookType: "xlsx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      type: "binary",
+    });
 
-          const response = await axios.put(`${API}/lead/${leadId}`, leadData, {
-            headers,
-          });
+    // Convert the binary string to a Blob
+    const blobData = new Blob([s2ab(blob)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
-          console.log("status updated data", response.data);
-          dispatch(sliceLeadDeleted(true));
-
-          dispatch(
-            showNotification({
-              message: "Status Updated Successfully!",
-              status: 1,
-            })
-          );
-        }
-      } else {
-        dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
-        );
-      }
-    } catch (error) {
-      dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
-      );
-    }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
+    return blobData;
   };
+
+  // Utility function to convert binary string to ArrayBuffer
+  const s2ab = (s) => {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
+    return buf;
+  };
+
+  // Function to trigger the download
+  const downloadXLSX = (data) => {
+    const blob = convertDataToXLSX(data);
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "exported_data.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportXLSX = () => {
+    // Assuming you have an array of objects representing the table data
+    const dataToExport = filteredLeads;
+
+    downloadXLSX(dataToExport);
+  };
+
+  const TopSideButtons = ({ onExportXLSX }) => {
+    const dispatch = useDispatch();
+
+    const openAddNewLeadModal = () => {
+      dispatch(
+        openModal({
+          title: "Assign Leads",
+          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
+          extraObject: {
+            message: `Choose employees to assign`,
+          },
+        })
+      );
+    };
+
+    return (
+      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => openAddNewLeadModal()}
+        >
+          Assign Leads
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export Leads
+        </button>
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -244,7 +277,11 @@ function OpenLeads() {
         />
       </div>
 
-      <TitleCard title={`Total Leads ${leadDetails?.count}`} topMargin="mt-2">
+      <TitleCard
+        title={`Not Assigned Leads ${leadDetails?.count}`}
+        topMargin="mt-2"
+        TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
+      >
         {filteredLeads?.length === 0 ? (
           <p>No Data Found</p>
         ) : (
@@ -283,38 +320,7 @@ function OpenLeads() {
                     >
                       Phone Number
                     </th>
-                    <th
-                      onClick={() => handleSort("assigneeName")}
-                      className={`cursor-pointer ${
-                        sortConfig.column === "assigneeName" ? "font-bold" : ""
-                      } ${
-                        sortConfig.column === "assigneeName"
-                          ? sortConfig.order === "asc"
-                            ? "sort-asc"
-                            : "sort-desc"
-                          : ""
-                      }`}
-                    >
-                      Assignee Name
-                    </th>
-                    <th
-                      onClick={() => handleSort("assigneeContact")}
-                      className={`cursor-pointer ${
-                        sortConfig.column === "assigneeContact"
-                          ? "font-bold"
-                          : ""
-                      } ${
-                        sortConfig.column === "assigneeContact"
-                          ? sortConfig.order === "asc"
-                            ? "sort-asc"
-                            : "sort-desc"
-                          : ""
-                      }`}
-                    >
-                      Assignee Contact
-                    </th>
-                    <th>Assignee Status</th>
-                    <th>Final Status</th>
+                    <th>Status</th>
 
                     <th className="text-center">Action</th>
                   </tr>
@@ -324,11 +330,8 @@ function OpenLeads() {
                     return (
                       <tr key={k}>
                         <td>
-                          {l.modified?.slice(-1)[0]?.date
-                            ? format(
-                                new Date(l?.modified?.slice(-1)[0]?.date),
-                                "dd/MM/yyyy"
-                              )
+                          {l.dateAdded
+                            ? format(new Date(l?.dateAdded), "dd/MM/yyyy")
                             : "N/A"}
                         </td>
                         <td>
@@ -357,20 +360,8 @@ function OpenLeads() {
                             l.contact
                           )}
                         </td>
-                        <td>{l.assigned.assignedTo}</td>
-                        <td>{l.assigned.assigneeContact}</td>
-                        <td>{l.assigned.assigneeStatus}</td>
-                        <td>
-                          <select
-                            value={l.finalStatus}
-                            onChange={(e) =>
-                              handleStatusChange(l._id, e.target.value)
-                            }
-                          >
-                            <option value="OPENED">OPENED</option>
-                            <option value="CLOSED">CLOSED</option>
-                          </select>
-                        </td>
+
+                        <td>{l.assigneeStatus}</td>
 
                         <td>
                           <div className="flex item-center justify-between">

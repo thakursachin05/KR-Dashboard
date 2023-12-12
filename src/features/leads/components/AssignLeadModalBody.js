@@ -3,8 +3,8 @@ import {
   MODAL_BODY_TYPES,
 } from "../../../utils/globalConstantUtil";
 import { openModal } from "../../common/modalSlice";
-import { API } from "../../../utils/constants";
-import axios from "axios";
+// import { API } from "../../../utils/constants";
+// import axios from "axios";
 
 function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
   const dispatch = useDispatch();
@@ -14,29 +14,29 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
 
 
   const openAddNewLeadModal = async(optionType) => {
-    const baseURL = `${API}/employee`;
-    const params = {
-      page: 1,
-      limit: 10,
-      offset: 0,
-      approvedAt : "notNull"
-    };
-    try {
-      const response = await axios.get(baseURL, { params: params });
+    // const baseURL = `${API}/employee`;
+    // const params = {
+    //   page: 1,
+    //   limit: 10,
+    //   offset: 0,
+    //   approvedAt : "notNull"
+    // };
+    // try {
+    //   const response = await axios.get(baseURL, { params: params });
 
-      if (response.status === 200) {
-        localStorage.setItem("employee-details", JSON.stringify(response.data));
-      } else {
-        console.log("access token incorrect");
-      }
-    } catch (error) {
-      console.error("error", error);
-    }
+    //   if (response.status === 200) {
+    //     localStorage.setItem("employee-details", JSON.stringify(response.data));
+    //   } else {
+    //     console.log("access token incorrect");
+    //   }
+    // } catch (error) {
+    //   console.error("error", error);
+    // }
     switch (optionType) {
       case "active":
         dispatch(
           openModal({
-            title: "Assign Leads to Active Employees",
+            title: "Today Present Employees",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_ACTIVE,
           })
         );
@@ -44,7 +44,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "inactive":
         dispatch(
           openModal({
-            title: "Assign Leads to InActive Employees",
+            title: "Employees who didn't get Leads Today",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE
             ,
           })
@@ -53,7 +53,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "all":
         dispatch(
           openModal({
-            title: "Assign Leads to All Employees",
+            title: "To All Employees with Active Status",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_TOTAL,
           })
         );
@@ -72,21 +72,21 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("active")}
         >
-          Assign Leads to Active
+           Present Employees Today
         </button>
 
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("inactive")}
         >
-          Assign Leads to Inactive
+          Employees who didn't get Leads Today
         </button>
 
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("all")}
         >
-          Assign Leads to All
+          To All Employees with Active Status
         </button>
       </div>
     </>

@@ -7,6 +7,7 @@ import axios from "axios";
 import { API } from "../../utils/constants";
 import { useDispatch } from "react-redux";
 import { showNotification } from "../common/headerSlice";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 function Register() {
   const INITIAL_REGISTER_OBJ = {
@@ -15,7 +16,7 @@ function Register() {
     email: "",
     contact: "",
   };
-
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
   const dispatch = useDispatch();
@@ -36,7 +37,7 @@ function Register() {
     }
     if (!isPasswordValid(registerObj.password)) {
       return setErrorMessage(
-        "Password should contain atleast 8 digits, one uppercase character and one special character!"
+        "Password requirements: 8 characters minimum, including at least one uppercase letter, one digit, and one special character."
       );
     } else {
       try {
@@ -52,6 +53,10 @@ function Register() {
         alert("Signup failed");
       }
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
   const isPasswordValid = (password) => {
@@ -109,15 +114,27 @@ function Register() {
                   labelTitle="Phone Number"
                   updateFormValue={updateFormValue}
                 />
-
-                <InputText
-                  defaultValue={registerObj.password}
-                  type="password"
-                  updateType="password"
-                  containerStyle="mt-4"
-                  labelTitle="Password"
-                  updateFormValue={updateFormValue}
-                />
+                <div className="relative">
+                  <InputText
+                    defaultValue={registerObj.password}
+                    type={showPassword ? "text" : "password"}
+                    updateType="password"
+                    containerStyle="mt-4"
+                    labelTitle="Password"
+                    updateFormValue={updateFormValue}
+                  />
+                  <button
+                    className="text-sm absolute right-0 top-[62%] mr-2"
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {!showPassword ? (
+                      <EyeIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <ErrorText styleClass="mt-8">{errorMessage}</ErrorText>

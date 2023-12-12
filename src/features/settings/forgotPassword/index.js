@@ -29,7 +29,7 @@ function ForgotPassword() {
     if (registerObj.contact.trim() === "")
       return setErrorMessage("Phone number is required!");
     if(!isPasswordValid(registerObj.password)){
-      return setErrorMessage("Password should contain atleast 8 digits, one uppercase character and one special character!");
+      return setErrorMessage("Password requirements: 8 characters minimum, including at least one uppercase letter, one digit, and one special character.");
     }
     else {
       setLoading(true);
