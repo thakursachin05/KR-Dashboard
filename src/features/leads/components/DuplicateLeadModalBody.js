@@ -21,57 +21,60 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${token}`,
           },
         };
-        const chunkSize = 1000
+        const chunkSize = 1000;
         const leadLength = allData.length;
         let duplicateData = 0;
-
+  
+        const apiCallPromises = [];
+  
         for (let offset = 0; offset < leadLength; offset += chunkSize) {
           try {
-            // Extract a chunk of 700 records
             const chunk = allData.slice(offset, offset + chunkSize);
-            console.log("chunk data!",chunk);
-
-            const response = await axios.post(
-              `${API}/lead/bulk`,
-              chunk,
-              config
+  
+            apiCallPromises.push(
+              axios.post(`${API}/lead/bulk`, chunk, config).then((response) => {
+                if (response.status === 200) {
+                  dispatch(
+                    showNotification({
+                      message: "Lead batch inserted successfully!",
+                      status: 1,
+                    })
+                  );
+                  localStorage.setItem("unassigned-lead-count", leadLength);
+                  duplicateData += response.data.stats.matchedCount;
+                  console.log("Lead batch inserted successfully!", response.data);
+                } else {
+                  console.log("Access token incorrect");
+                }
+              })
             );
-
-            if (response.status === 200) {
-              dispatch(
-                showNotification({
-                  message: "Lead batch inserted successfully!",
-                  status: 1,
-                })
-              );
-              localStorage.setItem("unassigned-lead-count",leadLength)
-              duplicateData += response.data.stats.matchedCount;
-              console.log("Lead batch inserted successfully!",response.data);
-            } else {
-              console.log("Access token incorrect");
-            }
           } catch (error) {
             console.error("Error pushing lead data:", error);
           }
         }
-
-        console.log("duplciated data found",duplicateData)
+  
+        // Wait for all promises to resolve
+        await Promise.all(apiCallPromises);
+  
+        console.log("duplicated data found", duplicateData);
+  
         dispatch(
           openModal({
             title: `Confirmation`,
             bodyType: MODAL_BODY_TYPES.STATS_LEADS,
             extraObject: {
               message: `Stats of your Data?`,
-              duplicateData : duplicateData
+              duplicateData: duplicateData,
             },
           })
         );
       } catch (error) {
-        // console.error("Error pushing lead data:", error);
+        console.error("Error pushing lead data:", error);
       }
     }
     closeModal();
   };
+  
 
   const proceedWithNo = async () => {
     closeModal();
