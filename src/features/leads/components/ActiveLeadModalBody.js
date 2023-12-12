@@ -46,6 +46,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           offset: 0,
           presentDays: todayDate,
           approvedAt: "notNull",
+          activityStatus: 'active'
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -54,12 +55,12 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             "active-member-count",
             JSON.stringify(response.data.count)
           );
-          const activeEmployees = response.data.data;
-          setActiveEmployees(activeEmployees.length);
-          if (activeEmployees.length >= totalLeads) {
+          const activeEmployees = response.data.count;
+          setActiveEmployees(activeEmployees);
+          if (activeEmployees >= totalLeads) {
             setLeadsPerEmployee(1);
           } else {
-            let perHead = Math.floor(totalLeads / activeEmployees.length);
+            let perHead = Math.floor(totalLeads / activeEmployees);
             setLeadsPerEmployee(perHead);
           }
         } else {
@@ -73,13 +74,13 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   }, [todayDate, employeeDetails?.count, totalLeads]);
 
   const proceedWithYes = async () => {
-    const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
+    const activeEmployees = JSON.parse(localStorage.getItem("active-member-count"));
     console.log("active eda", activeEmployees);
 
     if (
       totalLeads === 0 ||
       totalEmployees === 0 ||
-      activeEmployees
+      activeEmployees === 0
     ) {
       dispatch(
         showNotification({
