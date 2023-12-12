@@ -280,7 +280,7 @@ function TeamMembers() {
                     >
                       Phone Number
                     </th>
-                    <td>Lead Assigned</td>
+                    <td>Last Lead Assigned</td>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>

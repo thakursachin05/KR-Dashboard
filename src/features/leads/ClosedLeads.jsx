@@ -26,7 +26,6 @@ function OpenLeads() {
   };
 
   const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  // console.log("lead details from local storage", leadDetails);
   const leadDeleted = useSelector((state) => state.lead.leadDeleted);
 
   useEffect(() => {
@@ -295,4 +294,4 @@ function OpenLeads() {
   );
 }
 
-export default OpenLeads;
+export default ClosedLeads;

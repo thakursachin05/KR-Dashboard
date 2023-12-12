@@ -66,6 +66,18 @@ if (isAdmin) {
       path: "/assignedLeads",
       component: TotalAssignedLeads,
     },
+    // {
+    //   path: "/openLeads",
+    //   component: OpenLeads,
+    // },
+    // {
+    //   path: "/closedLeads",
+    //   component: ClosedLeads,
+    // },
+    // {
+    //   path: "/todayAssignedLeads",
+    //   component: TodayAssignedLeads,
+    // },
     {
       path: "/teamMembers",
       component: Team,

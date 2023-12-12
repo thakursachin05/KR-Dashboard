@@ -1,16 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
-import { openModal } from "../common/modalSlice";
 import { sliceLeadDeleted } from "./leadSlice";
-import {
-  CONFIRMATION_MODAL_CLOSE_TYPES,
-  MODAL_BODY_TYPES,
-} from "../../utils/globalConstantUtil";
-import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-
 import Pagination from "../../components/Pagination";
-import { showNotification } from "../common/headerSlice";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { API } from "../../utils/constants";
@@ -26,8 +18,6 @@ function OpenLeads() {
     order: "asc",
   });
   const [filterValue, setFilterValue] = useState("");
-  const [currentlyEditing, setCurrentlyEditing] = useState(null);
-  const [editedData, setEditedData] = useState({ name: "", contact: "" });
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -37,7 +27,6 @@ function OpenLeads() {
   };
 
   const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  // console.log("lead details from local storage", leadDetails);
   const leadDeleted = useSelector((state) => state.lead.leadDeleted);
 
   useEffect(() => {
@@ -333,30 +322,10 @@ function OpenLeads() {
                             : "N/A"}
                         </td>
                         <td>
-                          {currentlyEditing === k ? (
-                            <input
-                              type="text"
-                              value={editedData.name}
-                              onChange={(e) =>
-                                handleChange("name", e.target.value)
-                              }
-                            />
-                          ) : (
-                            l.name
-                          )}
+                          {l.name}
                         </td>
-                        <td>
-                          {currentlyEditing === k ? (
-                            <input
-                              type="text"
-                              value={editedData.contact}
-                              onChange={(e) =>
-                                handleChange("contact", e.target.value)
-                              }
-                            />
-                          ) : (
-                            l.contact
-                          )}
+                        <td>                           
+                          { l.contact}
                         </td>
 
                         <td>{l.assigneeStatus}</td>
