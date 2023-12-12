@@ -144,7 +144,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         Total Employees : {totalEmployees}
       </p>
       <p className="text-xl mb-5 text-center my-3">
-        Active Employees : {activeEmployees}
+        Employees Present Today: {activeEmployees}
       </p>
 
       <div className="mt-4 flex items-center justify-center">
