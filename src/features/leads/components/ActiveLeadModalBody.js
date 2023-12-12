@@ -74,11 +74,12 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(localStorage.getItem("active-details"));
+    console.log("active eda", activeEmployees);
 
     if (
       totalLeads === 0 ||
       totalEmployees === 0 ||
-      activeEmployees.count === 0
+      activeEmployees
     ) {
       dispatch(
         showNotification({
@@ -93,21 +94,12 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
-
         if (accessToken) {
           const headers = {
             Authorization: `Bearer ${accessToken}`,
           };
-
           try {
-            const params = {
-              page: 0,
-              limit: leadDetails?.count,
-              offset: 0,
-            };
-            const response = await axios.get(`${API}/lead?modified=[]`, {
-              params: params,
-            });
+            const response = await axios.post(`${API}/lead/assign`, {leadPerEmployee: leadsPerEmployee, typeOfEmployee: 'present_today'},  { headers });
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -121,75 +113,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             }
           } catch (error) {
             console.error("error", error);
-          }
-
-          console.log("supply of leads data", leadDetails);
-          console.log("supply of employee data", activeEmployees);
-
-          // const employeeIteration = Math.min(activeEmployees.count,Math.floor())
-          let j = 0;
-          // Assuming activeEmployees and leadDetails are arrays
-          for (let i = 0; i < activeEmployees.count; i++) {
-            let leadCount = leadsPerEmployee;
-
-            for (; j < leadDetails.count && leadCount > 0; j++) {
-              const leadId = leadDetails.data[j]._id;
-              let assigneeId = activeEmployees.data[i]._id;
-              let assigneeName = activeEmployees.data[i].name;
-              let assigneeContact = activeEmployees.data[i].contact;
-
-              const existingLeadResponse = await axios.get(
-                `${API}/lead/?id=${leadId}`
-              );
-              const existingLeadData = existingLeadResponse.data.data; // Assuming your data structure
-
-              const newModifiedObject = {
-                assignedTo: assigneeName,
-                assigneeId: assigneeId,
-                date: todayDate,
-                status: "OPENED",
-                contact: assigneeContact,
-              };
-
-              // Check if existingLeadData.modified is an array before spreading
-              const modifiedArray = Array.isArray(existingLeadData.modified)
-                ? existingLeadData.modified
-                : [];
-
-              // Update the lead with employee details
-              await axios.put(
-                `${API}/lead/${leadId}`,
-                {
-                  finalStatus: "OPENED",
-                  assigned: {
-                    assignedTo: assigneeName,
-                    assigneeId: assigneeId,
-                    assigneeStatus: "OPENED",
-                    assigneeContact: assigneeContact,
-                  },
-                  modified: [...modifiedArray, newModifiedObject],
-                },
-                { headers }
-              );
-              leadCount--;
-            }
-
-            if (leadCount > 0) {
-              leadCount = leadsPerEmployee - leadCount;
-            } else {
-              leadCount = leadsPerEmployee;
-            }
-
-            const updateData = {
-              lastDateLeadAssigned: todayDate,
-              lastNumberOfLeadAssigned: leadCount,
-            };
-
-            await axios.put(
-              `${API}/employee/${activeEmployees.data[i]._id}`,
-              updateData,
-              { headers }
-            );
           }
         }
         dispatch(sliceLeadDeleted(true));
