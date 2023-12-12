@@ -148,7 +148,7 @@ function OpenLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export
+          Export Leads
         </button>
       </div>
     );

@@ -214,7 +214,7 @@ function NotApprovedMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export
+          Export Member
         </button>
       </div>
     );

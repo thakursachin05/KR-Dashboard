@@ -1,6 +1,8 @@
 import { useDispatch } from "react-redux";
 import { openModal } from "../common/modalSlice";
 import { MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
+import csvImage from "../../assets/images/csv_upload.png";
+import excelImage from "../../assets/images/excel_upload.png";
 
 import * as XLSX from "xlsx";
 function Leads() {
@@ -104,34 +106,52 @@ function Leads() {
 
   return (
     <>
-      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center ">
-        <label
-          htmlFor="xlsxInput"
-          className="cursor-pointer btn px-6 btn-sm normal-case btn-primary half-width"
-        >
-          Import XLSX
-        </label>
-        <input
-          type="file"
-          id="xlsxInput"
-          onChange={handleFileChange}
-          className="hidden"
-          accept=".xlsx"
-        />
+      <div className="flex flex-col items-center sm:flex-row gap-4 max-sm:mt-4">
+        {/* XLSX Input */}
+        <div className="relative">
+          <label
+            htmlFor="xlsxInput"
+            className="cursor-pointer btn px-6 btn-sm normal-case btn-primary half-width"
+          >
+            Import XLSX
+          </label>
+          <img
+            src={excelImage}
+            alt="Excel Image"
+            className="cursor-pointer mt-2 sm:mt-0"
+            onClick={() => document.getElementById("xlsxInput").click()}
+          />
+          <input
+            type="file"
+            id="xlsxInput"
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".xlsx"
+          />
+        </div>
 
-        <label
-          htmlFor="csvInput"
-          className="cursor-pointer btn px-6 btn-sm normal-case btn-primary half-width"
-        >
-          Import CSV
-        </label>
-        <input
-          type="file"
-          id="csvInput"
-          onChange={handleCSVFileChange}
-          className="hidden"
-          accept=".csv"
-        />
+        {/* CSV Input */}
+        <div className="relative">
+          <label
+            htmlFor="csvInput"
+            className="cursor-pointer btn px-6 btn-sm normal-case btn-primary half-width"
+          >
+            Import CSV
+          </label>
+          <img
+            src={csvImage}
+            alt="CSV Image"
+            className="cursor-pointer mt-2 sm:mt-0"
+            onClick={() => document.getElementById("csvInput").click()}
+          />
+          <input
+            type="file"
+            id="csvInput"
+            onChange={handleCSVFileChange}
+            className="hidden"
+            accept=".csv"
+          />
+        </div>
       </div>
     </>
   );

@@ -217,7 +217,7 @@ function TeamMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export
+          Export Team Members
         </button>
       </div>
     );
