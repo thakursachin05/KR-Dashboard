@@ -45,7 +45,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           limit: 0,
           offset: 0,
           approvedAt: "notNull",
-          activityStatus: 'active'
+          activityStatus: 'ACTIVE'
         };
         const response = await axios.get(baseURL, { params: params });
 
