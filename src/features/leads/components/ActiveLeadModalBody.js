@@ -174,7 +174,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
         <p className="text-center">
-          {employeesWithoutLeads > 0
+          {employeesWithoutLeads >= 0
             ? excessLeads !== 0
               ? `1 employee will recieve ${excessLeads} leads`
               : "No Leads are Remaining"
