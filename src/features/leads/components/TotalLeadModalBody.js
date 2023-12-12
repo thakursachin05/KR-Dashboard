@@ -5,7 +5,7 @@ import { API } from "../../../utils/constants";
 import axios from "axios";
 import { sliceLeadDeleted } from "../leadSlice";
 
-function InActiveLeadModalBody({ extraObject, closeModal }) {
+function TotalLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [activeEmployees, setActiveEmployees] = useState(0);
   // const { leads } = useSelector((state) => state.lead);
@@ -57,7 +57,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           if (activeEmployees.length >= totalLeads) {
             setLeadsPerEmployee(1);
           } else {
-            let perHead = Math.floor(totalLeads / activeEmployees.length);
+            let perHead = Math.ceil(totalLeads / activeEmployees.length);
             setLeadsPerEmployee(perHead);
           }
         } else {
@@ -99,98 +99,43 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
 
+          const today = new Date();
+
+          // Get the day of the week in lowercase (e.g., 'monday', 'tuesday', etc.)
+          const dayOfWeek = today
+            .toLocaleDateString("en-US", { weekday: "long" })
+            .toLowerCase();
+
           try {
-            const params = {
-              page: 0,
-              limit: leadDetails?.count,
-              offset: 0,
-            };
-            const response = await axios.get(`${API}/lead?modified=[]`, {
-              params: params,
-            });
+            const baseURL = `${API}/leadsCount`;
+            let dbleadsCount = [];
+            try {
+              const response = await axios.get(baseURL);
 
-            if (response.status === 200) {
-              localStorage.setItem(
-                "lead-details",
-                JSON.stringify(response.data)
-              );
-              leadDetails = response.data;
-              console.log("all elad data", response.data);
-            } else {
-              console.log("access token incorrect");
+              if (response.status === 200) {
+                console.log("Lead count array", response.data.days);
+                dbleadsCount = response.data.days;
+                // Return the lead count array
+              } else {
+                console.log("Access token incorrect");
+              }
+            } catch (error) {
+              console.error("Error fetching lead count array:", error);
             }
+            // Fetch existing day-wise lead count array from the database
+
+            // Find the index of the current day in the array
+            const dayIndex = getDayIndex(dayOfWeek);
+
+            // Update the lead count for the current day
+            dbleadsCount[dayIndex - 1] = leadsPerEmployee; // Assuming response.data contains the lead count
+
+            // Save the updated array back to the database
+            saveLeadCountArrayToDatabase(dbleadsCount); // You should implement this function
+
+            console.log("Updated day-wise lead count:", dbleadsCount);
           } catch (error) {
-            console.error("error", error);
-          }
-
-          console.log("supply of leads data", leadDetails);
-          console.log("supply of employee data", activeEmployees);
-
-          // const employeeIteration = Math.min(activeEmployees.count,Math.floor())
-          let j = 0;
-          // Assuming activeEmployees and leadDetails are arrays
-          for (let i = 0; i < activeEmployees.count; i++) {
-            let leadCount = leadsPerEmployee;
-
-            for (; j < leadDetails.count && leadCount > 0; j++) {
-              const leadId = leadDetails.data[j]._id;
-              let assigneeId = activeEmployees.data[i]._id;
-              let assigneeName = activeEmployees.data[i].name;
-              let assigneeContact = activeEmployees.data[i].contact;
-
-              const existingLeadResponse = await axios.get(
-                `${API}/lead/?id=${leadId}`
-              );
-              const existingLeadData = existingLeadResponse.data.data; // Assuming your data structure
-
-              const newModifiedObject = {
-                assignedTo: assigneeName,
-                assigneeId: assigneeId,
-                date: todayDate,
-                status: "OPENED",
-                contact: assigneeContact,
-              };
-
-              // Check if existingLeadData.modified is an array before spreading
-              const modifiedArray = Array.isArray(existingLeadData.modified)
-                ? existingLeadData.modified
-                : [];
-
-              // Update the lead with employee details
-              await axios.put(
-                `${API}/lead/${leadId}`,
-                {
-                  assigned: {
-                    assignedTo: assigneeName,
-                    assigneeId: assigneeId,
-                    assigneeStatus: "OPENED",
-                    assigneeContact: assigneeContact,
-                  },
-                  finalStatus: "OPENED",
-
-                  modified: [...modifiedArray, newModifiedObject],
-                },
-                { headers }
-              );
-              leadCount--;
-            }
-
-            if (leadCount > 0) {
-              leadCount = leadsPerEmployee - leadCount;
-            } else {
-              leadCount = leadsPerEmployee;
-            }
-
-            const updateData = {
-              lastDateLeadAssigned: todayDate,
-              lastNumberOfLeadAssigned: leadCount,
-            };
-
-            await axios.put(
-              `${API}/employee/${activeEmployees.data[i]._id}`,
-              updateData,
-              { headers }
-            );
+            console.error("Error updating day-wise lead count:", error);
           }
         }
         dispatch(sliceLeadDeleted(true));
@@ -212,6 +157,99 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
     }
 
     closeModal();
+  };
+
+  function getDayIndex(dayOfWeek) {
+    const daysOfWeek = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
+    const lowercaseDay = dayOfWeek.toLowerCase();
+    const dayIndex = daysOfWeek.indexOf(lowercaseDay);
+
+    // If the day is not found in the array, you might want to handle it accordingly.
+    // For example, you can return -1 or set a default day index.
+    if (dayIndex === -1) {
+      console.error("Invalid day of the week:", dayOfWeek);
+      // Handle the error or set a default day index
+      // return a default value or throw an error
+      // return -1;
+    }
+
+    return dayIndex;
+  }
+
+  const getLeadCountArrayFromDatabase = async () => {
+    const baseURL = `${API}/leadsCount`;
+
+    try {
+      const response = await axios.get(baseURL);
+
+      if (response.status === 200) {
+        console.log("Lead count array", response.data.days);
+
+        // Return the lead count array
+        return response.data.days;
+      } else {
+        console.log("Access token incorrect");
+      }
+    } catch (error) {
+      console.error("Error fetching lead count array:", error);
+    }
+
+    // If there's an error or the response status is not 200, you might want to return a default value or handle it accordingly.
+    return [0, 0, 0, 0, 0, 0, 0];
+  };
+
+  const saveLeadCountArrayToDatabase = async (leadCountArray) => {
+    const baseURL = `${API}/leadsCount`;
+    const storedToken = localStorage.getItem("accessToken");
+
+    if (storedToken) {
+      const accessToken = JSON.parse(storedToken).token;
+
+      if (accessToken) {
+        const headers = {
+          Authorization: `Bearer ${accessToken}`,
+        };
+
+        console.log("elead count array apaswing to put api", leadCountArray);
+        const leadBody = {
+          days: leadCountArray,
+        };
+
+        try {
+          const response = await axios.put(baseURL, leadBody, {
+            headers,
+          });
+
+          if (response.status === 200) {
+            console.log("Lead count array updated successfully", response.data);
+            // Handle the response or do additional logic as needed
+          } else {
+            console.log(
+              "Failed to update lead count array. Status:",
+              response.status
+            );
+            // Handle the error
+          }
+        } catch (error) {
+          console.error("Error updating lead count array:", error);
+          // Handle the error
+        }
+      } else {
+        console.log("Access token not found");
+        // Handle the case where the access token is missing
+      }
+    } else {
+      console.log("Access token not found");
+      // Handle the case where the access token is missing
+    }
   };
 
   return (
@@ -273,4 +311,4 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   );
 }
 
-export default InActiveLeadModalBody;
+export default TotalLeadModalBody;

@@ -13,6 +13,7 @@ function UserTodayLeads() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [teamMember, setTeamMember] = useState([]);
+  const [leadCount,setLeadCount] = useState('')
   const [sortConfig, setSortConfig] = useState({
     column: "",
     order: "asc",
@@ -28,31 +29,83 @@ function UserTodayLeads() {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-  const leadDeleted = useSelector((state) => state.lead.leadDeleted);
-
+  // const leadDeleted = useSelector((state) => state.lead.leadDeleted);
 
   useEffect(() => {
     const fetchData = async () => {
-      const todayDate = new Date().toISOString().split("T")[0];
-      const params = {
-        page: currentPage,
-        limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * 10,
-      };
-      const baseURL = `${API}/lead?modifieddate=${todayDate}&assigneeId=${storeUserData?._id}`;
       try {
-        const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("lead-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data);
-      } catch (error) {
-        console.error("error", error);
-      }
-      dispatch(sliceLeadDeleted(false));
+        // Define daysOfWeek array
+        const daysOfWeek = [
+          "sunday",
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+        ];
 
+        // Step 1: Fetch employee count
+        const countParams = { limit: 0 };
+        const employeeCountResponse = await axios.get(`${API}/employee`, {
+          params: countParams,
+        });
+        const employeeCount = employeeCountResponse.data.count;
+
+        // Step 2: Fetch all employee data
+        const allEmployeeParams = { page: 0, limit: employeeCount, offset: 0 };
+        const allEmployeeResponse = await axios.get(`${API}/employee`, {
+          params: allEmployeeParams,
+        });
+        const allEmployeeData = allEmployeeResponse.data.data;
+
+        // Step 3: Find the index of the current user
+        const userid = storeUserData._id;
+        const indexOfUser = allEmployeeData.findIndex(
+          (employee) => employee._id === userid
+        );
+
+        if (indexOfUser !== -1) {
+          // Step 4: Fetch leads count array
+          const leadsCountResponse = await axios.get(`${API}/leadsCount`);
+          const leadsCountArray = leadsCountResponse.data?.days;
+          console.log("leads count array",leadsCountArray)
+
+          // Step 5: Get lead count for today
+          const todayDayOfWeek = new Date()
+            .toLocaleDateString("en-US", { weekday: "long" })
+            .toLowerCase();
+          const todayLeadCount =
+            leadsCountArray[daysOfWeek.indexOf(todayDayOfWeek)-1];
+
+            console.log("today wekk ",todayDayOfWeek)
+            console.log("todayLeadCount",todayLeadCount)
+            console.log("index of user",indexOfUser)
+
+
+          // Step 6: Fetch leads based on lead count and user index
+          const todayLeadParams = {
+            limit: todayLeadCount,
+            offset: (indexOfUser-1) * (todayLeadCount),
+          };
+          const todayLeadResponse = await axios.get(`${API}/daywiseLeads?day=${todayDayOfWeek}`, {
+            params: todayLeadParams,
+          });
+          const todayLeadData = todayLeadResponse.data;
+          localStorage.setItem("lead-details",JSON.stringify(todayLeadResponse.data))
+          setTeamMember(todayLeadResponse.data.data)
+          // Now you can use todayLeadData as needed
+          console.log("Today's leads:", todayLeadData);
+        } else {
+          console.log("User not found in employee data");
+        }
+      } catch (error) {
+        console.error("Error during data fetching:", error);
+      }
     };
 
     fetchData();
-  }, [itemsPerPage,leadDeleted, storeUserData._id, dispatch, currentPage]);
+  }, [storeUserData._id]); // Only trigger the effect when storeUserData._id changes
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
@@ -196,7 +249,6 @@ function UserTodayLeads() {
                   >
                     Phone Number
                   </th>
-                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -206,17 +258,6 @@ function UserTodayLeads() {
                     <tr key={k}>
                       <td>{l.name}</td>
                       <td>{l.contact}</td>
-                      <td>
-                        <select
-                          value={l.assigned.assigneeStatus}
-                          onChange={(e) =>
-                            handleStatusChange(l._id, e.target.value)
-                          }
-                        >
-                          <option value="OPENED">Opened</option>
-                          <option value="CLOSED">Closed</option>
-                        </select>
-                      </td>
                       <td>
                         <button
                           className="btn btn-square btn-ghost"

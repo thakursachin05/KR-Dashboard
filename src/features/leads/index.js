@@ -37,10 +37,17 @@ function Leads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
-        assignedTo : "null"
       };
 
-      const baseURL = `${API}/lead?`;
+      const today = new Date();
+
+      // Get the day of the week in lowercase (e.g., 'monday', 'tuesday', etc.)
+      const dayOfWeek = today
+        .toLocaleDateString("en-US", { weekday: "long" })
+        .toLowerCase();
+
+
+      const baseURL = `${API}/daywiseLeads?day=${dayOfWeek}`;
       try {
         const response = await axios.get(baseURL, { params: params });
 
@@ -71,39 +78,20 @@ function Leads() {
         try {
           const csvData = e.target.result;
           const jsonData = csvToJSON(csvData);
-          const duplicates = await findDuplicates(jsonData);
-          const uniqueDataLength = jsonData?.length - duplicates?.length;
-          if (duplicates.length > 0) {
-            dispatch(
-              openModal({
-                title: `Confirmation`,
-                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
-                extraObject: {
-                  message: `${duplicates?.length} Duplicates Found and ${uniqueDataLength} Unique Data`,
-                  uniqueData: jsonData?.filter(
-                    (item) => !duplicates?.includes(item)
-                  ),
-                  allData: jsonData,
-                  duplicates: true,
-                },
-              })
-            );
-          } else {
-            dispatch(
-              openModal({
-                title: `Confirmation`,
-                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
-                extraObject: {
-                  message: `Have you cross checked Leads?`,
-                  uniqueData: jsonData,
-                  allData: jsonData,
-                  duplicates: false,
-                },
-              })
-            );
-          }
+          console.log("json data of csv file", jsonData);
+          console.log("jsondata size",jsonData.length)
+
+          dispatch(
+            openModal({
+              title: `Confirmation`,
+              bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
+              extraObject: {
+                message: `Have you cross checked Leads?`,
+                allData: jsonData,
+              },
+            })
+          );
           // Now you can use the jsonData as needed
-          console.log(jsonData);
         } catch (error) {
           console.error("Error parsing CSV file:", error);
         }
@@ -115,91 +103,28 @@ function Leads() {
   };
 
   const csvToJSON = (csvData) => {
-    const lines = csvData.split('\n');
+    const lines = csvData.split("\n");
     const result = [];
-  
+
     // Trim headers to remove leading and trailing spaces
-    const headers = lines[0].split(',').map(header => header.trim());
-  
+    const headers = lines[0].split(",").map((header) => header.trim());
+
     for (let i = 1; i < lines.length; i++) {
-      const currentLine = lines[i].split(',');
-  
+      const currentLine = lines[i].split(",");
+
       if (currentLine.length === headers.length) {
         const entry = {};
         for (let j = 0; j < headers.length; j++) {
           const value = currentLine[j].trim();
-          entry[headers[j]] = isNaN(value) ? value : parseFloat(value.replace(/[^\d.]/g, ''));
+          entry[headers[j]] = isNaN(value)
+            ? value
+            : parseFloat(value.replace(/[^\d.]/g, ""));
         }
         result.push(entry);
       }
     }
-  
+
     return result;
-  };
-  
-  
-
-  // Function to find duplicates between two arrays
-  const findDuplicates = async (arr2) => {
-    let totalLeads = 0;
-    try {
-      const params = {
-        page: 1,
-        limit: 10,
-        offset: 0,
-      };
-      const LeadbaseURL = `${API}/lead`;
-      const response = await axios.get(LeadbaseURL, { params: params });
-      if (response.status === 200) {
-        totalLeads = response.data.count;
-        console.log(
-          "total count of leads to check duplicates",
-          response.data.count
-        );
-      }
-    } catch (error) {
-      console.log("error", error);
-    }
-
-    const params = {
-      page: 1,
-      limit: totalLeads,
-      offset: 0,
-    };
-    const baseURL = `${API}/lead`;
-    try {
-      const response = await axios.get(baseURL, { params: params });
-      if (response.status === 200) {
-        const allData = response.data.data;
-        const duplicates = [];
-        const uniqueValues = new Set(
-          arr2.map((item) => {
-            const jsonString = JSON.stringify({
-              name: item?.name,
-              contact: item?.contact?.toString(),
-            });
-            // console.log("jsonData, items",item)
-            return jsonString;
-          })
-        );
-        for (const item of allData) {
-          const stringifiedData = JSON.stringify({
-            name: item.name,
-            contact: item.contact,
-          });
-          if (uniqueValues.has(stringifiedData)) {
-            duplicates.push(item);
-          }
-          // console.log("data of lead", JSON.stringify({ name: item.name, contact: item.contact }));
-        }
-
-        return duplicates;
-      } else {
-        console.log("access token incorrect");
-      }
-    } catch (error) {
-      console.error("error", error);
-    }
   };
 
   const handleFileChange = async (e) => {
@@ -216,38 +141,18 @@ function Leads() {
           const sheetName = workbook.SheetNames[0];
 
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-          const duplicates = await findDuplicates(jsonData);
-          console.log("json data of excel file",jsonData)
-          const uniqueDataLength = jsonData?.length - duplicates?.length;
-          if (duplicates.length > 0) {
-            dispatch(
-              openModal({
-                title: `Confirmation`,
-                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
-                extraObject: {
-                  message: `${duplicates?.length} Duplicates Found and ${uniqueDataLength} Unique Data`,
-                  uniqueData: jsonData?.filter(
-                    (item) => !duplicates?.includes(item)
-                  ),
-                  allData: jsonData,
-                  duplicates: true,
-                },
-              })
-            );
-          } else {
-            dispatch(
-              openModal({
-                title: `Confirmation`,
-                bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
-                extraObject: {
-                  message: `Have you cross checked Leads?`,
-                  uniqueData: jsonData,
-                  allData: jsonData,
-                  duplicates: false,
-                },
-              })
-            );
-          }
+          console.log("json data of excel file", jsonData);
+
+          dispatch(
+            openModal({
+              title: `Confirmation`,
+              bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,
+              extraObject: {
+                message: `Have you cross checked Leads?`,
+                allData: jsonData,
+              },
+            })
+          );
         } catch (error) {
           console.error("Error reading XLSX file:", error);
         }
