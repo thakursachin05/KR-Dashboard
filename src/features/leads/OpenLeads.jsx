@@ -7,6 +7,8 @@ import axios from "axios";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { openModal } from "../common/modalSlice";
+import { MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
 function OpenLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
@@ -141,9 +143,29 @@ function OpenLeads() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
+    const dispatch = useDispatch();
+
+    const openAddNewLeadModal = () => {
+      dispatch(
+        openModal({
+          title: "Assign Leads",
+          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
+          extraObject: {
+            message: `Choose employees to assign`,
+          },
+        })
+      );
+    };
 
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => openAddNewLeadModal()}
+        >
+          Assign Leads
+        </button>
+
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
