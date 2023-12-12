@@ -35,7 +35,7 @@ function UserClosedLeads() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        finalStatus: "CLOSED",
+        dateClosed : "notNull",
         offset: Math.max(0, currentPage - 1) * 10,
       };
       const baseURL = `${API}/lead?assigneeId=${storeUserData?._id}`;

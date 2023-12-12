@@ -32,13 +32,19 @@ function UserTodayLeads() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const todayDate = new Date().toISOString().split("T")[0];
+
+      const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+      const istDate = new Date(Date.now() + IST_OFFSET);
+      const todayIST = istDate.toISOString().split("T")[0];
+      // const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
+        assignedDate:todayIST,
+        assigneeId : storeUserData?._id
       };
-      const baseURL = `${API}/lead?modifieddate=${todayDate}&assigneeId=${storeUserData?._id}`;
+      const baseURL = `${API}/lead`;
       try {
         const response = await axios.get(baseURL, { params: params });
         localStorage.setItem("lead-details", JSON.stringify(response.data));

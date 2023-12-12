@@ -37,8 +37,7 @@ function UserPreviousLeads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
-        finalStatus: "OPENED",
-        modifiedDate: "notToday",
+        assignedDate: "notToday",
       };
       const baseURL = `${API}/lead?&assigneeId=${storeUserData?._id}`;
       try {
