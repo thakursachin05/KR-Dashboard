@@ -37,13 +37,13 @@ function UserTodayLeads() {
       const IST_OFFSET = 5.5 * 60 * 60 * 1000;
       const istDate = new Date(Date.now() + IST_OFFSET);
       const todayIST = istDate.toISOString().split("T")[0];
-      // const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
         assignedDate:todayIST,
-        assigneeId : storeUserData?._id
+        assigneeId : storeUserData?._id,
+        dateClosed : "null"
       };
       const baseURL = `${API}/lead`;
       try {
@@ -64,6 +64,9 @@ function UserTodayLeads() {
 
   const handleStatusChange = async (leadId, newStatus) => {
     console.log("member id", leadId);
+    const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(Date.now() + IST_OFFSET);
+    const todayIST = istDate.toISOString().split("T")[0];
     try {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
@@ -77,9 +80,8 @@ function UserTodayLeads() {
           const response = await axios.put(
             `${API}/lead/${leadId}`,
             {
-              assigned: {
                 assigneeStatus: newStatus,
-              },
+                dateClosed: todayIST
             },
             {
               headers,
@@ -145,7 +147,7 @@ function UserTodayLeads() {
       lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
       lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead?.assigned.assigneeStatus
+      lead?.assigneeStatus
         ?.toLowerCase()
         .includes(filterValue.toLowerCase())
     );
@@ -214,7 +216,7 @@ function UserTodayLeads() {
                       <td>{l.contact}</td>
                       <td>
                         <select
-                          value={l.assigned.assigneeStatus}
+                          value={l.assigneeStatus}
                           onChange={(e) =>
                             handleStatusChange(l._id, e.target.value)
                           }

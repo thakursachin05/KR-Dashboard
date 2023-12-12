@@ -231,37 +231,6 @@ function OpenLeads() {
                     >
                       Phone Number
                     </th>
-                    <th
-                      onClick={() => handleSort("assigneeName")}
-                      className={`cursor-pointer ${
-                        sortConfig.column === "assigneeName" ? "font-bold" : ""
-                      } ${
-                        sortConfig.column === "assigneeName"
-                          ? sortConfig.order === "asc"
-                            ? "sort-asc"
-                            : "sort-desc"
-                          : ""
-                      }`}
-                    >
-                      Assignee Name
-                    </th>
-                    <th
-                      onClick={() => handleSort("assigneeContact")}
-                      className={`cursor-pointer ${
-                        sortConfig.column === "assigneeContact"
-                          ? "font-bold"
-                          : ""
-                      } ${
-                        sortConfig.column === "assigneeContact"
-                          ? sortConfig.order === "asc"
-                            ? "sort-asc"
-                            : "sort-desc"
-                          : ""
-                      }`}
-                    >
-                      Assignee Contact
-                    </th>
-                    <th>Assigned Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -275,9 +244,6 @@ function OpenLeads() {
                         </td>
                         <td>{l.name}</td>
                         <td>{l.contact}</td>
-                        <td>{l.assignedTo}</td>
-                        <td>{l.assigneeContact}</td>
-                        <td>{l.assignedDate}</td>
                       </tr>
                     );
                   })}

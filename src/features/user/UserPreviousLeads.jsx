@@ -192,9 +192,10 @@ function UserPreviousLeads() {
                   >
                     Phone Number
                   </th>
+                  <th>Status</th>
+
                   <th>Assigned Date</th>
 
-                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -203,6 +204,7 @@ function UserPreviousLeads() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
+
                       <td>{l.contact}</td>
                       <td>
                         <select
@@ -216,9 +218,9 @@ function UserPreviousLeads() {
                         </select>
                       </td>
                       <td>
-                        {l.modified?.slice(-1)[0]?.date
+                        {l.assignedDate
                           ? format(
-                              new Date(l?.modified?.slice(-1)[0]?.date),
+                              new Date(l?.assignedDate),
                               "dd/MM/yyyy"
                             )
                           : "N/A"}

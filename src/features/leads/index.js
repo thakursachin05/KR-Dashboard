@@ -5,6 +5,7 @@ import csvImage from "../../assets/images/csv_upload.png";
 import excelImage from "../../assets/images/excel_upload.png";
 
 import * as XLSX from "xlsx";
+import TitleCard from "../../components/Cards/TitleCard";
 function Leads() {
   const dispatch = useDispatch();
   const handleFileChange = async (e) => {
@@ -105,22 +106,22 @@ function Leads() {
   };
 
   return (
-    <>
-      <div className="flex flex-col items-center sm:flex-row gap-4 max-sm:mt-4">
+    <TitleCard
+    topMargin="mt-2"
+    title={`Upload Leads in XLSX or CSV`}
+    
+    >
+
+      <div className="flex flex-col justify-center items-center gap-x-40  sm:flex-row  max-sm:mt-4">
         {/* XLSX Input */}
-        <div className="relative">
-          <label
-            htmlFor="xlsxInput"
-            className="cursor-pointer btn px-6 btn-sm normal-case btn-primary half-width"
-          >
-            Import XLSX
-          </label>
+        <div className="relative md:hover:scale-[110%] duration-100">
           <img
             src={excelImage}
             alt="Excel lead"
-            className="cursor-pointer mt-2 sm:mt-0"
+            className="cursor-pointer object-cover mt-2 sm:mt-0 h-96" // Adjust the width and height as needed
             onClick={() => document.getElementById("xlsxInput").click()}
           />
+
           <input
             type="file"
             id="xlsxInput"
@@ -131,17 +132,11 @@ function Leads() {
         </div>
 
         {/* CSV Input */}
-        <div className="relative">
-          <label
-            htmlFor="csvInput"
-            className="cursor-pointer btn px-6 btn-sm normal-case btn-primary half-width"
-          >
-            Import CSV
-          </label>
+        <div className="relative md:hover:scale-[110%] duration-100">
           <img
             src={csvImage}
             alt="CSV lead"
-            className="cursor-pointer mt-2 sm:mt-0"
+            className="cursor-pointer object-cover mt-2 sm:mt-0 h-80"
             onClick={() => document.getElementById("csvInput").click()}
           />
           <input
@@ -153,7 +148,7 @@ function Leads() {
           />
         </div>
       </div>
-    </>
+    </TitleCard>
   );
 }
 

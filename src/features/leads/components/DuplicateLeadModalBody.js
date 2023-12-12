@@ -1,10 +1,9 @@
 import { useDispatch } from "react-redux";
-// import axios from 'axios'
-import { DUPLICATE_LEADS } from "../../../utils/globalConstantUtil";
+import { DUPLICATE_LEADS, MODAL_BODY_TYPES } from "../../../utils/globalConstantUtil";
 import { showNotification } from "../../common/headerSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
-import { sliceLeadDeleted } from "../leadSlice";
+import { openModal } from "../../common/modalSlice";
 
 function DuplicateLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
@@ -24,7 +23,7 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
         };
         const chunkSize = 1000
         const leadLength = allData.length;
-
+        let duplicateData = 0;
 
         for (let offset = 0; offset < leadLength; offset += chunkSize) {
           try {
@@ -46,6 +45,7 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
                 })
               );
               localStorage.setItem("unassigned-lead-count",leadLength)
+              duplicateData += response.data.stats.matchedCount;
               console.log("Lead batch inserted successfully!",response.data);
             } else {
               console.log("Access token incorrect");
@@ -54,12 +54,22 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
             console.error("Error pushing lead data:", error);
           }
         }
+
+        console.log("duplciated data found",duplicateData)
+        dispatch(
+          openModal({
+            title: `Confirmation`,
+            bodyType: MODAL_BODY_TYPES.STATS_LEADS,
+            extraObject: {
+              message: `Stats of your Data?`,
+              duplicateData : duplicateData
+            },
+          })
+        );
       } catch (error) {
         // console.error("Error pushing lead data:", error);
       }
     }
-    dispatch(sliceLeadDeleted(true));
-
     closeModal();
   };
 

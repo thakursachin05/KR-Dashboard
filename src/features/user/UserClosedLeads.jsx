@@ -156,9 +156,9 @@ function UserClosedLeads() {
                       <td>{l.name}</td>
                       <td>{l.contact}</td>
                       <td>
-                        {l.modified?.slice(-1)[0]?.date
+                        {l.assignedDate
                           ? format(
-                              new Date(l.modified.slice(-1)[0].date),
+                              new Date(l.assignedDate),
                               "dd/MM/yyyy"
                             )
                           : "N/A"}
