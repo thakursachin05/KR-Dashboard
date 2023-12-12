@@ -210,7 +210,6 @@ function TeamMembers() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
-    
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
@@ -222,7 +221,6 @@ function TeamMembers() {
       </div>
     );
   };
-
 
   return (
     <>
@@ -281,6 +279,8 @@ function TeamMembers() {
                       Phone Number
                     </th>
                     <td>Last Lead Assigned</td>
+                    <td>Last Date Assigned</td>
+
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -291,16 +291,21 @@ function TeamMembers() {
                       <tr key={k}>
                         <td>
                           {l.approvedAt
-                            ? format(
-                                new Date(l?.approvedAt),
-                                "dd/MM/yyyy"
-                              )
+                            ? format(new Date(l?.approvedAt), "dd/MM/yyyy")
                             : "N/A"}
                         </td>
                         <td>{l.name}</td>
                         <td>{l.email}</td>
                         <td>{l.contact}</td>
                         <td>{l.lastNumberOfLeadAssigned}</td>
+                        <td>
+                          {l.lastDateLeadAssigned
+                            ? format(
+                                new Date(l?.lastDateLeadAssigned),
+                                "dd/MM/yyyy"
+                              )
+                            : "N/A"}
+                        </td>
                         <td>
                           <select
                             value={l.activityStatus}
