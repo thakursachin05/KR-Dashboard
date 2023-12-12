@@ -44,7 +44,6 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           page: 0,
           limit: 0,
           offset: 0,
-          lastDateLeadAssigned: null,
           approvedAt: "notNull",
           activityStatus: 'active'
         };

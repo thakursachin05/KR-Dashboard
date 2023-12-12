@@ -44,7 +44,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           page: 0,
           limit: 0,
           offset: 0,
-          lastDateLeadAssigned: null,
+          lastDateLeadAssigned: "null",
           approvedAt: "notNull",
           activityStatus: 'active' 
         };
@@ -75,10 +75,11 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     console.log("checing tin not lead aasinged");
+    
     const activeEmployees = JSON.parse(
       localStorage.getItem("inActive-count")
     );
-
+      console.log("active employee", activeEmployees);
     if (
       totalLeads === 0 ||
       totalEmployees === 0 ||
