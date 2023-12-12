@@ -12,6 +12,7 @@ import axios from "axios";
 import { API } from "../../../utils/constants";
 import { sliceMemberDeleted,sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
+import * as XLSX from "xlsx";
 
 function ActiveMembers() {
   const dispatch = useDispatch();
@@ -158,6 +159,66 @@ function ActiveMembers() {
     );
   });
 
+  const convertDataToXLSX = (data) => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    const blob = XLSX.write(wb, {
+      bookType: "xlsx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      type: "binary",
+    });
+
+    // Convert the binary string to a Blob
+    const blobData = new Blob([s2ab(blob)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    return blobData;
+  };
+
+  // Utility function to convert binary string to ArrayBuffer
+  const s2ab = (s) => {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
+    return buf;
+  };
+
+  // Function to trigger the download
+  const downloadXLSX = (data) => {
+    const blob = convertDataToXLSX(data);
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "exported_data.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportXLSX = () => {
+    // Assuming you have an array of objects representing the table data
+    const dataToExport = filteredLeads;
+
+    downloadXLSX(dataToExport);
+  };
+
+  const TopSideButtons = ({ onExportXLSX }) => {
+    return (
+      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export Present Member
+        </button>
+      </div>
+    );
+  };
+
+
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -173,8 +234,9 @@ function ActiveMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Team Members ${employeeData?.count}`}
+          title={`Total Present Members ${employeeData?.count}`}
           topMargin="mt-2"
+          TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
           <div className="overflow-x-auto w-full">
             <table className="table w-full">

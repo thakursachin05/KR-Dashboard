@@ -1,60 +1,75 @@
 import { useDispatch } from "react-redux";
-// import axios from 'axios'
-import { DUPLICATE_LEADS } from "../../../utils/globalConstantUtil";
+import { DUPLICATE_LEADS, MODAL_BODY_TYPES } from "../../../utils/globalConstantUtil";
 import { showNotification } from "../../common/headerSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
-import { sliceLeadDeleted } from "../leadSlice";
+import { openModal } from "../../common/modalSlice";
 
 function DuplicateLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
 
-  const { message, type, allData, uniqueData, duplicates } = extraObject;
+  const { message, type, allData } = extraObject;
 
   const proceedWithYes = async () => {
-    let leadData = allData;
-    if (duplicates === true) leadData = uniqueData;
     if (type === DUPLICATE_LEADS) {
-      for (const obj of leadData) {
-        try {
-          const tokenResponse = localStorage.getItem("accessToken");
-          const tokenData = JSON.parse(tokenResponse);
-          const token = tokenData.token;
-          const todayDate = new Date().toISOString().split("T")[0];
+      try {
+        const tokenResponse = localStorage.getItem("accessToken");
+        const tokenData = JSON.parse(tokenResponse);
+        const token = tokenData.token;
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const chunkSize = 1000
+        const leadLength = allData.length;
+        let duplicateData = 0;
 
-          const singleLead = {
-            name: obj.name,
-            contact: obj.contact,
-            dateAdded: todayDate,
-          };
+        for (let offset = 0; offset < leadLength; offset += chunkSize) {
+          try {
+            // Extract a chunk of 700 records
+            const chunk = allData.slice(offset, offset + chunkSize);
+            console.log("chunk data!",chunk);
 
-          // Set the Authorization header with the token
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          };
-
-          const response = await axios.post(`${API}/lead/`, singleLead, config);
-
-          if (response.status === 201) {
-            dispatch(
-              showNotification({
-                message: "Lead inserted successfully!",
-                status: 1,
-              })
+            const response = await axios.post(
+              `${API}/lead/bulk`,
+              chunk,
+              config
             );
-            console.log("Lead data inserted successfully!");
-          } else {
-            console.log("Access token incorrect");
+
+            if (response.status === 200) {
+              dispatch(
+                showNotification({
+                  message: "Lead batch inserted successfully!",
+                  status: 1,
+                })
+              );
+              localStorage.setItem("unassigned-lead-count",leadLength)
+              duplicateData += response.data.stats.matchedCount;
+              console.log("Lead batch inserted successfully!",response.data);
+            } else {
+              console.log("Access token incorrect");
+            }
+          } catch (error) {
+            console.error("Error pushing lead data:", error);
           }
-        } catch (error) {
-          // console.error("Error pushing lead data:", error);
         }
+
+        console.log("duplciated data found",duplicateData)
+        dispatch(
+          openModal({
+            title: `Confirmation`,
+            bodyType: MODAL_BODY_TYPES.STATS_LEADS,
+            extraObject: {
+              message: `Stats of your Data?`,
+              duplicateData : duplicateData
+            },
+          })
+        );
+      } catch (error) {
+        // console.error("Error pushing lead data:", error);
       }
     }
-    dispatch(sliceLeadDeleted(true));
-
     closeModal();
   };
 

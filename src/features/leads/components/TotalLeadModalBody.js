@@ -42,22 +42,24 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       try {
         const params = {
           page: 0,
-          limit: employeeDetails.count,
+          limit: 0,
           offset: 0,
+          approvedAt: "notNull",
+          activityStatus: 'active'
         };
         const response = await axios.get(baseURL, { params: params });
 
         if (response.status === 200) {
           localStorage.setItem(
-            "total-lead-details",
-            JSON.stringify(response.data)
+            "total-lead-count",
+            JSON.stringify(response.data.count)
           );
-          const activeEmployees = response.data.data;
-          setActiveEmployees(activeEmployees.length);
-          if (activeEmployees.length >= totalLeads) {
+          const activeEmployees = response.data.count;
+          setActiveEmployees(activeEmployees);
+          if (activeEmployees >= totalLeads) {
             setLeadsPerEmployee(1);
           } else {
-            let perHead = Math.floor(totalLeads / activeEmployees.length);
+            let perHead = Math.floor(totalLeads / activeEmployees);
             setLeadsPerEmployee(perHead);
           }
         } else {
@@ -68,17 +70,17 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, employeeDetails.count, totalLeads]);
+  }, [todayDate, employeeDetails?.count, totalLeads]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
-      localStorage.getItem("total-lead-details")
+      localStorage.getItem("total-lead-count")
     );
 
     if (
       totalLeads === 0 ||
       totalEmployees === 0 ||
-      activeEmployees.count === 0
+      activeEmployees === 0
     ) {
       dispatch(
         showNotification({
@@ -93,21 +95,12 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
-
         if (accessToken) {
           const headers = {
             Authorization: `Bearer ${accessToken}`,
           };
-
           try {
-            const params = {
-              page: 0,
-              limit: leadDetails?.count,
-              offset: 0,
-            };
-            const response = await axios.get(`${API}/lead?modified=[]`, {
-              params: params,
-            });
+            const response = await axios.post(`${API}/lead/assign`, {leadPerEmployee: leadsPerEmployee, typeOfEmployee: 'active_status'},  { headers });
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -115,82 +108,12 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
                 JSON.stringify(response.data)
               );
               leadDetails = response.data;
-              console.log("all elad data", response.data);
+              console.log("all lead data", response.data);
             } else {
               console.log("access token incorrect");
             }
           } catch (error) {
             console.error("error", error);
-          }
-
-          console.log("supply of leads data", leadDetails);
-          console.log("supply of employee data", activeEmployees);
-
-          // const employeeIteration = Math.min(activeEmployees.count,Math.floor())
-          let j = 0;
-          // Assuming activeEmployees and leadDetails are arrays
-          for (let i = 0; i < activeEmployees.count; i++) {
-            let leadCount = leadsPerEmployee;
-
-            for (; j < leadDetails.count && leadCount > 0; j++) {
-              const leadId = leadDetails.data[j]._id;
-              let assigneeId = activeEmployees.data[i]._id;
-              let assigneeName = activeEmployees.data[i].name;
-              let assigneeContact = activeEmployees.data[i].contact;
-
-              const existingLeadResponse = await axios.get(
-                `${API}/lead/?id=${leadId}`
-              );
-              const existingLeadData = existingLeadResponse.data.data; // Assuming your data structure
-
-              const newModifiedObject = {
-                assignedTo: assigneeName,
-                assigneeId: assigneeId,
-                date: todayDate,
-                status: "OPENED",
-                contact: assigneeContact,
-              };
-
-              // Check if existingLeadData.modified is an array before spreading
-              const modifiedArray = Array.isArray(existingLeadData.modified)
-                ? existingLeadData.modified
-                : [];
-
-              // Update the lead with employee details
-              await axios.put(
-                `${API}/lead/${leadId}`,
-                {
-                  assigned: {
-                    assignedTo: assigneeName,
-                    assigneeId: assigneeId,
-                    assigneeStatus: "OPENED",
-                    assigneeContact: assigneeContact,
-                  },
-                  finalStatus: "OPENED",
-
-                  modified: [...modifiedArray, newModifiedObject],
-                },
-                { headers }
-              );
-              leadCount--;
-            }
-
-            if (leadCount > 0) {
-              leadCount = leadsPerEmployee - leadCount;
-            } else {
-              leadCount = leadsPerEmployee;
-            }
-
-            const updateData = {
-              lastDateLeadAssigned: todayDate,
-              lastNumberOfLeadAssigned: leadCount,
-            };
-
-            await axios.put(
-              `${API}/employee/${activeEmployees.data[i]._id}`,
-              updateData,
-              { headers }
-            );
           }
         }
         dispatch(sliceLeadDeleted(true));

@@ -36,24 +36,24 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "active":
         dispatch(
           openModal({
-            title: "Assign Leads to Active Employees",
+            title: "Today Present Employees",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_ACTIVE,
           })
         );
         break;
-      // case "inactive":
-      //   dispatch(
-      //     openModal({
-      //       title: "Assign Leads to InActive Employees",
-      //       bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE
-      //       ,
-      //     })
-      //   );
-      //   break;
+      case "inactive":
+        dispatch(
+          openModal({
+            title: "Employees who didn't get Leads Today",
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE
+            ,
+          })
+        );
+        break;
       case "all":
         dispatch(
           openModal({
-            title: "Assign Leads to All Employees",
+            title: "To All Employees with Active Status",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_TOTAL,
           })
         );
@@ -72,21 +72,21 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("active")}
         >
-          Assign Leads to Active
+           Present Employees Today
         </button>
 
-        {/* <button
+        <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("inactive")}
         >
-          Assign Leads to Inactive
-        </button> */}
+          Employees who didn't get Leads Today
+        </button>
 
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("all")}
         >
-          Assign Leads to All
+          To All Employees with Active Status
         </button>
       </div>
     </>

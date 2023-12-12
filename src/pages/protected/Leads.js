@@ -8,7 +8,7 @@ function InternalPage(){
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(setPageTitle({ title : "Leads"}))
+        dispatch(setPageTitle({ title : "Upload Leads in CSV or XLSX file"}))
       }, [dispatch])
 
 

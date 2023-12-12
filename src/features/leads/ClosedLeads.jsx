@@ -6,7 +6,7 @@ import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
-
+import * as XLSX from "xlsx";
 function ClosedLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
@@ -33,9 +33,8 @@ function ClosedLeads() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * 10,
-        modifiedDate: "notToday",
-        assigneeStatus: "CLOSED",
+        offset: Math.max(0, currentPage - 1) * itemsPerPage,
+        dateClosed: "notNull",
       };
       const baseURL = `${API}/lead`;
       try {
@@ -55,12 +54,7 @@ function ClosedLeads() {
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
 
-  const totalItems = leadDetails?.count;
-
-  const itemsPerPageOptions = Array.from(
-    { length: Math.ceil(totalItems / 10) },
-    (_, index) => (index + 1) * 10
-  );
+  const itemsPerPageOptions = [10,50,100,200]
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -92,16 +86,72 @@ function ClosedLeads() {
     return (
       lead?.name?.toLowerCase().includes(filterValue?.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
-      lead?.assigned?.assignedTo
-        ?.toLowerCase()
-        .includes(filterValue.toLowerCase()) ||
-      lead?.assigned?.assigneeContact?.includes(filterValue) ||
-      lead?.assigned?.assigneeStatus
-        ?.toLowerCase()
-        .includes(filterValue.toLowerCase()) ||
+      lead?.assignedTo?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead?.assigneeContact?.includes(filterValue) ||
+      lead?.assigneeStatus?.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead?.finalStatus?.toLowerCase().includes(filterValue?.toLowerCase())
     );
   });
+
+  const convertDataToXLSX = (data) => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    const blob = XLSX.write(wb, {
+      bookType: "xlsx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      type: "binary",
+    });
+
+    // Convert the binary string to a Blob
+    const blobData = new Blob([s2ab(blob)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    return blobData;
+  };
+
+  // Utility function to convert binary string to ArrayBuffer
+  const s2ab = (s) => {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
+    return buf;
+  };
+
+  // Function to trigger the download
+  const downloadXLSX = (data) => {
+    const blob = convertDataToXLSX(data);
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "exported_data.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportXLSX = () => {
+    // Assuming you have an array of objects representing the table data
+    const dataToExport = filteredLeads;
+
+    downloadXLSX(dataToExport);
+  };
+
+  const TopSideButtons = ({ onExportXLSX }) => {
+
+    return (
+      <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export Leads
+        </button>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -115,7 +165,11 @@ function ClosedLeads() {
         />
       </div>
 
-      <TitleCard title={`Total Leads ${leadDetails?.count}`} topMargin="mt-2">
+      <TitleCard
+        title={`Closed Leads ${leadDetails?.count}`}
+        topMargin="mt-2"
+        TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
+      >
         {filteredLeads?.length === 0 ? (
           <p>No Data Found</p>
         ) : (
@@ -184,7 +238,7 @@ function ClosedLeads() {
                     >
                       Assignee Contact
                     </th>
-                    {/* <th className="text-center">Action</th> */}
+                    <th>Assigned Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -192,21 +246,15 @@ function ClosedLeads() {
                     return (
                       <tr key={k}>
                         <td>
-                          {l.modified?.slice(-1)[0]?.date
-                            ? format(
-                                new Date(l?.modified?.slice(-1)[0]?.date),
-                                "dd/MM/yyyy"
-                              )
+                          {l?.dateAdded
+                            ? format(new Date(l?.dateAdded), "dd/MM/yyyy")
                             : "N/A"}
                         </td>
-                        <td>
-                          {l.name}
-                        </td>
-                        <td>                           
-                          { l.contact}
-                        </td>
-                        <td>{l.assigned.assignedTo}</td>
-                        <td>{l.assigned.assigneeContact}</td>
+                        <td>{l.name}</td>
+                        <td>{l.contact}</td>
+                        <td>{l.assignedTo}</td>
+                        <td>{l.assigneeContact}</td>
+                        <td>{l.assignedDate}</td>
                       </tr>
                     );
                   })}

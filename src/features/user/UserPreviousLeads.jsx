@@ -37,8 +37,7 @@ function UserPreviousLeads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
-        assignedassigneeStatus: "OPENED",
-        modifiedDate: "notToday",
+        assignedDate: "notToday",
       };
       const baseURL = `${API}/lead?&assigneeId=${storeUserData?._id}`;
       try {
@@ -193,9 +192,10 @@ function UserPreviousLeads() {
                   >
                     Phone Number
                   </th>
+                  <th>Status</th>
+
                   <th>Assigned Date</th>
 
-                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -204,6 +204,7 @@ function UserPreviousLeads() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
+
                       <td>{l.contact}</td>
                       <td>
                         <select
@@ -217,9 +218,9 @@ function UserPreviousLeads() {
                         </select>
                       </td>
                       <td>
-                        {l.modified?.slice(-1)[0]?.date
+                        {l.assignedDate
                           ? format(
-                              new Date(l?.modified?.slice(-1)[0]?.date),
+                              new Date(l?.assignedDate),
                               "dd/MM/yyyy"
                             )
                           : "N/A"}
