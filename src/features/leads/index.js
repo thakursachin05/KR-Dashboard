@@ -117,7 +117,7 @@ function Leads() {
           </label>
           <img
             src={excelImage}
-            alt="Excel Image"
+            alt="Excel lead"
             className="cursor-pointer mt-2 sm:mt-0"
             onClick={() => document.getElementById("xlsxInput").click()}
           />
@@ -140,7 +140,7 @@ function Leads() {
           </label>
           <img
             src={csvImage}
-            alt="CSV Image"
+            alt="CSV lead"
             className="cursor-pointer mt-2 sm:mt-0"
             onClick={() => document.getElementById("csvInput").click()}
           />

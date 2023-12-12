@@ -4,10 +4,9 @@ import TitleCard from "../../components/Cards/TitleCard";
 import { sliceLeadDeleted } from "./leadSlice";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
-import * as XLSX from "xlsx";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
-
+import * as XLSX from "xlsx";
 function OpenLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
@@ -35,7 +34,7 @@ function OpenLeads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        assignedTo: "null",
+        assignedTo : "null",
         dateClosed: "null",
       };
       const baseURL = `${API}/lead`;
@@ -56,21 +55,7 @@ function OpenLeads() {
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
 
-  const deleteCurrentLead = (index) => {
-    dispatch(
-      openModal({
-        title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
-        extraObject: {
-          message: `Are you sure you want to delete this lead?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE,
-          index: index,
-        },
-      })
-    );
-  };
-
-  const itemsPerPageOptions = [10, 50, 100, 200];
+  const itemsPerPageOptions = [10,50,100,200]
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -108,70 +93,6 @@ function OpenLeads() {
       lead?.finalStatus?.toLowerCase().includes(filterValue?.toLowerCase())
     );
   });
-
-  const toggleEdit = (index) => {
-    setEditedData({
-      name: filteredLeads[index].name,
-      contact: filteredLeads[index].contact,
-    });
-
-    setCurrentlyEditing((prevIndex) => (prevIndex === index ? null : index));
-  };
-
-  const handleSaveEdit = async (leadId, index) => {
-    try {
-      // Validate edited data (you can add more validation as needed)
-      if (!editedData.name || !editedData.contact) {
-        dispatch(
-          showNotification({
-            message: "Name and contact are required.",
-            status: 2,
-          })
-        );
-        return;
-      }
-      const tokenResponse = localStorage.getItem("accessToken");
-      const tokenData = JSON.parse(tokenResponse);
-      const token = tokenData.token;
-
-      // Set the Authorization header with the token
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const updatedLead = {
-        name: editedData.name,
-        contact: editedData.contact,
-      };
-
-      await axios.put(`${API}/lead/${leadId}`, updatedLead, config);
-      dispatch(sliceLeadDeleted(true));
-
-      dispatch(
-        showNotification({
-          message: "Lead updated successfully!",
-          status: 1,
-        })
-      );
-
-      // Clear the edited values and toggle off editing mode
-      setEditedData({ name: "", contact: "" });
-      setCurrentlyEditing(null);
-    } catch (error) {
-      console.error("Error updating lead:", error);
-
-      dispatch(
-        showNotification({
-          message: "Error updating lead. Please try again.",
-          status: 2,
-        })
-      );
-    }
-  };
-  const handleChange = (key, value) => {
-    setEditedData((prevData) => ({ ...prevData, [key]: value }));
-  };
 
   const convertDataToXLSX = (data) => {
     const ws = XLSX.utils.json_to_sheet(data);
@@ -220,28 +141,9 @@ function OpenLeads() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
-    const dispatch = useDispatch();
-
-    const openAddNewLeadModal = () => {
-      dispatch(
-        openModal({
-          title: "Assign Leads",
-          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
-          extraObject: {
-            message: `Choose employees to assign`,
-          },
-        })
-      );
-    };
 
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={() => openAddNewLeadModal()}
-        >
-          Assign Leads
-        </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
@@ -307,9 +209,37 @@ function OpenLeads() {
                     >
                       Phone Number
                     </th>
-                    <th>Status</th>
-
-                    <th className="text-center">Action</th>
+                    <th
+                      onClick={() => handleSort("assigneeName")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "assigneeName" ? "font-bold" : ""
+                      } ${
+                        sortConfig.column === "assigneeName"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Assignee Name
+                    </th>
+                    <th
+                      onClick={() => handleSort("assigneeContact")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "assigneeContact"
+                          ? "font-bold"
+                          : ""
+                      } ${
+                        sortConfig.column === "assigneeContact"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Assignee Contact
+                    </th>
+                    <th>Assigned Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -317,44 +247,15 @@ function OpenLeads() {
                     return (
                       <tr key={k}>
                         <td>
-                          {l.dateAdded
+                          {l?.dateAdded
                             ? format(new Date(l?.dateAdded), "dd/MM/yyyy")
                             : "N/A"}
                         </td>
-                        <td>
-                          {l.name}
-                        </td>
-                        <td>                           
-                          { l.contact}
-                        </td>
-
-                        <td>{l.assigneeStatus}</td>
-
-                        <td>
-                          <div className="flex item-center justify-between">
-                            <button
-                              className="btn btn-square btn-ghost"
-                              onClick={() => deleteCurrentLead(l._id)}
-                            >
-                              <TrashIcon className="w-5" />
-                            </button>
-                            <div className="flex flex-col items-center justify-center">
-                              <button
-                                className="btn btn-square btn-ghost"
-                                onClick={() => toggleEdit(k)}
-                              >
-                                {currentlyEditing === k ? "Cancel" : "Edit"}
-                              </button>
-                              {currentlyEditing === k && (
-                                <button
-                                  onClick={() => handleSaveEdit(l._id, k)}
-                                >
-                                  SAVE
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </td>
+                        <td>{l.name}</td>
+                        <td>{l.contact}</td>
+                        <td>{l.assignedTo}</td>
+                        <td>{l.assigneeContact}</td>
+                        <td>{l.assignedDate}</td>
                       </tr>
                     );
                   })}

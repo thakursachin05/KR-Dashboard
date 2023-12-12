@@ -7,7 +7,7 @@ import axios from "axios";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
-function OpenLeads() {
+function ClosedLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
