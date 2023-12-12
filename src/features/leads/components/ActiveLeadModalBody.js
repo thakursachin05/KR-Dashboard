@@ -249,7 +249,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         <p className="text-center">
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
-        {/* <p className="text-center">
+        <p className="text-center">
           {employeesWithoutLeads > 0
             ? excessLeads !== 0
               ? `1 employee will recieve ${excessLeads} leads`
@@ -257,7 +257,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             : `${
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
-        </p> */}
+        </p>
       </div>
 
       <div className="modal-action mt-12">

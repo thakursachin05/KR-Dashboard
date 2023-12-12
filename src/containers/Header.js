@@ -17,6 +17,7 @@ import { showNotification } from "../features/common/headerSlice";
 
 function Header() {
   const storedUserData = JSON.parse(localStorage.getItem("user"));
+  const [isButtonEnabled, setIsButtonEnabled] = useState(true);
   const isTodayPresent = storedUserData?.presentDays?.some((date) => {
     // Assuming date is a string in the format "YYYY-MM-DDTHH:mm:ss.sssZ"
     const today = new Date().toISOString().split("T")[0];
@@ -54,6 +55,28 @@ function Header() {
     }
     // 👆 false parameter is required for react project
   }, [currentTheme]);
+
+// testing of attendace button
+  // useEffect(() => {
+  //   const now = new Date();
+  //   const currentHour = now.getHours();
+  //   const currentMinutes = now.getMinutes();
+
+  //   // Check if the current time is between 6:16 and 6:18
+  //   const isTimeInRange = currentHour === 18 && currentMinutes >= 28 && currentMinutes <= 30;
+
+  //   setIsButtonEnabled(isTimeInRange);
+  // }, []);
+
+  useEffect(() => {
+    const now = new Date();
+    const currentHour = now.getHours();
+
+    // Check if the current time is between 6 am and 12 pm
+    const isTimeInRange = currentHour >= 6 && currentHour < 12;
+
+    setIsButtonEnabled(isTimeInRange);
+  }, []);
 
   const handleAttendanceMarking = async () => {
     if (attendanceMarked) return;
@@ -142,7 +165,11 @@ function Header() {
                     ? "text-black cursor-pointer bg-green-500 rounded p-1 mr-5"
                     : "text-black cursor-pointer bg-red-500 rounded p-1 mr-5"
                 }
-                onClick={handleAttendanceMarking}
+                onClick={isButtonEnabled ? handleAttendanceMarking : null}
+                style={{
+                  opacity: isButtonEnabled ? 1 : 0.5,
+                  pointerEvents: isButtonEnabled ? "auto" : "none",
+                }}
               >
                 {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
               </div>

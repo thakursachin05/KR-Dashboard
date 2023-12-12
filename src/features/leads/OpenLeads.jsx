@@ -81,8 +81,6 @@ function OpenLeads() {
     );
   };
 
-  const totalItems = leadDetails?.count;
-
   const itemsPerPageOptions = [10, 50, 100, 200];
 
   const handleSort = (column) => {

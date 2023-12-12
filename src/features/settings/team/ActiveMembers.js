@@ -206,20 +206,6 @@ function ActiveMembers() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
-    const dispatch = useDispatch();
-
-    const openAddNewLeadModal = () => {
-      dispatch(
-        openModal({
-          title: "Assign Leads",
-          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
-          extraObject: {
-            message: `Choose employees to assign`,
-          },
-        })
-      );
-    };
-
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
