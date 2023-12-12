@@ -34,9 +34,9 @@ function UserTodayLeads() {
   useEffect(() => {
     const fetchData = async () => {
 
-      const IST_OFFSET = 5.5 * 60 * 60 * 1000;
-      const istDate = new Date(Date.now() + IST_OFFSET);
-      const todayIST = istDate.toISOString().split("T")[0];
+      // const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+      // const istDate = new Date(Date.now() + IST_OFFSET);
+      // const todayIST = istDate.toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
