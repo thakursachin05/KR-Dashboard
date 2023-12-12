@@ -44,7 +44,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           page: 0,
           limit: 0,
           offset: 0,
-          lastDateLeadAssigned: "null",
+          lastDateLeadAssigned: "notToday",
           approvedAt: "notNull",
           activityStatus: 'active' 
         };
@@ -147,7 +147,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
         Total Employees : {totalEmployees}
       </p>
       <p className="text-xl mb-5 text-center my-3">
-        InActive Employees : {activeEmployees}
+       Employees didn't get lead today: {activeEmployees}
       </p>
 
       <div className="mt-4 flex items-center justify-center">
