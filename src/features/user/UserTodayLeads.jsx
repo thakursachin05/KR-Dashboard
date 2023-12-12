@@ -41,7 +41,7 @@ function UserTodayLeads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
-        assignedDate:todayIST,
+        // assignedDate: todayIST,
         assigneeId : storeUserData?._id,
         dateClosed : "null"
       };
