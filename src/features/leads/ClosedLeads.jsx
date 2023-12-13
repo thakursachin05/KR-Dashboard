@@ -54,7 +54,7 @@ function ClosedLeads() {
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
 
-  const itemsPerPageOptions = [10,50,100,200]
+  const itemsPerPageOptions = [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -140,7 +140,6 @@ function ClosedLeads() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
-
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
@@ -254,7 +253,11 @@ function ClosedLeads() {
                         <td>{l.contact}</td>
                         <td>{l.assignedTo}</td>
                         <td>{l.assigneeContact}</td>
-                        <td>{l.assignedDate}</td>
+                        <td>
+                          {l?.assignedDate
+                            ? format(new Date(l?.assignedDate), "dd/MM/yyyy")
+                            : "N/A"}
+                        </td>
                       </tr>
                     );
                   })}
