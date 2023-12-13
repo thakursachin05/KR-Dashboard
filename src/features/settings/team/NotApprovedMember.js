@@ -87,7 +87,7 @@ function NotApprovedMembers() {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
         approvedAt: todayDate,
-        activityStatus : "ACTIVE"
+        activityStatus: "ACTIVE",
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
@@ -161,7 +161,6 @@ function NotApprovedMembers() {
       lead.activityStatus.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
-
 
   const convertDataToXLSX = (data) => {
     const ws = XLSX.utils.json_to_sheet(data);
@@ -288,17 +287,20 @@ function NotApprovedMembers() {
                       <td>{l.contact}</td>
                       <td>
                         <select
-                          value={l.activityStatus}
-                            onChange={(e) => {
-                              console.log("checiing the stays", l.activityStatus);
-                              handleStatusChange(l._id, e.target.value)
-                            }
+                          value={
+                            l.activityStatus === null
+                              ? "null"
+                              : l.activityStatus
                           }
+                          onChange={(e) => {
+                            handleStatusChange(l._id, e.target.value);
+                          }}
                         >
                           <option value="null">Not Approved</option>
                           <option value="ACTIVE">Approved</option>
                         </select>
                       </td>
+
                       <td>
                         <div className="flex item-center justify-between">
                           <button
@@ -316,31 +318,31 @@ function NotApprovedMembers() {
             </table>
           </div>
           <div className="flex  max-sm:flex-col item-center justify-between">
-              <Pagination
-                itemsPerPage={itemsPerPage}
-                totalItems={employeeData?.count}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
-              <div className="flex items-center max-sm:mt-[20px] justify-center">
-                <label className="mr-2   text-sm font-medium">
-                  Items Per Page:
-                </label>
-                <select
-                  className="border rounded p-2 max-sm:p-[.5vw]"
-                  value={itemsPerPage}
-                  onChange={(e) =>
-                    handleItemsPerPageChange(Number(e.target.value))
-                  }
-                >
-                  {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={employeeData?.count}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+            <div className="flex items-center max-sm:mt-[20px] justify-center">
+              <label className="mr-2   text-sm font-medium">
+                Items Per Page:
+              </label>
+              <select
+                className="border rounded p-2 max-sm:p-[.5vw]"
+                value={itemsPerPage}
+                onChange={(e) =>
+                  handleItemsPerPageChange(Number(e.target.value))
+                }
+              >
+                {itemsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
         </TitleCard>
       )}
     </>
