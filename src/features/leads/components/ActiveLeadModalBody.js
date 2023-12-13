@@ -27,7 +27,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
     const donothaveLeads = activeEmployees - employeegetLeads;
-    setEmployeesWithoutLeads(Math.max(0, donothaveLeads));
+    setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
+
 
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
@@ -174,7 +175,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
         <p className="text-center">
-          {employeesWithoutLeads >= 0
+          {employeesWithoutLeads > 0
             ? excessLeads !== 0
               ? `1 employee will recieve ${excessLeads} leads`
               : "No Leads are Remaining"

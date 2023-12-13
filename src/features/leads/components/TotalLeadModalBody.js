@@ -27,7 +27,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   useEffect(() => {
     let employeegetLeads = totalLeads / leadsPerEmployee;
     const donothaveLeads = activeEmployees - employeegetLeads;
-    setEmployeesWithoutLeads(Math.max(0, donothaveLeads));
+    setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
+
 
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
@@ -174,7 +175,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
             ? excessLeads !== 0
               ? `1 employee will recieve ${excessLeads} leads`
               : "No Leads are Remaining"
-            : `${
+            : 
+            `${
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
         </p>

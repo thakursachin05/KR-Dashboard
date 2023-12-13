@@ -27,7 +27,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   useEffect(() => {
     let employeegetLeads = Math.floor(totalLeads / leadsPerEmployee);
     const donothaveLeads = activeEmployees - employeegetLeads;
-    setEmployeesWithoutLeads(Math.max(0, donothaveLeads));
+    setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
+
 
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
