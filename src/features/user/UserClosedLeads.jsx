@@ -36,7 +36,7 @@ function UserClosedLeads() {
         page: currentPage,
         limit: itemsPerPage,
         dateClosed : "notNull",
-        offset: Math.max(0, currentPage - 1) * 10,
+        offset: Math.max(0, currentPage - 1) * itemsPerPage,
       };
       const baseURL = `${API}/lead?assigneeId=${storeUserData?._id}`;
       try {
@@ -54,11 +54,7 @@ function UserClosedLeads() {
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
-  const totalItems = employeeData ? employeeData.count : 0;
-  const itemsPerPageOptions = Array.from(
-    { length: Math.ceil(totalItems / 10) },
-    (_, index) => (index + 1) * 10
-  );
+  const itemsPerPageOptions = [10,50,200,400,1000]
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {

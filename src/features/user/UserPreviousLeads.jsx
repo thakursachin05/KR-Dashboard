@@ -36,7 +36,7 @@ function UserPreviousLeads() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * 10,
+        offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedDate: "notToday",
       };
       const baseURL = `${API}/lead?&assigneeId=${storeUserData?._id}`;
@@ -98,11 +98,7 @@ function UserPreviousLeads() {
     }
   };
 
-  const totalItems = employeeData ? employeeData.count : 0;
-  const itemsPerPageOptions = Array.from(
-    { length: Math.ceil(totalItems / 10) },
-    (_, index) => (index + 1) * 10
-  );
+  const itemsPerPageOptions = [10,50,200,400,1000]
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
