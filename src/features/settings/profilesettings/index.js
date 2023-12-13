@@ -40,27 +40,42 @@ const ProfileSettings = () => {
     }));
   };
 
-  // const isPasswordValid = (password) => {
-  //   return (
-  //     password.length >= 8 &&
-  //     /[A-Z]/.test(password) &&
-  //     /[a-z]/.test(password) &&
-  //     /\d/.test(password)
-  //   );
-  // };
+  const isPasswordValid = (password) => {
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /\d/.test(password)
+    );
+  };
+
+  const isEmailValid = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
 
   const handleUpdate = async () => {
-    // if (userData.password && !isPasswordValid(userData.password)) {
-    //   dispatch(
-    //     showNotification({
-    //       message: "Password format is wrong!",
-    //       status:0,
-    //     })
-    //   );
-    //   return setErrorMessage(
-    //     "Password should contain atleast 8 digits, one uppercase character and one special character!"
-    //   );
-    // }
+    if (userData.password && !isPasswordValid(userData.password)) {
+      dispatch(
+        showNotification({
+          message: "Password format is wrong!",
+          status: 0,
+        })
+      );
+      return;
+    }
+    console.log("user data email", userData.email);
+
+    if (!isEmailValid(userData.email)) {
+      dispatch(
+        showNotification({
+          message: "Email is not valid!",
+          status: 0,
+        })
+      );
+      return;
+    }
+    // console.log("email id validation",isEmailValid(userData.email))
     try {
       const tokenResponse = localStorage.getItem("accessToken");
       const tokenData = JSON.parse(tokenResponse);
@@ -107,7 +122,6 @@ const ProfileSettings = () => {
             <input
               type="text"
               name="email"
-              disabled
               className="input input-bordered w-full"
               value={userData.email}
               onChange={handleInputChange}
