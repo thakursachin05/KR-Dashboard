@@ -1,23 +1,31 @@
 import axios from "axios";
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import TitleCard from "../../../components/Cards/TitleCard";
 import { API } from "../../../utils/constants";
 import { showNotification } from "../../common/headerSlice";
 import { sliceLeadDeleted } from "../../leads/leadSlice";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { format } from "date-fns";
+
 // import ErrorText from "../../../components/Typography/ErrorText";
 
 const ProfileSettings = () => {
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(localStorage.getItem("user"));
   const [userData, setUserData] = useState(user);
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
   // const [errorMessage, setErrorMessage] = useState("");
 
   const fetchUserData = async () => {
     try {
       const response = await axios.get(`${API}/employee/?id=${user._id}`);
       setUserData(response.data.data[0]);
-      localStorage.setItem('user',JSON.stringify(response.data.data[0]));
+      localStorage.setItem("user", JSON.stringify(response.data.data[0]));
       console.log(response.data.data[0]);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -66,7 +74,7 @@ const ProfileSettings = () => {
       };
       await axios.put(`${API}/employee/${userData._id}`, userData, config);
       dispatch(sliceLeadDeleted(true));
-      await fetchUserData()
+      await fetchUserData();
       dispatch(
         showNotification({
           message: "Profile Updated Successfully!",
@@ -106,15 +114,26 @@ const ProfileSettings = () => {
             />
           </div>
 
-          <div>
+          <div className="relative">
             <label className="label">Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               className="input input-bordered w-full"
               // value={userData.password}
               onChange={handleInputChange}
             />
+            <button
+              className="text-sm absolute right-0 top-[62%] mr-2"
+              type="button"
+              onClick={togglePasswordVisibility}
+            >
+              {!showPassword ? (
+                <EyeIcon className="h-5 w-5" />
+              ) : (
+                <EyeSlashIcon className="h-5 w-5" />
+              )}
+            </button>
           </div>
           <div>
             <label className="label">Gender</label>
@@ -195,7 +214,14 @@ const ProfileSettings = () => {
                   name="lastDateLeadAssigned"
                   disabled
                   className="input input-bordered w-full"
-                  value={userData.lastDateLeadAssigned}
+                  value={
+                    userData.lastDateLeadAssigned
+                      ? format(
+                          new Date(userData.lastDateLeadAssigned),
+                          "dd/MM/yyyy"
+                        )
+                      : "N/A"
+                  }
                   onChange={handleInputChange}
                 />
               </div>
