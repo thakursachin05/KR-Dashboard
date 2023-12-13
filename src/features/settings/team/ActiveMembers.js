@@ -10,7 +10,7 @@ import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import { API } from "../../../utils/constants";
-import { sliceMemberDeleted,sliceMemberStatus } from "../../leads/leadSlice";
+import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
 
@@ -27,7 +27,7 @@ function ActiveMembers() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
-  
+
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -42,26 +42,26 @@ function ActiveMembers() {
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, (currentPage-1)*itemsPerPage),
-        approvedAt : "notNull",
+        offset: Math.max(0, (currentPage - 1) * itemsPerPage),
+        approvedAt: "notNull",
         isAdmin: "false",
       };
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
         localStorage.setItem("employee-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data)
+        setTeamMember(response.data.data);
       } catch (error) {
         console.error("error", error);
       }
       // console.log("it is running or not when status is changing", memberStatus);
-      dispatch(sliceMemberStatus(''));
+      dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
-  
+
     fetchData();
   }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-  
+
   const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
@@ -79,7 +79,7 @@ function ActiveMembers() {
     );
   };
 
-  const handleStatusChange = async(memberId, newStatus) => {
+  const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
@@ -93,14 +93,21 @@ function ActiveMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(`${API}/employee/${memberId}`,employeeData, {
-            headers,
-          });
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
+            {
+              headers,
+            }
+          );
 
-          console.log("status updated data",response.data)
-         dispatch(sliceMemberStatus(newStatus))
+          console.log("status updated data", response.data);
+          dispatch(sliceMemberStatus(newStatus));
           dispatch(
-            showNotification({ message: "Status Updated Successfully!", status: 1 })
+            showNotification({
+              message: "Status Updated Successfully!",
+              status: 1,
+            })
           );
         }
       } else {
@@ -116,13 +123,7 @@ function ActiveMembers() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-
-
-  const totalItems = employeeData ? employeeData.count : 0;
-  const itemsPerPageOptions = Array.from(
-    { length: Math.ceil(totalItems / 10) },
-    (_, index) => (index + 1) * 10
-  );
+  const itemsPerPageOptions = [10, 50, 200, 400, 1000, 5000];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -217,7 +218,6 @@ function ActiveMembers() {
     );
   };
 
-
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -285,10 +285,9 @@ function ActiveMembers() {
                       <td>
                         <select
                           value={l.activityStatus}
-                          onChange={(e) => handleStatusChange(l._id,e.target.value)
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
                           }
-                          
-                          
                         >
                           <option value="HOLD">Hold</option>
                           <option value="DEAD">Dead</option>
@@ -312,31 +311,31 @@ function ActiveMembers() {
             </table>
           </div>
           <div className="flex  max-sm:flex-col item-center justify-between">
-              <Pagination
-                itemsPerPage={itemsPerPage}
-                totalItems={employeeData?.count}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
-              <div className="flex items-center max-sm:mt-[20px] justify-center">
-                <label className="mr-2   text-sm font-medium">
-                  Items Per Page:
-                </label>
-                <select
-                  className="border rounded p-2 max-sm:p-[.5vw]"
-                  value={itemsPerPage}
-                  onChange={(e) =>
-                    handleItemsPerPageChange(Number(e.target.value))
-                  }
-                >
-                  {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={employeeData?.count}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+            <div className="flex items-center max-sm:mt-[20px] justify-center">
+              <label className="mr-2   text-sm font-medium">
+                Items Per Page:
+              </label>
+              <select
+                className="border rounded p-2 max-sm:p-[.5vw]"
+                value={itemsPerPage}
+                onChange={(e) =>
+                  handleItemsPerPageChange(Number(e.target.value))
+                }
+              >
+                {itemsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
         </TitleCard>
       )}
     </>
