@@ -155,7 +155,7 @@ const ProfileSettings = () => {
           <div>
             <label className="label">Contact</label>
             <input
-              type="text"
+              type="number"
               name="contact"
               className="input input-bordered w-full"
               value={userData.contact}

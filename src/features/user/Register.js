@@ -108,7 +108,7 @@ function Register() {
                 />
                 <InputText
                   defaultValue={registerObj.contact}
-                  // type="text"
+                  type="number"
                   updateType="contact"
                   containerStyle="mt-4"
                   labelTitle="Phone Number"

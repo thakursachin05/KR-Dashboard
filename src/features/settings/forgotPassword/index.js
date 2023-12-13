@@ -19,7 +19,7 @@ function ForgotPassword() {
   const [errorMessage, setErrorMessage] = useState("");
   const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
   const dispatch = useDispatch();
-  let userId = ""
+  let userId = "";
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -28,10 +28,11 @@ function ForgotPassword() {
       return setErrorMessage("Password is required!");
     if (registerObj.contact.trim() === "")
       return setErrorMessage("Phone number is required!");
-    if(!isPasswordValid(registerObj.password)){
-      return setErrorMessage("Password requirements: 8 characters minimum, including at least one uppercase letter, one digit, and one special character.");
-    }
-    else {
+    if (!isPasswordValid(registerObj.password)) {
+      return setErrorMessage(
+        "Password requirements: 8 characters minimum, including at least one uppercase letter, one digit, and one special character."
+      );
+    } else {
       setLoading(true);
       await fetchData();
       try {
@@ -44,18 +45,25 @@ function ForgotPassword() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        };
 
         const userData = {
-          password : registerObj.password
-        }
-        const response = await axios.put(`${API}/employee/${userId}`,userData,config);
+          password: registerObj.password,
+        };
+        const response = await axios.put(
+          `${API}/employee/${userId}`,
+          userData,
+          config
+        );
         if (response.status === 200) {
           dispatch(
-            showNotification({ message: "Password Updated Successfully!", status: 1 })
+            showNotification({
+              message: "Password Updated Successfully!",
+              status: 1,
+            })
           );
 
-          setRegisterObj(INITIAL_REGISTER_OBJ)
+          setRegisterObj(INITIAL_REGISTER_OBJ);
 
           // window.location.href = "/app/teamMembers";
         }
@@ -82,10 +90,12 @@ function ForgotPassword() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}/employee?contact=${registerObj.contact}`);
+      const response = await axios.get(
+        `${API}/employee?contact=${registerObj.contact}`
+      );
       if (response.status === 200) {
-        console.log("response dat of user",response.data);
-        userId = response.data.data[0]._id
+        console.log("response dat of user", response.data);
+        userId = response.data.data[0]._id;
         // window.location.href = "/app/teamMembers";
       }
     } catch (error) {
@@ -125,7 +135,7 @@ function ForgotPassword() {
                 /> */}
                 <InputText
                   defaultValue={registerObj.contact}
-                  // type="text"
+                  type="number"
                   updateType="contact"
                   containerStyle="mt-4"
                   labelTitle="Phone Number"
