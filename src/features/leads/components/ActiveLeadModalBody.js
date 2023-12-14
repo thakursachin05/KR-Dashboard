@@ -29,7 +29,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
     const donothaveLeads = activeEmployees - employeegetLeads;
     setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
 
-
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
     } else {
@@ -47,7 +46,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           offset: 0,
           presentDays: todayDate,
           approvedAt: "notNull",
-          activityStatus: 'ACTIVE',
+          activityStatus: "ACTIVE",
+          isAdmin: "false",
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -75,14 +75,12 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   }, [todayDate, employeeDetails?.count, totalLeads]);
 
   const proceedWithYes = async () => {
-    const activeEmployees = JSON.parse(localStorage.getItem("active-member-count"));
+    const activeEmployees = JSON.parse(
+      localStorage.getItem("active-member-count")
+    );
     console.log("active eda", activeEmployees);
 
-    if (
-      totalLeads === 0 ||
-      totalEmployees === 0 ||
-      activeEmployees === 0
-    ) {
+    if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
         showNotification({
           message: "Leads or members is empty",
@@ -101,7 +99,14 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
           try {
-            const response = await axios.post(`${API}/lead/assign`, {leadPerEmployee: leadsPerEmployee, typeOfEmployee: 'present_today'},  { headers });
+            const response = await axios.post(
+              `${API}/lead/assign`,
+              {
+                leadPerEmployee: leadsPerEmployee,
+                typeOfEmployee: "present_today",
+              },
+              { headers }
+            );
 
             if (response.status === 200) {
               localStorage.setItem(

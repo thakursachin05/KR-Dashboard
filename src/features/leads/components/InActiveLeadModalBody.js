@@ -47,7 +47,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           offset: 0,
           lastDateLeadAssigned: "notToday",
           approvedAt: "notNull",
-          activityStatus: 'ACTIVE' 
+          activityStatus: 'ACTIVE',
+          isAdmin: "false",
         };
         const response = await axios.get(baseURL, { params: params });
 

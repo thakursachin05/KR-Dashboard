@@ -3,17 +3,22 @@ import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import { sliceLeadDeleted } from "./leadSlice";
 import Pagination from "../../components/Pagination";
+import { showNotification } from "../common/headerSlice";
 import axios from "axios";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { openModal } from "../common/modalSlice";
-import { MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
+import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
+import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 function OpenLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [editedData, setEditedData] = useState({ name: "", contact: "" });
+  const [currentlyEditing, setCurrentlyEditing] = useState(null);
+
   const [sortConfig, setSortConfig] = useState({
     column: "name",
     order: "asc",
@@ -67,6 +72,82 @@ function OpenLeads() {
       });
     } else {
       setSortConfig({ column, order: "asc" });
+    }
+  };
+
+
+  const deleteCurrentLead = (index) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to delete this lead?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE,
+          index: index,
+        },
+      })
+    );
+  };
+
+  const toggleEdit = (index) => {
+    setEditedData({
+      name: filteredLeads[index].name,
+      contact: filteredLeads[index].contact,
+    });
+
+    setCurrentlyEditing((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  const handleSaveEdit = async (leadId, index) => {
+    try {
+      // Validate edited data (you can add more validation as needed)
+      if (!editedData.name || !editedData.contact) {
+        dispatch(
+          showNotification({
+            message: "Name and contact are required.",
+            status: 2,
+          })
+        );
+        return;
+      }
+      const tokenResponse = localStorage.getItem("accessToken");
+      const tokenData = JSON.parse(tokenResponse);
+      const token = tokenData.token;
+
+      // Set the Authorization header with the token
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const updatedLead = {
+        name: editedData.name,
+        contact: editedData.contact,
+      };
+
+      await axios.put(`${API}/lead/${leadId}`, updatedLead, config);
+      dispatch(sliceLeadDeleted(true));
+
+      dispatch(
+        showNotification({
+          message: "Lead updated successfully!",
+          status: 1,
+        })
+      );
+
+      // Clear the edited values and toggle off editing mode
+      setEditedData({ name: "", contact: "" });
+      setCurrentlyEditing(null);
+    } catch (error) {
+      console.error("Error updating lead:", error);
+
+      dispatch(
+        showNotification({
+          message: "Error updating lead. Please try again.",
+          status: 2,
+        })
+      );
     }
   };
 
@@ -231,6 +312,7 @@ function OpenLeads() {
                     >
                       Phone Number
                     </th>
+                    <th className="text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -244,6 +326,31 @@ function OpenLeads() {
                         </td>
                         <td>{l.name}</td>
                         <td>{l.contact}</td>
+                        <td>
+                          <div className="flex item-center justify-between">
+                            <button
+                              className="btn btn-square btn-ghost"
+                              onClick={() => deleteCurrentLead(l._id)}
+                            >
+                              <TrashIcon className="w-5" />
+                            </button>
+                            <div className="flex flex-col items-center justify-center">
+                              <button
+                                className="btn btn-square btn-ghost"
+                                onClick={() => toggleEdit(k)}
+                              >
+                                {currentlyEditing === k ? "Cancel" : "Edit"}
+                              </button>
+                              {currentlyEditing === k && (
+                                <button
+                                  onClick={() => handleSaveEdit(l._id, k)}
+                                >
+                                  SAVE
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}

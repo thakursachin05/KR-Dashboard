@@ -18,8 +18,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
   let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
-  const totalEmployees = employeeDetails.count;
+  const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
   const minimumLead = 1;
   const totalLeads = leadDetails?.count;
   // console.log("lead details",leadDetails)
@@ -28,7 +27,6 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
     let employeegetLeads = totalLeads / leadsPerEmployee;
     const donothaveLeads = activeEmployees - employeegetLeads;
     setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
-
 
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
@@ -46,7 +44,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           limit: 0,
           offset: 0,
           approvedAt: "notNull",
-          activityStatus: 'ACTIVE'
+          isAdmin: "false",
+          activityStatus: "ACTIVE",
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -71,18 +70,14 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, employeeDetails?.count, totalLeads]);
+  }, [todayDate, totalLeads]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
       localStorage.getItem("total-lead-count")
     );
 
-    if (
-      totalLeads === 0 ||
-      totalEmployees === 0 ||
-      activeEmployees === 0
-    ) {
+    if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
         showNotification({
           message: "Leads or members is empty",
@@ -101,7 +96,14 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
           try {
-            const response = await axios.post(`${API}/lead/assign`, {leadPerEmployee: leadsPerEmployee, typeOfEmployee: 'active_status'},  { headers });
+            const response = await axios.post(
+              `${API}/lead/assign`,
+              {
+                leadPerEmployee: leadsPerEmployee,
+                typeOfEmployee: "active_status",
+              },
+              { headers }
+            );
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -175,8 +177,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
             ? excessLeads !== 0
               ? `1 employee will recieve ${excessLeads} leads`
               : "No Leads are Remaining"
-            : 
-            `${
+            : `${
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
         </p>
