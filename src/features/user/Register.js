@@ -37,7 +37,7 @@ function Register() {
     }
     if (!isPasswordValid(registerObj.password)) {
       return setErrorMessage(
-        "Password requirements: 8 characters minimum, including at least one uppercase letter, one digit, and one special character."
+        "Password requirements: 8 characters minimum"
       );
     } else {
       try {

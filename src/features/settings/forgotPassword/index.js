@@ -132,7 +132,7 @@ function ForgotPassword() {
                 /> */}
                 <InputText
                   defaultValue={registerObj.contact}
-                  type="number"
+                  type="text"
                   updateType="contact"
                   containerStyle="mt-4"
                   labelTitle="Phone Number"
