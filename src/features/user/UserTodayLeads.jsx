@@ -30,10 +30,8 @@ function UserTodayLeads() {
   };
   const leadDeleted = useSelector((state) => state.lead.leadDeleted);
 
-
   useEffect(() => {
     const fetchData = async () => {
-
       const IST_OFFSET = 5.5 * 60 * 60 * 1000;
       const istDate = new Date(Date.now() + IST_OFFSET);
       const todayIST = istDate.toISOString().split("T")[0];
@@ -42,8 +40,8 @@ function UserTodayLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedDate: todayIST,
-        assigneeId : storeUserData?._id,
-        dateClosed : "null"
+        assigneeId: storeUserData?._id,
+        dateClosed: "null",
       };
       const baseURL = `${API}/lead`;
       try {
@@ -54,11 +52,10 @@ function UserTodayLeads() {
         console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
-
     };
 
     fetchData();
-  }, [itemsPerPage,leadDeleted, storeUserData._id, dispatch, currentPage]);
+  }, [itemsPerPage, leadDeleted, storeUserData._id, dispatch, currentPage]);
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
@@ -80,8 +77,8 @@ function UserTodayLeads() {
           const response = await axios.put(
             `${API}/lead/${leadId}`,
             {
-                assigneeStatus: newStatus,
-                dateClosed: todayIST
+              assigneeStatus: newStatus,
+              dateClosed: todayIST,
             },
             {
               headers,
@@ -109,7 +106,7 @@ function UserTodayLeads() {
     }
   };
 
-  const itemsPerPageOptions = [10,50,100,200]
+  const itemsPerPageOptions = [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -142,9 +139,7 @@ function UserTodayLeads() {
       lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
       lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead?.assigneeStatus
-        ?.toLowerCase()
-        .includes(filterValue.toLowerCase())
+      lead?.assigneeStatus?.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 
@@ -221,14 +216,11 @@ function UserTodayLeads() {
                         </select>
                       </td>
                       <td>
-                        <button
-                          className="btn btn-square btn-ghost"
-                          onClick={() =>
-                            (window.location.href = `tel:${l._contact}`)
-                          }
-                        >
-                          <PhoneIcon className="w-5" />
-                        </button>
+                        <a href={`tel:${l.contact}`}>
+                          <div className="btn btn-square btn-ghost">
+                            <PhoneIcon className="w-5" />
+                          </div>
+                        </a>
                       </td>
                     </tr>
                   );
