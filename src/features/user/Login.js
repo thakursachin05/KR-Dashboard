@@ -11,7 +11,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 function Login() {
   const INITIAL_LOGIN_OBJ = {
     password: "",
-    email: "",
+    contact: "",
   };
 
   const [loading, setLoading] = useState(false);
@@ -26,13 +26,14 @@ function Login() {
   const submitForm = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    if (loginObj.email.trim() === "")
-      return setErrorMessage("Email Id is required!");
+    // if (loginObj.contact.length === 0)
+    //   return setErrorMessage("Phone number is required!");
     if (loginObj.password.trim() === "")
       return setErrorMessage("Password is required!");
-    if (!isEmailValid(loginObj.email)) {
-      return setErrorMessage("Email is not valid!");
-    } else {
+    if (!isContactValid(loginObj.contact)) {
+      return setErrorMessage("Phone number not valid!");
+    } 
+    else {
       setLoading(true);
       // Call API to check user credentials and save token in localstorage
       try {
@@ -50,11 +51,11 @@ function Login() {
           localStorage.setItem("accessToken", JSON.stringify(tokenData));
           window.location.href = "/app/welcome";
         } else {
-          return setErrorMessage("Email id or Password is Wrong");
+          return setErrorMessage("Phone number or Password is Wrong");
         }
       } catch (error) {
         if (error.response) {
-          setErrorMessage("Email id or Password is Wrong");
+          setErrorMessage("Phone number id or Password is Wrong");
           console.log("error", error.response);
         }
       }
@@ -62,10 +63,16 @@ function Login() {
     }
   };
 
-  const isEmailValid = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
+  const isContactValid = (contact) => {
+    // Assuming contact is a string representing the contact number
+    return contact.length >= 10;
   };
+  
+
+  // const isEmailValid = (email) => {
+  //   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  //   return emailRegex.test(email);
+  // };
 
   const updateFormValue = ({ updateType, value }) => {
     setErrorMessage("");
@@ -84,11 +91,11 @@ function Login() {
             <form onSubmit={(e) => submitForm(e)}>
               <div className="mb-4">
                 <InputText
-                  type="email"
-                  defaultValue={loginObj.email}
-                  updateType="email"
+                  type="number"
+                  defaultValue={loginObj.contact}
+                  updateType="contact"
                   containerStyle="mt-4"
-                  labelTitle="Email Id"
+                  labelTitle="Phone Number"
                   updateFormValue={updateFormValue}
                 />
 
