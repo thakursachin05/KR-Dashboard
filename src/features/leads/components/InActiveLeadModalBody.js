@@ -19,8 +19,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
   // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
-  const totalEmployees = employeeDetails.count;
+  // let employeeDetails = JSON.parse(localStorage.getItem("employee-details"));
+  const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
   // console.log("lead details",leadDetails)
@@ -76,7 +76,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, employeeDetails.count, totalLeads]);
+  }, [todayDate,totalLeads]);
 
   const proceedWithYes = async () => {
     console.log("checing tin not lead aasinged");

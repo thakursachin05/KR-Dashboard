@@ -19,7 +19,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
   // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
+  const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
+  // const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
   // console.log("lead details",leadDetails)
@@ -54,7 +55,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
         if (response.status === 200) {
           localStorage.setItem(
-            "total-lead-count",
+            "total-employee-count",
             JSON.stringify(response.data.count)
           );
           const activeEmployees = response.data.count;
@@ -77,7 +78,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
-      localStorage.getItem("total-lead-count")
+      localStorage.getItem("total-employee-count")
     );
 
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {

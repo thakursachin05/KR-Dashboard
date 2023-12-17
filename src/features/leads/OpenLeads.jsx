@@ -62,7 +62,8 @@ function OpenLeads() {
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
 
-  const itemsPerPageOptions = [10,50,100,200,leadData?.count]
+  const itemsPerPageOptions = leadData?.count > 200 ?  [10, 50, 100, 200,leadData?.count] : [10,50,100,200];
+
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {

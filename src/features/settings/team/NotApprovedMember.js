@@ -50,8 +50,8 @@ function NotApprovedMembers() {
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("employee-details", JSON.stringify(response.data));
-        setTeamMember(response.data.data);
+        localStorage.setItem("not-approved-count", JSON.stringify(response.data.count));
+        setTeamMember(response.data);
       } catch (error) {
         console.error("error", error);
       }
@@ -63,7 +63,7 @@ function NotApprovedMembers() {
     fetchData();
   }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
 
-  const employeeData = JSON.parse(localStorage.getItem("employee-details"));
+  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
     dispatch(
@@ -122,7 +122,8 @@ function NotApprovedMembers() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  const itemsPerPageOptions = [10, 50, 200, 400, 1000, 5000];
+  const itemsPerPageOptions = teamMember?.count > 200 ? [10, 50, 200, teamMember?.count] : [10,50,100,200];
+
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -135,7 +136,7 @@ function NotApprovedMembers() {
     }
   };
 
-  const sortedLeads = teamMember?.slice().sort((a, b) => {
+  const sortedLeads = teamMember?.data?.slice().sort((a, b) => {
     const aValue = a[sortConfig.column] || "";
     const bValue = b[sortConfig.column] || "";
 
@@ -232,7 +233,7 @@ function NotApprovedMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Not Approved Members ${employeeData?.count}`}
+          title={`Total Not Approved Members ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -316,7 +317,7 @@ function NotApprovedMembers() {
           <div className="flex  max-sm:flex-col item-center justify-between">
             <Pagination
               itemsPerPage={itemsPerPage}
-              totalItems={employeeData?.count}
+              totalItems={teamMember?.count}
               currentPage={currentPage}
               onPageChange={handlePageChange}
             />

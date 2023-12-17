@@ -27,7 +27,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       const response = await axios.get(baseURL, { params: params });
 
       if (response.status === 200) {
-        localStorage.setItem("employee-details", JSON.stringify(response.data));
+        localStorage.setItem("total-employee-count", JSON.stringify(response.data.count));
       } else {
         console.log("access token incorrect");
       }
