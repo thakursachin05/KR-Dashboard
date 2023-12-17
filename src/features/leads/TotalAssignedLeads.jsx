@@ -35,7 +35,7 @@ function TotalAssignedLeads() {
     setCurrentPage(1);
   };
 
-  const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
+  // const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
   // console.log("lead details from local storage", leadDetails);
   const leadDeleted = useSelector((state) => state.lead.leadDeleted);
 
@@ -56,8 +56,8 @@ function TotalAssignedLeads() {
       try {
         const response = await axios.get(baseURL, { params: params });
         if (response.status === 200) {
-          localStorage.setItem("lead-details", JSON.stringify(response.data));
-          setLeadData(response.data.data);
+          // localStorage.setItem("lead-details", JSON.stringify(response.data));
+          setLeadData(response.data);
         } else {
           console.log("access token incorrect");
         }
@@ -84,7 +84,7 @@ function TotalAssignedLeads() {
     );
   };
 
-  const itemsPerPageOptions = [10, 50, 100, 200,leadDetails?.count];
+  const itemsPerPageOptions = [10, 50, 100, 200,leadData?.count];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -97,7 +97,7 @@ function TotalAssignedLeads() {
     }
   };
 
-  const sortedLeads = leadData.slice().sort((a, b) => {
+  const sortedLeads = leadData?.data?.slice().sort((a, b) => {
     const aValue = a[sortConfig.column] || "";
     const bValue = b[sortConfig.column] || "";
 
@@ -259,7 +259,7 @@ function TotalAssignedLeads() {
       </div>
 
       <TitleCard
-        title={`Assigned Leads ${leadDetails?.count}`}
+        title={`Assigned Leads ${leadData?.count}`}
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >
@@ -414,7 +414,7 @@ function TotalAssignedLeads() {
             <div className="flex item-center max-sm:flex-col justify-between">
               <Pagination
                 itemsPerPage={itemsPerPage}
-                totalItems={leadDetails.count}
+                totalItems={leadData?.count}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />

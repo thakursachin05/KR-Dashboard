@@ -17,10 +17,10 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   // i want to count number of active employeees,
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
-  let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
+  // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
   const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
   const minimumLead = 1;
-  const totalLeads = leadDetails?.count;
+  const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
   // console.log("lead details",leadDetails)
 
   useEffect(() => {
@@ -110,8 +110,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
                 "lead-details",
                 JSON.stringify(response.data)
               );
-              leadDetails = response.data;
-              console.log("all lead data", response.data);
+              // leadDetails = response.data;
+              // console.log("all lead data", response.data);
             } else {
               console.log("access token incorrect");
             }
