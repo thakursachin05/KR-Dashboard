@@ -11,6 +11,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   // const { leads } = useSelector((state) => state.lead);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
+  const [employeegetLeads, setEmployeesGetLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
 
@@ -28,6 +29,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
     const donothaveLeads = activeEmployees - employeegetLeads;
     setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
+    setEmployeesGetLeads(
+      activeEmployees - Math.max(0, Math.floor(donothaveLeads))
+    );
 
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
@@ -143,16 +147,34 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
   return (
     <>
-      <p className="text-xl mt-8 text-center my-3">Total Lead : {totalLeads}</p>
+      <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
       <p className="text-xl  text-center my-3">
         Total Employees : {totalEmployees}
       </p>
-      <p className="text-xl mb-5 text-center my-3">
+      <p className="text-xl text-blue-400 text-center my-3">
         Employees Present Today: {activeEmployees}
+      </p>
+      <p className="text-xl text-success  text-center my-3">
+        Employees Receive Leads : {employeegetLeads}
+      </p>
+      <p className="text-xl text-amber-500 text-center my-3">
+        Employees Not Receive Leads : {employeesWithoutLeads}
+      </p>
+      {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
+        <p className="text-xl text-red-600 text-center my-3">
+          1 employee will recieve {excessLeads} leads
+        </p>
+      ) : (
+        ""
+      )}
+
+      <p className="text-xl  text-secondary text-center my-3">
+        Leads Remaining :{" "}
+        {Math.max(0, totalLeads - leadsPerEmployee * activeEmployees)}
       </p>
 
       <div className="mt-4 flex items-center justify-center">
-        <label htmlFor="leadsInput" className="mr-2">
+        <label htmlFor="leadsInput" className="mr-2 text-xl">
           Leads per employee:
         </label>
         <input
@@ -173,7 +195,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         />
       </div>
 
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <p className="text-center">
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
@@ -186,7 +208,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
         </p>
-      </div>
+      </div> */}
 
       <div className="modal-action mt-12">
         <button className="btn btn-outline w-36" onClick={() => closeModal()}>

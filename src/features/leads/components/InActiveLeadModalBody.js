@@ -13,6 +13,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
+  const [employeegetLeads, setEmployeesGetLeads] = useState(0);
 
   // i want to count number of active employeees,
   // by checking the employee last present days,
@@ -25,10 +26,12 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   // console.log("lead details",leadDetails)
 
   useEffect(() => {
-    let employeegetLeads = Math.floor(totalLeads / leadsPerEmployee);
+    let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
     const donothaveLeads = activeEmployees - employeegetLeads;
     setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
-
+    setEmployeesGetLeads(
+      activeEmployees - Math.max(0, Math.floor(donothaveLeads))
+    );
 
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
@@ -47,7 +50,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           offset: 0,
           lastDateLeadAssigned: "notToday",
           approvedAt: "notNull",
-          activityStatus: 'ACTIVE',
+          activityStatus: "ACTIVE",
           isAdmin: "false",
         };
         const response = await axios.get(baseURL, { params: params });
@@ -77,16 +80,10 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     console.log("checing tin not lead aasinged");
-    
-    const activeEmployees = JSON.parse(
-      localStorage.getItem("inActive-count")
-    );
-      console.log("active employee", activeEmployees);
-    if (
-      totalLeads === 0 ||
-      totalEmployees === 0 ||
-      activeEmployees === 0
-    ) {
+
+    const activeEmployees = JSON.parse(localStorage.getItem("inActive-count"));
+    console.log("active employee", activeEmployees);
+    if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
         showNotification({
           message: "Leads or members is empty",
@@ -105,7 +102,14 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
           try {
-            const response = await axios.post(`${API}/lead/assign`, {leadPerEmployee: leadsPerEmployee, typeOfEmployee: 'no_lead_assigned'},  { headers });
+            const response = await axios.post(
+              `${API}/lead/assign`,
+              {
+                leadPerEmployee: leadsPerEmployee,
+                typeOfEmployee: "no_lead_assigned",
+              },
+              { headers }
+            );
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -144,16 +148,34 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
   return (
     <>
-      <p className="text-xl mt-8 text-center my-3">Total Lead : {totalLeads}</p>
+      <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
       <p className="text-xl  text-center my-3">
         Total Employees : {totalEmployees}
       </p>
-      <p className="text-xl mb-5 text-center my-3">
-       Employees didn't get lead today: {activeEmployees}
+      <p className="text-xl text-blue-400 text-center my-3">
+        Employees didn't get lead today: {activeEmployees}
+      </p>
+      <p className="text-xl text-success  text-center my-3">
+        Employees Receive Leads : {employeegetLeads}
+      </p>
+      <p className="text-xl text-amber-500  text-center my-3">
+        Employees Not Receive Leads : {employeesWithoutLeads}
+      </p>
+      {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
+        <p className="text-xl text-red-600 text-center my-3">
+          1 employee will recieve {excessLeads} leads
+        </p>
+      ) : (
+        ""
+      )}
+
+      <p className="text-xl  text-secondary text-center my-3">
+        Leads Remaining :{" "}
+        {Math.max(0, totalLeads - leadsPerEmployee * activeEmployees)}
       </p>
 
       <div className="mt-4 flex items-center justify-center">
-        <label htmlFor="leadsInput" className="mr-2">
+        <label htmlFor="leadsInput" className="text-xl mr-2">
           Leads per employee:
         </label>
         <input
@@ -174,7 +196,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
         />
       </div>
 
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <p className="text-center">
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
@@ -187,7 +209,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
         </p>
-      </div>
+      </div> */}
 
       <div className="modal-action mt-12">
         <button className="btn btn-outline w-36" onClick={() => closeModal()}>
