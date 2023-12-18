@@ -13,21 +13,25 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
+  const [employeegetLeads, setEmployeesGetLeads] = useState(0);
 
   // i want to count number of active employeees,
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
-  let leadDetails = JSON.parse(localStorage.getItem("lead-details"));
-  const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
+  // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
+  const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
+  // const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
   const minimumLead = 1;
-  const totalLeads = leadDetails?.count;
+  const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
   // console.log("lead details",leadDetails)
 
   useEffect(() => {
-    let employeegetLeads = totalLeads / leadsPerEmployee;
+    let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
     const donothaveLeads = activeEmployees - employeegetLeads;
     setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
-
+    setEmployeesGetLeads(
+      activeEmployees - Math.max(0, Math.floor(donothaveLeads))
+    );
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
     } else {
@@ -51,7 +55,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
         if (response.status === 200) {
           localStorage.setItem(
-            "total-lead-count",
+            "total-employee-count",
             JSON.stringify(response.data.count)
           );
           const activeEmployees = response.data.count;
@@ -74,7 +78,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
-      localStorage.getItem("total-lead-count")
+      localStorage.getItem("total-employee-count")
     );
 
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
@@ -110,8 +114,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
                 "lead-details",
                 JSON.stringify(response.data)
               );
-              leadDetails = response.data;
-              console.log("all lead data", response.data);
+              // leadDetails = response.data;
+              // console.log("all lead data", response.data);
             } else {
               console.log("access token incorrect");
             }
@@ -142,12 +146,30 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
   return (
     <>
-      <p className="text-xl mt-8 text-center my-3">Total Lead : {totalLeads}</p>
-      <p className="text-xl  text-center my-3">
+      <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
+      <p className="text-xl text-blue-400 text-center my-3">
         Total Employees : {totalEmployees}
       </p>
+      <p className="text-xl text-success  text-center my-3">
+        Employees Receive Leads : {employeegetLeads}
+      </p>
+      <p className="text-xl text-amber-500  text-center my-3">
+        Employees Not Receive Leads : {employeesWithoutLeads}
+      </p>
+      {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
+        <p className="text-xl text-red-600 text-center my-3">
+          1 employee will recieve {excessLeads} leads
+        </p>
+      ) : (
+        ""
+      )}
+
+      <p className="text-xl  text-secondary text-center my-3">
+        Leads Remaining :{" "}
+        {Math.max(0, totalLeads - leadsPerEmployee * activeEmployees)}
+      </p>
       <div className="mt-4 flex items-center justify-center">
-        <label htmlFor="leadsInput" className="mr-2">
+        <label htmlFor="leadsInput" className=" text-xl mr-2">
           Leads per employee:
         </label>
         <input
@@ -168,7 +190,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
         />
       </div>
 
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <p className="text-center">
           {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
         </p>
@@ -181,7 +203,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
                 totalLeads - leadsPerEmployee * activeEmployees
               } leads are remaining not assigned to anyone`}
         </p>
-      </div>
+      </div> */}
 
       <div className="modal-action mt-12">
         <button className="btn btn-outline w-36" onClick={() => closeModal()}>
