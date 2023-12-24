@@ -213,7 +213,7 @@ function UserPreviousLeads() {
                       <td>{l.contact}</td>
                       <td>
                         <select
-                          value={l.activityStatus}
+                          value={l.assigneeStatus}
                           onChange={(e) =>
                             handleStatusChange(l._id, e.target.value)
                           }
