@@ -4,7 +4,7 @@ import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
-import { sliceLeadDeleted, sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
+import { sliceLeadDeleted, sliceMemberDeleted } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
 import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
 import { format } from "date-fns";
@@ -38,7 +38,7 @@ function UserPreviousLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedDate: "notToday",
-        assigneeStatus : "OPENED"
+        // assigneeStatus : "OPENED"
       };
       const baseURL = `${API}/lead?&assigneeId=${storeUserData?._id}`;
       try {
@@ -71,7 +71,7 @@ function UserPreviousLeads() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(
+          await axios.put(
             `${API}/lead/${leadId}`,
             {
               assigneeStatus: newStatus,
@@ -103,8 +103,7 @@ function UserPreviousLeads() {
     }
   };
 
-
-  const itemsPerPageOptions = [10,50,200,400,1000]
+  const itemsPerPageOptions = [10, 50, 200, 400, 1000];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -221,10 +220,7 @@ function UserPreviousLeads() {
                       </td>
                       <td>
                         {l.assignedDate
-                          ? format(
-                              new Date(l?.assignedDate),
-                              "dd/MM/yyyy"
-                            )
+                          ? format(new Date(l?.assignedDate), "dd/MM/yyyy")
                           : "N/A"}
                       </td>
                       <td>
