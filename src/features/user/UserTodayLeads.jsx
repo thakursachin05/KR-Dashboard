@@ -106,7 +106,10 @@ function UserTodayLeads() {
     }
   };
 
-  const itemsPerPageOptions = [10, 50, 100, 200];
+  const itemsPerPageOptions =
+    employeeData?.count > 200
+      ? [10, 50, 100, 200, employeeData?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
