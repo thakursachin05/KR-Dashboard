@@ -4,7 +4,7 @@ import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
-import { sliceLeadDeleted, sliceMemberDeleted } from "../leads/leadSlice";
+import { sliceMemberDeleted } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
 import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
 import { format } from "date-fns";
@@ -83,7 +83,8 @@ function UserPreviousLeads() {
           );
 
           // console.log("status updated data", response.data);
-          dispatch(sliceLeadDeleted(true));
+          dispatch(sliceMemberDeleted(true));
+
           dispatch(
             showNotification({
               message: "Status Updated Successfully!",
