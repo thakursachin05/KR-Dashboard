@@ -72,8 +72,8 @@ function Header() {
     const now = new Date();
     const currentHour = now.getHours();
 
-    // Check if the current time is between 6 am and 12 pm
-    const isTimeInRange = currentHour >= 6 && currentHour < 12;
+    // Check if the current time is between 5 am and 10 pm
+    const isTimeInRange = currentHour >= 5 && currentHour < 10;
 
     setIsButtonEnabled(isTimeInRange);
   }, []);
