@@ -45,7 +45,7 @@ function UserClosedLeads() {
         localStorage.setItem("lead-details", JSON.stringify(response.data));
         setTeamMember(response.data.data);
       } catch (error) {
-        console.error("error", error);
+        // console.error("error", error);
       }
       dispatch(sliceMemberDeleted(false));
     };

@@ -51,6 +51,8 @@ function TotalAssignedLeads() {
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedTo: "notNull",
         dateClosed: "null",
+        assigneeStatus : "OPENED"
+
       };
       const baseURL = `${API}/lead`;
       try {

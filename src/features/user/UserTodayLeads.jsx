@@ -49,7 +49,7 @@ function UserTodayLeads() {
         localStorage.setItem("lead-details", JSON.stringify(response.data));
         setTeamMember(response.data.data);
       } catch (error) {
-        console.error("error", error);
+        // console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
     };
@@ -60,7 +60,7 @@ function UserTodayLeads() {
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
   const handleStatusChange = async (leadId, newStatus) => {
-    console.log("member id", leadId);
+    // console.log("member id", leadId);
     const IST_OFFSET = 5.5 * 60 * 60 * 1000;
     const istDate = new Date(Date.now() + IST_OFFSET);
     const todayIST = istDate.toISOString().split("T")[0];
@@ -85,7 +85,7 @@ function UserTodayLeads() {
             }
           );
 
-          console.log("status updated data", response.data);
+          // console.log("status updated data", response.data);
           dispatch(sliceLeadDeleted(true));
           dispatch(
             showNotification({

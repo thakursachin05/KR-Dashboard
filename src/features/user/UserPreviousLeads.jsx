@@ -46,7 +46,7 @@ function UserPreviousLeads() {
         localStorage.setItem("lead-details", JSON.stringify(response.data));
         setTeamMember(response.data.data);
       } catch (error) {
-        console.error("error", error);
+        // console.error("error", error);
       }
       dispatch(sliceMemberDeleted(false));
     };
@@ -56,12 +56,13 @@ function UserPreviousLeads() {
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
-  const handleStatusChange = async (memberId, newStatus) => {
+  const handleStatusChange = async (leadId, newStatus) => {
+    // console.log("member id", leadId);
+    const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(Date.now() + IST_OFFSET);
+    const todayIST = istDate.toISOString().split("T")[0];
     try {
       const storedToken = localStorage.getItem("accessToken");
-      const employeeData = {
-        activityStatus: newStatus,
-      };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
 
@@ -71,15 +72,18 @@ function UserPreviousLeads() {
           };
 
           const response = await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
+            `${API}/lead/${leadId}`,
+            {
+              assigneeStatus: newStatus,
+              dateClosed: todayIST,
+            },
             {
               headers,
             }
           );
 
-          console.log("status updated data", response.data);
-          dispatch(sliceMemberStatus(newStatus));
+          // console.log("status updated data", response.data);
+          dispatch(sliceLeadDeleted(true));
           dispatch(
             showNotification({
               message: "Status Updated Successfully!",
@@ -94,10 +98,11 @@ function UserPreviousLeads() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({ message: "Error Status updating", status: 0 })
       );
     }
   };
+
 
   const itemsPerPageOptions = [10,50,200,400,1000]
 
