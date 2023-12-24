@@ -4,7 +4,7 @@ import TitleCard from "../../components/Cards/TitleCard";
 import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
-import { sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
+import { sliceLeadDeleted, sliceMemberDeleted, sliceMemberStatus } from "../leads/leadSlice";
 import { showNotification } from "../common/headerSlice";
 import PhoneIcon from "@heroicons/react/24/outline/PhoneIcon";
 import { format } from "date-fns";
