@@ -74,7 +74,7 @@ function UserTodayLeads() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(
+          await axios.put(
             `${API}/lead/${leadId}`,
             {
               assigneeStatus: newStatus,

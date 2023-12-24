@@ -19,7 +19,7 @@ if (user.approvedAt && !isAdmin) {
     {
       path: "/app/userLeads",
       icon: <InboxArrowDownIcon className={iconClasses} />,
-      name: "Today Assigned Leads",
+      name: "Today's Assigned Leads",
     },
     {
       path: "/app/closedLeads",
