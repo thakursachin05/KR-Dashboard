@@ -46,7 +46,7 @@ function TeamMembers() {
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         approvedAt: "notNull",
         isAdmin: "false",
-        activityStatus : "ACTIVE"
+        // activityStatus : "ACTIVE"
       };
       const baseURL = `${API}/employee`;
       try {
