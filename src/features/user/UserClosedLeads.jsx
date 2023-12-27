@@ -101,7 +101,7 @@ function UserClosedLeads() {
       <div className="mb-4 flex items-center">
         <input
           type="text"
-          placeholder="Filter by Name or Phone or Status"
+          placeholder="Filter by Name or Phone"
           value={filterValue}
           onChange={handleFilterChange}
           className="input input-sm input-bordered  w-full max-w-xs"

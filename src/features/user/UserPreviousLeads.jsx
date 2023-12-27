@@ -140,7 +140,7 @@ function UserPreviousLeads() {
       lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
       lead?.contact?.includes(filterValue) ||
       lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead?.assigned.assigneeStatus
+      lead?.assigned?.assigneeStatus
         ?.toLowerCase()
         .includes(filterValue.toLowerCase())
     );
@@ -151,7 +151,7 @@ function UserPreviousLeads() {
       <div className="mb-4 flex items-center">
         <input
           type="text"
-          placeholder="Filter by Name or Phone or Status"
+          placeholder="Filter by Name or Phone"
           value={filterValue}
           onChange={handleFilterChange}
           className="input input-sm input-bordered  w-full max-w-xs"
