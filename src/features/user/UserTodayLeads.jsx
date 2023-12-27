@@ -106,6 +106,55 @@ function UserTodayLeads() {
     }
   };
 
+  const handleCalled = async (leadId) => {
+    try {
+      const tokenResponse = localStorage.getItem("accessToken");
+
+      if (tokenResponse) {
+        const tokenData = JSON.parse(tokenResponse);
+        const token = tokenData.token;
+
+        if (token) {
+          const config = {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          };
+
+          const storedUserData = JSON.parse(localStorage.getItem("user"));
+
+          // Use a Set to keep track of unique values in the role array
+          const uniqueRolesSet = new Set(storedUserData.role);
+
+          // Add the new leadId to the Set
+          uniqueRolesSet.add(leadId);
+
+          // Convert the Set back to an array and assign it to storedUserData.role
+          storedUserData.role = Array.from(uniqueRolesSet);
+
+          await axios.put(
+            `${API}/employee/${storedUserData._id}`,
+            storedUserData,
+            config
+          );
+
+          localStorage.setItem("user", JSON.stringify(storedUserData));
+
+          // console.log("status updated data", response.data);
+          dispatch(sliceLeadDeleted(true));
+        }
+      } else {
+        dispatch(
+          showNotification({ message: "Access token not found", status: 0 })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        showNotification({ message: "Error Status updating", status: 0 })
+      );
+    }
+  };
+
   const itemsPerPageOptions =
     employeeData?.count > 200
       ? [10, 50, 100, 200, employeeData?.count]
@@ -220,7 +269,10 @@ function UserTodayLeads() {
                       </td>
                       <td>
                         <a href={`tel:${l.contact}`}>
-                          <div className="btn btn-square btn-ghost">
+                          <div
+                            onClick={()=>handleCalled(l._id)}
+                            className="btn btn-square btn-ghost"
+                          >
                             <PhoneIcon className="w-5" />
                           </div>
                         </a>

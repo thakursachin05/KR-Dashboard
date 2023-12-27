@@ -278,6 +278,7 @@ function TeamMembers() {
                       Phone Number
                     </th>
                     <td>Last Lead Assigned</td>
+                    <td>Called Leads</td>
                     <td>Last Date Assigned</td>
 
                     <th>Status</th>
@@ -297,6 +298,7 @@ function TeamMembers() {
                         <td>{l.email}</td>
                         <td>{l.contact}</td>
                         <td>{l.lastNumberOfLeadAssigned}</td>
+                        <td>{l.role?.length}</td>
                         <td>
                           {l.lastDateLeadAssigned
                             ? format(
@@ -305,6 +307,7 @@ function TeamMembers() {
                               )
                             : "N/A"}
                         </td>
+
                         <td>
                           <select
                             value={l.activityStatus}

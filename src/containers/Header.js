@@ -104,6 +104,8 @@ function Header() {
       // Update the presentDays array by pushing today's date
       updatedUser.presentDays = [...updatedUser.presentDays, today];
 
+      updatedUser.role = [];
+
       // Make the API call to update the user data
       await axios.put(
         `${API}/employee/${updatedUser._id}`,
