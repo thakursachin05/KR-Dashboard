@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, {useState } from "react";
 import { useDispatch } from "react-redux";
 import TitleCard from "../../../components/Cards/TitleCard";
 import { API } from "../../../utils/constants";
@@ -34,6 +34,13 @@ const ProfileSettings = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "password" && value.trim() === "") {
+      const { password, ...userDataWithoutPassword } = userData;
+      setUserData(userDataWithoutPassword);
+      return;
+    }
+
     setUserData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -41,9 +48,7 @@ const ProfileSettings = () => {
   };
 
   const isPasswordValid = (password) => {
-    return (
-      password.length >= 8 
-    );
+    return password.length >= 8;
   };
 
   const isEmailValid = (email) => {
@@ -61,7 +66,6 @@ const ProfileSettings = () => {
       );
       return;
     }
-    console.log("user data email", userData.email);
 
     if (!isEmailValid(userData.email)) {
       dispatch(
@@ -72,12 +76,10 @@ const ProfileSettings = () => {
       );
       return;
     }
-    // console.log("email id validation",isEmailValid(userData.email))
     try {
       const tokenResponse = localStorage.getItem("accessToken");
       const tokenData = JSON.parse(tokenResponse);
       const token = tokenData.token;
-      console.log(token);
       // Set the Authorization header with the token
       const config = {
         headers: {
@@ -93,10 +95,13 @@ const ProfileSettings = () => {
           status: 1,
         })
       );
-
-      console.log("Employee data updated successfully!");
     } catch (error) {
-      console.error("Error updating employee data:", error);
+      dispatch(
+        showNotification({
+          message: "Error in updating Profile!",
+          status: 1,
+        })
+      );
     }
   };
 
