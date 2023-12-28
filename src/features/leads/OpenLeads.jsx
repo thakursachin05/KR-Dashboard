@@ -269,7 +269,7 @@ function OpenLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLeads()}
         >
-          Delete Leads
+          Delete All Leads
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
