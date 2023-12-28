@@ -37,6 +37,11 @@ if (user.approvedAt && !isAdmin) {
 if (isAdmin) {
   routes.push(
     {
+      path: "/app/websiteLeads",
+      icon: <Squares2X2Icon className={iconClasses} />,
+      name: "Website Leads",
+    },
+    {
       path: "/app/assignedLeads",
       icon: <Squares2X2Icon className={iconClasses} />,
       name: "Assigned Leads",
