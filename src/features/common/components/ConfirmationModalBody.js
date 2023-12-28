@@ -9,9 +9,41 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
   //   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
-  const { message, type, index } = extraObject;
+  const { message, type, index, params } = extraObject;
 
   const proceedWithYes = async () => {
+    if (type === CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD) {
+      try {
+        const storedToken = localStorage.getItem("accessToken");
+
+        if (storedToken) {
+          const accessToken = JSON.parse(storedToken).token;
+
+          if (accessToken) {
+            const headers = {
+              Authorization: `Bearer ${accessToken}`,
+            };
+
+            await axios.delete(`${API}/lead/delete/bulk`, {
+              headers,
+              params: params,
+            });
+
+            dispatch(sliceLeadDeleted(true));
+            dispatch(showNotification({ message: "Lead Deleted!", status: 1 }));
+          }
+        } else {
+          dispatch(
+            showNotification({ message: "Access token not found", status: 1 })
+          );
+        }
+      } catch (error) {
+        dispatch(
+          showNotification({ message: "Error deleting Lead", status: 1 })
+        );
+      }
+    }
+
     if (type === CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE) {
       try {
         const storedToken = localStorage.getItem("accessToken");
@@ -27,10 +59,8 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
             await axios.delete(`${API}/lead/${index}`, {
               headers,
             });
-            dispatch(sliceLeadDeleted(true))
-            dispatch(
-              showNotification({ message: "Lead Deleted!", status: 1 })
-            );
+            dispatch(sliceLeadDeleted(true));
+            dispatch(showNotification({ message: "Lead Deleted!", status: 1 }));
           }
         } else {
           dispatch(
@@ -58,7 +88,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
             await axios.delete(`${API}/employee/${index}`, {
               headers,
             });
-            dispatch(sliceMemberDeleted(true))
+            dispatch(sliceMemberDeleted(true));
             dispatch(
               showNotification({ message: "Employee Deleted!", status: 1 })
             );

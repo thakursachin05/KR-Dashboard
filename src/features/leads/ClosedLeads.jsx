@@ -7,6 +7,8 @@ import axios from "axios";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { openModal } from "../common/modalSlice";
+import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
 function ClosedLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
@@ -36,7 +38,6 @@ function ClosedLeads() {
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         dateClosed: "notNull",
         // assigneeStatus : "CLOSED"
-
       };
       const baseURL = `${API}/lead`;
       try {
@@ -55,9 +56,11 @@ function ClosedLeads() {
 
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
-  
-  
-  const itemsPerPageOptions = leadData?.count > 200 ?  [10, 50, 100, 200,leadData?.count] : [10,50,100,200];
+
+  const itemsPerPageOptions =
+    leadData?.count > 200
+      ? [10, 50, 100, 200, leadData?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -143,6 +146,23 @@ function ClosedLeads() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
+
+    const deleteLeads = async () => {
+      dispatch(
+        openModal({
+          title: "Confirmation",
+          bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+          extraObject: {
+            message: `Are you sure you want to delete ALL leads?`,
+            type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
+            params: {
+              dateClosed: "notNull",
+            },
+          },
+        })
+      );
+    };
+
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
@@ -150,6 +170,12 @@ function ClosedLeads() {
           onClick={onExportXLSX}
         >
           Export Leads
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => deleteLeads()}
+        >
+          Delete All Leads
         </button>
       </div>
     );

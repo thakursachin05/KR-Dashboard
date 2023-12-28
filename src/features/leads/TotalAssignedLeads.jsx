@@ -51,8 +51,7 @@ function TotalAssignedLeads() {
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedTo: "notNull",
         dateClosed: "null",
-        assigneeStatus : "OPENED"
-
+        assigneeStatus: "OPENED",
       };
       const baseURL = `${API}/lead`;
       try {
@@ -238,6 +237,24 @@ function TotalAssignedLeads() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
+    const deleteLeads = async () => {
+      dispatch(
+        openModal({
+          title: "Confirmation",
+          bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+          extraObject: {
+            message: `Are you sure you want to delete ALL leads?`,
+            type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
+            params: {
+              assignedTo: "notNull",
+              dateClosed: "null",
+              assigneeStatus: "OPENED",
+            },
+          },
+        })
+      );
+    };
+
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
@@ -245,6 +262,12 @@ function TotalAssignedLeads() {
           onClick={onExportXLSX}
         >
           Export Leads
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={deleteLeads}
+        >
+          Delete All Leads
         </button>
       </div>
     );

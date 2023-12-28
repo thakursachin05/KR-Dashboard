@@ -9,7 +9,10 @@ import { API } from "../../utils/constants";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { openModal } from "../common/modalSlice";
-import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
+import {
+  CONFIRMATION_MODAL_CLOSE_TYPES,
+  MODAL_BODY_TYPES,
+} from "../../utils/globalConstantUtil";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 function OpenLeads() {
   const dispatch = useDispatch();
@@ -41,15 +44,17 @@ function OpenLeads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        assignedTo : "null",
+        assignedTo: "null",
         dateClosed: "null",
-
       };
       const baseURL = `${API}/lead`;
       try {
         const response = await axios.get(baseURL, { params: params });
         if (response.status === 200) {
-          localStorage.setItem("fresh-lead-count", JSON.stringify(response.data.count));
+          localStorage.setItem(
+            "fresh-lead-count",
+            JSON.stringify(response.data.count)
+          );
           setLeadData(response.data);
         } else {
           console.log("access token incorrect");
@@ -63,8 +68,10 @@ function OpenLeads() {
     fetchData();
   }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
 
-  const itemsPerPageOptions = leadData?.count > 200 ?  [10, 50, 100, 200,leadData?.count] : [10,50,100,200];
-
+  const itemsPerPageOptions =
+    leadData?.count > 200
+      ? [10, 50, 100, 200, leadData?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -76,7 +83,6 @@ function OpenLeads() {
       setSortConfig({ column, order: "asc" });
     }
   };
-
 
   const deleteCurrentLead = (index) => {
     dispatch(
@@ -240,8 +246,31 @@ function OpenLeads() {
       );
     };
 
+    const deleteLeads = async () => {
+      dispatch(
+        openModal({
+          title: "Confirmation",
+          bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+          extraObject: {
+            message: `Are you sure you want to delete ALL leads?`,
+            type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
+            params: {
+              assignedTo: "null",
+              dateClosed: "null",
+            },
+          },
+        })
+      );
+    };
+
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => deleteLeads()}
+        >
+          Delete Leads
+        </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal()}
