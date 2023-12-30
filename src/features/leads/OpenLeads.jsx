@@ -46,6 +46,8 @@ function OpenLeads() {
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedTo: "null",
         dateClosed: "null",
+        isWebLead: false,
+
       };
       const baseURL = `${API}/lead`;
       try {
