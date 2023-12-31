@@ -13,6 +13,7 @@ import { API } from "../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
+import { format } from "date-fns";
 
 function ActiveMembers() {
   const dispatch = useDispatch();
@@ -47,12 +48,15 @@ function ActiveMembers() {
         offset: Math.max(0, (currentPage - 1) * itemsPerPage),
         approvedAt: "notNull",
         isAdmin: "false",
-        presentDays : todayDate
+        presentDays: todayDate,
       };
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("active-member-count", JSON.stringify(response.data.count));
+        localStorage.setItem(
+          "active-member-count",
+          JSON.stringify(response.data.count)
+        );
         setTeamMember(response.data);
       } catch (error) {
         console.error("error", error);
@@ -126,7 +130,10 @@ function ActiveMembers() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  const itemsPerPageOptions = teamMember?.count > 200 ? [10, 50, 200, teamMember?.count] : [10,50,100,200];
+  const itemsPerPageOptions =
+    teamMember?.count > 200
+      ? [10, 50, 200, teamMember?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -274,6 +281,9 @@ function ActiveMembers() {
                   >
                     Phone Number
                   </th>
+                  <td>Last Lead Assigned</td>
+                  <td>Called Leads</td>
+                  <td>Last Date Assigned</td>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -285,6 +295,16 @@ function ActiveMembers() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
+                      <td>{l.lastNumberOfLeadAssigned}</td>
+                      <td>{l.role?.length}</td>
+                      <td>
+                        {l.lastDateLeadAssigned
+                          ? format(
+                              new Date(l?.lastDateLeadAssigned),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
                       <td>
                         <select
                           value={l.activityStatus}

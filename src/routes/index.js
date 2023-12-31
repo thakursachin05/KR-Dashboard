@@ -13,6 +13,10 @@ const TotalAssignedLeads = lazy(() =>
   import("../pages/protected/TotalAssignedLeads")
 );
 
+const WebsiteLeads = lazy(() =>
+  import("../pages/protected/WebsiteLeads")
+);
+
 const Team = lazy(() => import("../pages/protected/Team"));
 const ProfileSettings = lazy(() =>
   import("../pages/protected/ProfileSettings")
@@ -61,6 +65,10 @@ if (isAdmin) {
     {
       path: "/activeMembers",
       component: ActiveMembers,
+    },
+    {
+      path: "/websiteLeads",
+      component: WebsiteLeads,
     },
     {
       path: "/assignedLeads",
