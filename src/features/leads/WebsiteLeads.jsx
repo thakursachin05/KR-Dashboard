@@ -14,7 +14,7 @@ import {
   MODAL_BODY_TYPES,
 } from "../../utils/globalConstantUtil";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-function OpenLeads() {
+function WebsiteLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,8 +46,7 @@ function OpenLeads() {
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedTo: "null",
         dateClosed: "null",
-        isWebLead: false,
-
+        isWebLead: true,
       };
       const baseURL = `${API}/lead`;
       try {
@@ -235,19 +234,6 @@ function OpenLeads() {
 
   const TopSideButtons = ({ onExportXLSX }) => {
     const dispatch = useDispatch();
-
-    const openAddNewLeadModal = () => {
-      dispatch(
-        openModal({
-          title: "Assign Leads",
-          bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
-          extraObject: {
-            message: `Choose employees to assign`,
-          },
-        })
-      );
-    };
-
     const deleteLeads = async () => {
       dispatch(
         openModal({
@@ -259,6 +245,7 @@ function OpenLeads() {
             params: {
               assignedTo: "null",
               dateClosed: "null",
+              isWebLead: true,
             },
           },
         })
@@ -272,12 +259,6 @@ function OpenLeads() {
           onClick={() => deleteLeads()}
         >
           Delete All Leads
-        </button>
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={() => openAddNewLeadModal()}
-        >
-          Assign Leads
         </button>
 
         <button
@@ -303,7 +284,7 @@ function OpenLeads() {
       </div>
 
       <TitleCard
-        title={`Not Assigned Leads ${leadData?.count}`}
+        title={`Website Leads ${leadData?.count}`}
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >
@@ -423,4 +404,4 @@ function OpenLeads() {
   );
 }
 
-export default OpenLeads;
+export default WebsiteLeads;

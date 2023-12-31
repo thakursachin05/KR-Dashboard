@@ -255,6 +255,25 @@ function TotalAssignedLeads() {
       );
     };
 
+    const deleteLast7DaysLeads = async () => {
+      dispatch(
+        openModal({
+          title: "Confirmation",
+          bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+          extraObject: {
+            message: `Are you sure you want to delete ALL leads?`,
+            type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
+            params: {
+              assignedTo: "notNull",
+              dateClosed: "null",
+              assigneeStatus: "OPENED",
+              OlderThanLast7Days: true,
+            },
+          },
+        })
+      );
+    };
+
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
@@ -268,6 +287,12 @@ function TotalAssignedLeads() {
           onClick={deleteLeads}
         >
           Delete All Leads
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => deleteLast7DaysLeads()}
+        >
+          Delete leads 7+ days old
         </button>
       </div>
     );

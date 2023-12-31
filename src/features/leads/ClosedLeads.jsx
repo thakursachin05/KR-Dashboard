@@ -8,7 +8,10 @@ import { API } from "../../utils/constants";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { openModal } from "../common/modalSlice";
-import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
+import {
+  CONFIRMATION_MODAL_CLOSE_TYPES,
+  MODAL_BODY_TYPES,
+} from "../../utils/globalConstantUtil";
 function ClosedLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
@@ -146,7 +149,6 @@ function ClosedLeads() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
-
     const deleteLeads = async () => {
       dispatch(
         openModal({
@@ -157,6 +159,23 @@ function ClosedLeads() {
             type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
             params: {
               dateClosed: "notNull",
+            },
+          },
+        })
+      );
+    };
+
+    const deleteLast7DaysLeads = async () => {
+      dispatch(
+        openModal({
+          title: "Confirmation",
+          bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+          extraObject: {
+            message: `Are you sure you want to delete ALL leads?`,
+            type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
+            params: {
+              dateClosed: "notNull",
+              OlderThanLast7Days: true,
             },
           },
         })
@@ -176,6 +195,12 @@ function ClosedLeads() {
           onClick={() => deleteLeads()}
         >
           Delete All Leads
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => deleteLast7DaysLeads()}
+        >
+          Delete leads 7+ days old
         </button>
       </div>
     );
