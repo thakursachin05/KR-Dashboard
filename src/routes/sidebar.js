@@ -3,9 +3,9 @@ import WalletIcon from "@heroicons/react/24/outline/WalletIcon";
 import UserIcon from "@heroicons/react/24/outline/UserIcon";
 import ArrowRightOnRectangleIcon from "@heroicons/react/24/outline/ArrowRightOnRectangleIcon";
 import InboxArrowDownIcon from "@heroicons/react/24/outline/InboxArrowDownIcon";
-import SparklesIcon from "@heroicons/react/24/outline/SparklesIcon"
+import SparklesIcon from "@heroicons/react/24/outline/SparklesIcon";
 import UsersIcon from "@heroicons/react/24/outline/UsersIcon";
-import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon"
+import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
 
 const iconClasses = `h-6 w-6`;
 const submenuIconClasses = `h-5 w-5`;
@@ -30,17 +30,12 @@ if (user.approvedAt && !isAdmin) {
       path: "/app/previousLeads",
       icon: <ArrowRightOnRectangleIcon className={iconClasses} />,
       name: "Previous Assigned Leads",
-    },
+    }
   );
 }
 
 if (isAdmin) {
   routes.push(
-    {
-      path: "/app/websiteLeads",
-      icon: <Squares2X2Icon className={iconClasses} />,
-      name: "Website Leads",
-    },
     {
       path: "/app/assignedLeads",
       icon: <Squares2X2Icon className={iconClasses} />,
@@ -60,6 +55,11 @@ if (isAdmin) {
       path: "/app/closedLeads",
       icon: <WalletIcon className={iconClasses} />,
       name: "Closed Leads",
+    },
+    {
+      path: "/app/websiteLeads",
+      icon: <Squares2X2Icon className={iconClasses} />,
+      name: "Website Leads",
     },
     {
       path: "/app/teamMembers",
