@@ -62,7 +62,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "single":
         dispatch(
           openModal({
-            title: "To Single Employees",
+            title: "To Single Employee",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_SINGLE,
           })
         );

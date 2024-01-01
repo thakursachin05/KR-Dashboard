@@ -107,7 +107,7 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
 
       <div className="mt-4 flex items-center justify-center">
         <label htmlFor="leadsInput" className="mr-2 text-xl">
-          Leads per employee:
+          Leads Count:
         </label>
         <input
           id="leadsInput"
@@ -129,7 +129,7 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
 
       <div className="mt-4 flex items-center justify-center">
         <label htmlFor="employee_num" className="mr-2 text-xl">
-          Employee Number:
+          Employee Contact Number:
         </label>
         <input
           id="employee_num"
