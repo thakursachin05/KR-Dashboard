@@ -68,7 +68,7 @@ function TemplatePointers() {
               <ol className="list-decimal pl-6 mb-4">
                 <li className="mb-2">
                   <strong>Attendance Marking:</strong> Please ensure you mark
-                  your attendance promptly between 6:00 AM and 12:00 PM daily.
+                  your attendance promptly between 5:00 AM and 10:00 PM daily.
                   This is crucial for lead assignment and maintaining team
                   coordination. Late attendance may impact lead allocation.
                 </li>
