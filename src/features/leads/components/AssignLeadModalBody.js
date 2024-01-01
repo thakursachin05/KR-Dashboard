@@ -1,7 +1,5 @@
 import { useDispatch } from "react-redux";
-import {
-  MODAL_BODY_TYPES,
-} from "../../../utils/globalConstantUtil";
+import { MODAL_BODY_TYPES } from "../../../utils/globalConstantUtil";
 import { openModal } from "../../common/modalSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
@@ -11,9 +9,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
 
   const { message } = extraObject;
 
-
-
-  const openAddNewLeadModal = async(optionType) => {
+  const openAddNewLeadModal = async (optionType) => {
     const baseURL = `${API}/employee`;
     const params = {
       page: 1,
@@ -27,7 +23,10 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       const response = await axios.get(baseURL, { params: params });
 
       if (response.status === 200) {
-        localStorage.setItem("total-employee-count", JSON.stringify(response.data.count));
+        localStorage.setItem(
+          "total-employee-count",
+          JSON.stringify(response.data.count)
+        );
       } else {
         console.log("access token incorrect");
       }
@@ -47,8 +46,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
         dispatch(
           openModal({
             title: "Employees who didn't get Leads Today",
-            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE
-            ,
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE,
           })
         );
         break;
@@ -57,6 +55,15 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           openModal({
             title: "To All Employees with Active Status",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_TOTAL,
+          })
+        );
+        break;
+
+      case "single":
+        dispatch(
+          openModal({
+            title: "To Single Employees",
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_SINGLE,
           })
         );
         break;
@@ -74,7 +81,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("active")}
         >
-           Present Employees Today
+          Present Employees Today
         </button>
 
         <button
@@ -89,6 +96,12 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           onClick={() => openAddNewLeadModal("all")}
         >
           To All Employees with Active Status
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => openAddNewLeadModal("single")}
+        >
+          To Particular Employee
         </button>
       </div>
     </>

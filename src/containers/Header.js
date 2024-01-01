@@ -102,7 +102,7 @@ function Header() {
       const updatedUser = { ...storedUserData };
 
       // Update the presentDays array by pushing today's date
-      updatedUser.presentDays = [...updatedUser.presentDays, today];
+      updatedUser.presentDays = [today];
 
       updatedUser.role = [];
 

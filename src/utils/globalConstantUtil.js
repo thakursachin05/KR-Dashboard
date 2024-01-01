@@ -10,6 +10,7 @@ module.exports = Object.freeze({
         ASSIGN_TO_INACTIVE : "ASSIGN_TO_INACTIVE",
         ASSIGN_TO_TOTAL : "ASSIGN_TO_TOTAL",
         STATS_LEADS : "STATS_LEADS",
+        ASSIGN_TO_SINGLE : "ASSIGN_TO_SINGLE",
         // ASSIGNED_CHOSEN : "ASSIGNED_CHOSEN",
         DEFAULT : "",
     },
