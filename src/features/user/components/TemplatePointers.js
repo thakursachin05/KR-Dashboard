@@ -126,14 +126,30 @@ function TemplatePointers() {
             Welcome to KR Teleservices!
           </h1>
 
-          <p className="text-lg mt-4">
-            Join our team of dynamic telecallers and elevate your career in
-            communication!
+          {/* <p className="text-lg mt-4">
+            Join our lively team of telecallers and elevate your communication
+            career!
           </p>
 
           <p className="text-lg mt-4">
-            Unleash your potential in teleservices and connect with
-            opportunities.
+            Unleash your potential in teleservices and explore new opportunities
+            daily.
+          </p> */}
+
+          <p className="text-lg mt-6">
+            Ready to transform leads into success? Dive into your daily tasks,
+            make those calls, and celebrate your victories! Check out your
+            profile along the way.
+          </p>
+
+          <p className="text-lg mt-6">
+            Ready to boost your career? Join KR Teleservices today!
+            <a
+              href="https://www.thekrteleservices.com/apply"
+              className="text-blue-500 underline ml-2"
+            >
+              Get Started
+            </a>
           </p>
         </>
       )}
