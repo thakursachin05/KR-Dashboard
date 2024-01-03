@@ -1,6 +1,7 @@
 {
-  "short_name": "KR",
-  "name": "KR Teleservices",
+  "name": "KR Teleservices Leads",
+  "short_name": "KR Leads",
+  "description": "Manage leads efficiently with KR Teleservices",
   "icons": [
     {
       "src": "favicon.ico",
