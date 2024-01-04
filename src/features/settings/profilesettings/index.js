@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, {useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import TitleCard from "../../../components/Cards/TitleCard";
 import { API } from "../../../utils/constants";
@@ -7,8 +7,6 @@ import { showNotification } from "../../common/headerSlice";
 import { sliceLeadDeleted } from "../../leads/leadSlice";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
-
-// import ErrorText from "../../../components/Typography/ErrorText";
 
 const ProfileSettings = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -19,18 +17,18 @@ const ProfileSettings = () => {
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
-  // const [errorMessage, setErrorMessage] = useState("");
 
-  const fetchUserData = async () => {
-    try {
-      const response = await axios.get(`${API}/employee/?id=${user._id}`);
-      setUserData(response.data.data[0]);
-      localStorage.setItem("user", JSON.stringify(response.data.data[0]));
-      console.log(response.data.data[0]);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`${API}/employee/?id=${user._id}`);
+        localStorage.setItem("user", JSON.stringify(response.data.data[0]));
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, [user?._id]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -76,6 +74,7 @@ const ProfileSettings = () => {
       );
       return;
     }
+
     try {
       const tokenResponse = localStorage.getItem("accessToken");
       const tokenData = JSON.parse(tokenResponse);
@@ -86,22 +85,37 @@ const ProfileSettings = () => {
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.put(`${API}/employee/${userData._id}`, userData, config);
-      dispatch(sliceLeadDeleted(true));
-      await fetchUserData();
-      dispatch(
-        showNotification({
-          message: "Profile Updated Successfully!",
-          status: 1,
-        })
+
+      const response = await axios.put(
+        `${API}/employee/${userData._id}`,
+        userData,
+        config
       );
+      if (response.status === 200) {
+        localStorage.setItem("user", JSON.stringify(response.data));
+        dispatch(sliceLeadDeleted(true));
+        dispatch(
+          showNotification({
+            message: "Profile Updated Successfully!",
+            status: 1,
+          })
+        );
+      } else {
+        dispatch(
+          showNotification({
+            message: "Error in updating Profile!",
+            status: 0,
+          })
+        );
+      }
     } catch (error) {
       dispatch(
         showNotification({
           message: "Error in updating Profile!",
-          status: 1,
+          status: 0,
         })
       );
+      console.log("error", error);
     }
   };
 
