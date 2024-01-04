@@ -123,18 +123,9 @@ function UserTodayLeads() {
 
           const storedUserData = JSON.parse(localStorage.getItem("user"));
 
-          // Use a Set to keep track of unique values in the role array
-          const uniqueRolesSet = new Set(storedUserData.role);
-
-          // Add the new leadId to the Set
-          uniqueRolesSet.add(leadId);
-
-          // Convert the Set back to an array and assign it to storedUserData.role
-          storedUserData.role = Array.from(uniqueRolesSet);
-
           await axios.put(
-            `${API}/employee/${storedUserData._id}`,
-            storedUserData,
+            `${API}/employee/${storedUserData._id}/callLead`,
+            {leadId},
             config
           );
 
@@ -149,9 +140,9 @@ function UserTodayLeads() {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({ message: "Error Status updating", status: 0 })
-      );
+        // dispatch(
+        //   showNotification({ message: "Error Status updating", status: 0 })
+        // );
     }
   };
 
