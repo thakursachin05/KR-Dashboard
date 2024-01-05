@@ -18,6 +18,8 @@ const WebsiteLeads = lazy(() =>
 );
 
 const Team = lazy(() => import("../pages/protected/Team"));
+const AddTL = lazy(() => import("../pages/protected/AddTL"));
+
 const ProfileSettings = lazy(() =>
   import("../pages/protected/ProfileSettings")
 );
@@ -91,6 +93,10 @@ if (isAdmin) {
     {
       path: "/teamMembers",
       component: Team,
+    },
+    {
+      path: "/addTL",
+      component: AddTL,
     },
     {
       path: "/uploadLeads",

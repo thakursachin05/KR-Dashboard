@@ -72,6 +72,11 @@ if (isAdmin) {
       name: "Reset Password",
     },
     {
+      path: "/app/addTL",
+      icon: <UserIcon className={submenuIconClasses} />,
+      name: "Add Team Leader",
+    },
+    {
       path: "/app/activeMembers",
       icon: <SparklesIcon className={submenuIconClasses} />,
       name: "Today Present Member",
