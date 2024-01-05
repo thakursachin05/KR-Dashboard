@@ -9,9 +9,9 @@ import { API } from "../../../utils/constants";
 
 function ForgotPassword() {
   const INITIAL_REGISTER_OBJ = {
-    name: "",
+    // name: "",
     password: "",
-    email: "",
+    // email: "",
     contact: "",
   };
 
@@ -39,7 +39,7 @@ function ForgotPassword() {
         const tokenResponse = localStorage.getItem("accessToken");
         const tokenData = JSON.parse(tokenResponse);
         const token = tokenData.token;
-        console.log(token);
+        // console.log(token);
         // Set the Authorization header with the token
         const config = {
           headers: {
@@ -91,12 +91,12 @@ function ForgotPassword() {
         `${API}/employee?contact=${registerObj.contact}`
       );
       if (response.status === 200) {
-        console.log("response dat of user", response.data);
+        // console.log("response dat of user", response.data);
         userId = response.data.data[0]._id;
         // window.location.href = "/app/teamMembers";
       }
     } catch (error) {
-      alert("Signup failed");
+      alert("Phone Number not found");
     }
   };
 

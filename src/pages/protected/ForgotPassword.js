@@ -7,7 +7,7 @@ function InternalPage(){
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(setPageTitle({ title : "Add New Members"}))
+        dispatch(setPageTitle({ title : "Forgot Password"}))
       }, [dispatch])
 
 

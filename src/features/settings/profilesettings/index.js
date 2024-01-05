@@ -23,6 +23,7 @@ const ProfileSettings = () => {
       try {
         const response = await axios.get(`${API}/employee/?id=${user._id}`);
         localStorage.setItem("user", JSON.stringify(response.data.data[0]));
+        setUserData(response.data.data[0])
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -74,7 +75,6 @@ const ProfileSettings = () => {
       );
       return;
     }
-
     try {
       const tokenResponse = localStorage.getItem("accessToken");
       const tokenData = JSON.parse(tokenResponse);
