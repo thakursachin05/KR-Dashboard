@@ -251,6 +251,23 @@ function WebsiteLeads() {
         })
       );
     };
+    const mergeLeads = async () => {
+      dispatch(
+        openModal({
+          title: "Confirmation",
+          bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+          extraObject: {
+            message: `Are you sure you want to Merge All leads?`,
+            type: CONFIRMATION_MODAL_CLOSE_TYPES.MERGE_WEBSITE_LEADS,
+            params: {
+              assignedTo: "null",
+              dateClosed: "null",
+              isWebLead: true,
+            },
+          },
+        })
+      );
+    };
 
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
@@ -258,14 +275,19 @@ function WebsiteLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLeads()}
         >
-          Delete All Leads
+          Delete All 
         </button>
-
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => mergeLeads()}
+        >
+          Merge All
+        </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Leads
+          Export
         </button>
       </div>
     );

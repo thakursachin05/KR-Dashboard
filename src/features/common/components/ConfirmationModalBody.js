@@ -12,6 +12,37 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
   const { message, type, index, params } = extraObject;
 
   const proceedWithYes = async () => {
+    if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MERGE_WEBSITE_LEADS) {
+      try {
+        const storedToken = localStorage.getItem("accessToken");
+
+        if (storedToken) {
+          const accessToken = JSON.parse(storedToken).token;
+
+          if (accessToken) {
+            const headers = {
+              Authorization: `Bearer ${accessToken}`,
+            };
+
+            await axios.post(`${API}/lead/webLeadToLeads`,{}, {
+              headers
+            });
+
+            dispatch(sliceLeadDeleted(true));
+            dispatch(showNotification({ message: "Lead Merged!", status: 1 }));
+          }
+        } else {
+          dispatch(
+            showNotification({ message: "Access token not found", status: 0 })
+          );
+        }
+      } catch (error) {
+        dispatch(
+          showNotification({ message: "Error Merging Lead", status: 0 })
+        );
+      }
+    }
+
     if (type === CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD) {
       try {
         const storedToken = localStorage.getItem("accessToken");

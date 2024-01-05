@@ -22,8 +22,7 @@ function Leads() {
           const sheetName = workbook.SheetNames[0];
 
           const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-          console.log("json data is ", jsonData);
-          dispatch(
+            dispatch(
             openModal({
               title: `Confirmation`,
               bodyType: MODAL_BODY_TYPES.DUPLICATE_LEADS,

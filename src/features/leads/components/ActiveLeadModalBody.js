@@ -82,7 +82,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
     const activeEmployees = JSON.parse(
       localStorage.getItem("active-member-count")
     );
-    console.log("active eda", activeEmployees);
+    // console.log("active eda", activeEmployees);
 
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
