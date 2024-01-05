@@ -384,7 +384,6 @@ function TotalAssignedLeads() {
                       Assignee Contact
                     </th>
                     <th>Assigned Date</th>
-                    <th>Assignee Status</th>
 
                     <th className="text-center">Action</th>
                   </tr>
@@ -431,7 +430,6 @@ function TotalAssignedLeads() {
                             ? format(new Date(l?.assignedDate), "dd/MM/yyyy")
                             : "N/A"}
                         </td>
-                        <td>{l.assigneeStatus}</td>
                         <td>
                           <div className="flex item-center justify-between">
                             <button
