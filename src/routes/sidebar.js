@@ -37,9 +37,9 @@ if (user.approvedAt && !isAdmin) {
 if (isAdmin) {
   routes.push(
     {
-      path: "/app/assignedLeads",
+      path: "/app/totalAssignedLeads",
       icon: <Squares2X2Icon className={iconClasses} />,
-      name: "Assigned Leads",
+      name: "Total Assigned Leads",
     },
     {
       path: "/app/uploadLeads",
@@ -75,6 +75,11 @@ if (isAdmin) {
       path: "/app/activeMembers",
       icon: <SparklesIcon className={submenuIconClasses} />,
       name: "Today Present Member",
+    },
+    {
+      path: "/app/todayAssignedLeads",
+      icon: <Squares2X2Icon className={iconClasses} />,
+      name: "Today Assigned Leads",
     },
 
     {

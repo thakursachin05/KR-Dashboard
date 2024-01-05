@@ -311,7 +311,7 @@ function TotalAssignedLeads() {
       </div>
 
       <TitleCard
-        title={`Assigned Leads ${leadData?.count}`}
+        title={`Total Assigned Leads ${leadData?.count}`}
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >

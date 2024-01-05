@@ -28,6 +28,8 @@ const NotApprovedMembers = lazy(() =>
   import("../pages/protected/NotApprovedMembers")
 );
 const UserTodayLeads = lazy(() => import("../pages/protected/UserTodayLeads"));
+const TodayAssignedLeads = lazy(() => import("../pages/protected/TodayAssignedLeads"));
+
 const UserClosedLeads = lazy(() =>
   import("../pages/protected/UserClosedLeads")
 );
@@ -71,7 +73,7 @@ if (isAdmin) {
       component: WebsiteLeads,
     },
     {
-      path: "/assignedLeads",
+      path: "/totalAssignedLeads",
       component: TotalAssignedLeads,
     },
     // {
@@ -82,10 +84,10 @@ if (isAdmin) {
     //   path: "/closedLeads",
     //   component: ClosedLeads,
     // },
-    // {
-    //   path: "/todayAssignedLeads",
-    //   component: TodayAssignedLeads,
-    // },
+    {
+      path: "/todayAssignedLeads",
+      component: TodayAssignedLeads,
+    },
     {
       path: "/teamMembers",
       component: Team,
