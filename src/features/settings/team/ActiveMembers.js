@@ -296,7 +296,7 @@ function ActiveMembers() {
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
-                      <td>{l.role?.length}</td>
+                      <td>{l.calledLeads?.length}</td>
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(
