@@ -36,9 +36,7 @@ function Register() {
       return setErrorMessage("Email is not valid!");
     }
     if (!isPasswordValid(registerObj.password)) {
-      return setErrorMessage(
-        "Password requirements: 8 characters minimum"
-      );
+      return setErrorMessage("Password requirements: 8 characters minimum");
     } else {
       try {
         const response = await axios.post(`${API}/auth/signup`, registerObj);
@@ -50,7 +48,12 @@ function Register() {
           window.location.href = "/login";
         }
       } catch (error) {
-        alert("Signup failed");
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
+            status: 0,
+          })
+        );
       }
     }
   };

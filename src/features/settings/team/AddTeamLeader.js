@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
@@ -9,12 +8,15 @@ import ErrorText from "../../../components/Typography/ErrorText";
 import { API } from "../../../utils/constants";
 
 function AddTeamLeader() {
+  const todayDate = new Date().toISOString().split("T")[0];
   const INITIAL_REGISTER_OBJ = {
     name: "",
     password: "",
     email: "",
     contact: "",
-    role:["teamLeader"],
+    role: ["teamLeader"],
+    activityStatus: "active",
+    approvedAt: todayDate,
   };
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -36,9 +38,7 @@ function AddTeamLeader() {
       return setErrorMessage("Email is not valid!");
     }
     if (!isPasswordValid(registerObj.password)) {
-      return setErrorMessage(
-        "Password requirements: 8 characters minimum"
-      );
+      return setErrorMessage("Password requirements: 8 characters minimum");
     } else {
       try {
         const response = await axios.post(`${API}/auth/signup`, registerObj);
@@ -47,10 +47,15 @@ function AddTeamLeader() {
             showNotification({ message: "Registered Successfully!", status: 1 })
           );
 
-          window.location.href = "/login";
+          window.location.href = "/teamLeaders";
         }
       } catch (error) {
-        alert("Signup failed");
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
+            status: 0,
+          })
+        );
       }
     }
   };
@@ -81,11 +86,11 @@ function AddTeamLeader() {
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center">
-      <div className="card mx-auto w-full max-w-sm  shadow-xl">
+      <div className="card mx-auto w-full max-w-xl  shadow-xl">
         <div className="grid  md:grid-cols-1 grid-cols-1  bg-base-100 rounded-xl">
           <div className="py-24 px-10">
             <h2 className="text-2xl font-semibold mb-2 text-center">
-              Register Team Leader
+              Add Team Leader
             </h2>
             <form onSubmit={(e) => submitForm(e)}>
               <div className="mb-4">
@@ -137,17 +142,8 @@ function AddTeamLeader() {
 
               <ErrorText styleClass="mt-8">{errorMessage}</ErrorText>
               <button type="submit" className={"btn mt-2 w-full btn-primary"}>
-                Register
+                Create
               </button>
-
-              <div className="text-center mt-4">
-                Already have an account?{" "}
-                <Link to="/login">
-                  <span className="  inline-block  hover:text-primary hover:underline hover:cursor-pointer transition duration-200">
-                    Login
-                  </span>
-                </Link>
-              </div>
             </form>
           </div>
         </div>

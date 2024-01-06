@@ -9,13 +9,14 @@ import {
 import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
-import { API } from "../.../../../../utils/constants";
+import { API } from "../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
-import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { format } from "date-fns";
 
-function TeamMembers() {
+function HRList({ employeeData }) {
+  console.log("emploeyeeedata", employeeData);
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -40,18 +41,23 @@ function TeamMembers() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const todayDate = new Date().toISOString().split("T")[0];
+
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * itemsPerPage,
+        offset: Math.max(0, (currentPage - 1) * itemsPerPage),
         approvedAt: "notNull",
         isAdmin: "false",
-        // activityStatus : "ACTIVE"
+        presentDays: todayDate,
       };
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("total-member-count", JSON.stringify(response.data.count));
+        localStorage.setItem(
+          "active-member-count",
+          JSON.stringify(response.data.count)
+        );
         setTeamMember(response.data);
       } catch (error) {
         console.error("error", error);
@@ -125,8 +131,10 @@ function TeamMembers() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  const itemsPerPageOptions = teamMember?.count > 200 ? [10, 50, 200, teamMember?.count] : [10,50,100,200];
-
+  const itemsPerPageOptions =
+    teamMember?.count > 200
+      ? [10, 50, 200, teamMember?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -156,9 +164,9 @@ function TeamMembers() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead?.contact?.includes(filterValue) ||
-      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
+      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.contact.includes(filterValue) ||
+      lead.activityStatus.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 
@@ -215,7 +223,7 @@ function TeamMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Team Members
+          Export Present Member
         </button>
       </div>
     );
@@ -229,144 +237,133 @@ function TeamMembers() {
           placeholder="Filter by Name or Phone or Status"
           value={filterValue}
           onChange={handleFilterChange}
-          className="input input-sm input-bordered  w-full sm:max-w-xs"
+          className="input input-sm input-bordered  w-full max-w-xs"
         />
       </div>
+      {filteredLeads?.length === 0 ? (
+        <p>No Data Found</p>
+      ) : (
+        <TitleCard
+          title={`Total Present Members ${teamMember?.count}`}
+          topMargin="mt-2"
+          TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
+        >
+          <div className="overflow-x-auto w-full">
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  <th
+                    onClick={() => handleSort("name")}
+                    className={`cursor-pointer ${
+                      sortConfig.column === "name" ? "font-bold" : ""
+                    } ${
+                      sortConfig.column === "name"
+                        ? sortConfig.order === "asc"
+                          ? "sort-asc"
+                          : "sort-desc"
+                        : ""
+                    }`}
+                  >
+                    Name
+                  </th>
 
-      <TitleCard
-        title={`Total Team Members ${teamMember?.count}`}
-        topMargin="mt-2"
-        TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
-      >
-        {filteredLeads?.length === 0 ? (
-          <p>No Data Found</p>
-        ) : (
-          <>
-            <div className="overflow-x-auto w-full">
-              <table className="table w-full">
-                <thead>
-                  <tr>
-                    <th>Joined Date</th>
-                    <th
-                      onClick={() => handleSort("name")}
-                      className={`cursor-pointer ${
-                        sortConfig.column === "name" ? "font-bold" : ""
-                      } ${
-                        sortConfig.column === "name"
-                          ? sortConfig.order === "asc"
-                            ? "sort-asc"
-                            : "sort-desc"
-                          : ""
-                      }`}
-                    >
-                      Name
-                    </th>
-
-                    <th>Email Id</th>
-                    <th
-                      onClick={() => handleSort("contact")}
-                      className={`cursor-pointer ${
-                        sortConfig.column === "contact" ? "font-bold" : ""
-                      } ${
-                        sortConfig.column === "contact"
-                          ? sortConfig.order === "asc"
-                            ? "sort-asc"
-                            : "sort-desc"
-                          : ""
-                      }`}
-                    >
-                      Phone Number
-                    </th>
-                    <td>Last Lead Assigned</td>
-                    <td>Called Leads</td>
-                    <td>Last Date Assigned</td>
-
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLeads?.map((l, k) => {
-                    return (
-                      <tr key={k}>
-                        <td>
-                          {l.approvedAt
-                            ? format(new Date(l?.approvedAt), "dd/MM/yyyy")
-                            : "N/A"}
-                        </td>
-                        <td>{l.name}</td>
-                        <td>{l.email}</td>
-                        <td>{l.contact}</td>
-                        <td>{l.lastNumberOfLeadAssigned}</td>
-                        <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
-                        <td>
-                          {l.lastDateLeadAssigned
-                            ? format(
-                                new Date(l?.lastDateLeadAssigned),
-                                "dd/MM/yyyy"
-                              )
-                            : "N/A"}
-                        </td>
-
-                        <td>
-                          <select
-                            value={l.activityStatus}
-                            onChange={(e) =>
-                              handleStatusChange(l._id, e.target.value)
-                            }
+                  <th>Email Id</th>
+                  <th
+                    onClick={() => handleSort("contact")}
+                    className={`cursor-pointer ${
+                      sortConfig.column === "contact" ? "font-bold" : ""
+                    } ${
+                      sortConfig.column === "contact"
+                        ? sortConfig.order === "asc"
+                          ? "sort-asc"
+                          : "sort-desc"
+                        : ""
+                    }`}
+                  >
+                    Phone Number
+                  </th>
+                  <td>HR assigned</td>
+                  <td>Last Lead Assigned</td>
+                  <td>Last Date Assigned</td>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLeads?.map((l, k) => {
+                  return (
+                    <tr key={k}>
+                      <td>{l.name}</td>
+                      <td>{l.email}</td>
+                      <td>{l.contact}</td>
+                      <td>{l.hrList ? l.hrList?.length : 0}</td>
+                      <td>{l.lastNumberOfLeadAssigned}</td>
+                      <td>
+                        {l.lastDateLeadAssigned
+                          ? format(
+                              new Date(l?.lastDateLeadAssigned),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
+                      <td>
+                        <select
+                          value={l.activityStatus}
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
+                          }
+                        >
+                          <option value="HOLD">Hold</option>
+                          <option value="DEAD">Dead</option>
+                          <option value="ACTIVE">Active</option>
+                        </select>
+                      </td>
+                      <td>
+                        <div className="flex item-center justify-between">
+                          <button
+                            className="btn btn-square btn-ghost"
+                            onClick={() => deleteCurrentLead(l._id)}
                           >
-                            <option value="HOLD">Hold</option>
-                            <option value="DEAD">Dead</option>
-                            <option value="ACTIVE">Active</option>
-                          </select>
-                        </td>
-                        <td>
-                          <div className="flex item-center justify-between">
-                            <button
-                              className="btn btn-square btn-ghost"
-                              onClick={() => deleteCurrentLead(l._id)}
-                            >
-                              <TrashIcon className="w-5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                            <TrashIcon className="w-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex  max-sm:flex-col item-center justify-between">
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={teamMember?.count}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+            <div className="flex items-center max-sm:mt-[20px] justify-center">
+              <label className="mr-2   text-sm font-medium">
+                Items Per Page:
+              </label>
+              <select
+                className="border rounded p-2 max-sm:p-[.5vw]"
+                value={itemsPerPage}
+                onChange={(e) =>
+                  handleItemsPerPageChange(Number(e.target.value))
+                }
+              >
+                {itemsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="flex  max-sm:flex-col item-center justify-between">
-              <Pagination
-                itemsPerPage={itemsPerPage}
-                totalItems={teamMember?.count}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
-              <div className="flex items-center max-sm:mt-[20px] justify-center">
-                <label className="mr-2   text-sm font-medium">
-                  Items Per Page:
-                </label>
-                <select
-                  className="border rounded p-2 max-sm:p-[.5vw]"
-                  value={itemsPerPage}
-                  onChange={(e) =>
-                    handleItemsPerPageChange(Number(e.target.value))
-                  }
-                >
-                  {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </>
-        )}
-      </TitleCard>
+          </div>
+        </TitleCard>
+      )}
     </>
   );
 }
 
-export default TeamMembers;
+export default HRList;

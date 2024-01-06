@@ -61,11 +61,7 @@ if (isAdmin) {
       icon: <Squares2X2Icon className={iconClasses} />,
       name: "Website Leads",
     },
-    {
-      path: "/app/teamMembers",
-      icon: <UsersIcon className={submenuIconClasses} />,
-      name: "Team Members",
-    },
+
     {
       path: "/app/reset-password",
       icon: <UserIcon className={submenuIconClasses} />,
@@ -75,6 +71,16 @@ if (isAdmin) {
       path: "/app/addTL",
       icon: <UserIcon className={submenuIconClasses} />,
       name: "Add Team Leader",
+    },
+    {
+      path: "/app/teamLeaders",
+      icon: <UserIcon className={submenuIconClasses} />,
+      name: "Team Leaders",
+    },
+    {
+      path: "/app/teamMembers",
+      icon: <UsersIcon className={submenuIconClasses} />,
+      name: "Team Members",
     },
     {
       path: "/app/activeMembers",
