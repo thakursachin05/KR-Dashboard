@@ -36,12 +36,15 @@ function PresentHR() {
 
   useEffect(() => {
     const fetchData = async () => {
-
+      const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+      const istDate = new Date(Date.now() + IST_OFFSET);
+      const todayIST = istDate.toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, (currentPage - 1) * itemsPerPage),
-        teamLeaderId : storeUserData._id
+        assignedDate: todayIST,
+        teamLeaderId: storeUserData._id,
       };
       const baseURL = `${API}/employee`;
       try {
@@ -60,7 +63,14 @@ function PresentHR() {
     };
 
     fetchData();
-  }, [itemsPerPage, memberDeleted,storeUserData._id, memberStatus, dispatch, currentPage]);
+  }, [
+    itemsPerPage,
+    memberDeleted,
+    storeUserData._id,
+    memberStatus,
+    dispatch,
+    currentPage,
+  ]);
 
   const handleStatusChange = async (memberId, newStatus) => {
     try {
