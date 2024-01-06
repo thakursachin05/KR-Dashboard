@@ -141,6 +141,53 @@ function TeamLeader() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
+  
+  const handleRoleChange = async (memberId, newStatus) => {
+    try {
+      const storedToken = localStorage.getItem("accessToken");
+      const employeeData = {
+        role: [newStatus],
+        hrList: []
+      };
+      if (storedToken) {
+        const accessToken = JSON.parse(storedToken).token;
+
+        if (accessToken) {
+          const headers = {
+            Authorization: `Bearer ${accessToken}`,
+          };
+
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
+            {
+              headers,
+            }
+          );
+
+          dispatch(sliceMemberStatus(newStatus));
+          dispatch(
+            showNotification({
+              message: `Role Updated Successfully`,
+              status: 1,
+            })
+          );
+        }
+      } else {
+        dispatch(
+          showNotification({
+            message: `Access Token not found`,
+            status: 0,
+          })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        showNotification({ message: `Error in updating Role`, status: 0 })
+      );
+    }
+  };
+
   const itemsPerPageOptions =
     teamMember?.count > 200
       ? [10, 50, 200, teamMember?.count]
@@ -296,6 +343,7 @@ function TeamLeader() {
                   <td>Last Lead Assigned</td>
                   <td>Last Date Assigned</td>
                   <td>Assign New HR</td>
+                  <td>Role</td>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -325,7 +373,17 @@ function TeamLeader() {
                           Assign
                         </button>
                       </td>
-
+                      <td>
+                          <select
+                            value={l.role?.[0]}
+                            onChange={(e) =>
+                              handleRoleChange(l._id, e.target.value)
+                            }
+                          >
+                            <option value="HR">HR</option>
+                            <option value="TL">TL</option>
+                          </select>
+                        </td>
                       <td>
                         <select
                           value={l.activityStatus}

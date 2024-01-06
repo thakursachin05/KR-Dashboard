@@ -46,13 +46,16 @@ function TeamMembers() {
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         approvedAt: "notNull",
         isAdmin: "false",
-        role:["HR"]
+        role: ["HR"],
         // activityStatus : "ACTIVE"
       };
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("total-member-count", JSON.stringify(response.data.count));
+        localStorage.setItem(
+          "total-member-count",
+          JSON.stringify(response.data.count)
+        );
         setTeamMember(response.data);
       } catch (error) {
         console.error("error", error);
@@ -96,6 +99,50 @@ function TeamMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
+          await axios.put(`${API}/employee/${memberId}`, employeeData, {
+            headers,
+          });
+
+          dispatch(sliceMemberStatus(newStatus));
+          dispatch(
+            showNotification({
+              message: `Status updated Successfully!`,
+              status: 1,
+            })
+          );
+        }
+      } else {
+        dispatch(
+          showNotification({
+            message: `Access Token not found`,
+            status: 0,
+          })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        showNotification({ message: `Error in updating Status`, status: 0 })
+      );
+    }
+  };
+
+  const handleRoleChange = async (memberId, newStatus) => {
+    try {
+      const storedToken = localStorage.getItem("accessToken");
+      const employeeData = {
+        role: [newStatus],
+        teamLeaderId: null,
+        calledLeads: [],
+        presentDays: [],
+      };
+      if (storedToken) {
+        const accessToken = JSON.parse(storedToken).token;
+
+        if (accessToken) {
+          const headers = {
+            Authorization: `Bearer ${accessToken}`,
+          };
+
           const response = await axios.put(
             `${API}/employee/${memberId}`,
             employeeData,
@@ -104,30 +151,33 @@ function TeamMembers() {
             }
           );
 
-          console.log("status updated data", response.data);
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: "Status Updated Successfully!",
+              message: `Role Updated Successfully`,
               status: 1,
             })
           );
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({
+            message: `Access Token not found`,
+            status: 0,
+          })
         );
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({ message: `Error in updating Role`, status: 0 })
       );
     }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  const itemsPerPageOptions = teamMember?.count > 200 ? [10, 50, 200, teamMember?.count] : [10,50,100,200];
-
+  const itemsPerPageOptions =
+    teamMember?.count > 200
+      ? [10, 50, 200, teamMember?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -282,7 +332,9 @@ function TeamMembers() {
                     <td>Called Leads</td>
                     <td>Last Date Assigned</td>
 
+                    <th>Role</th>
                     <th>Status</th>
+
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -308,7 +360,17 @@ function TeamMembers() {
                               )
                             : "N/A"}
                         </td>
-
+                        <td>
+                          <select
+                            value={l.role?.[0]}
+                            onChange={(e) =>
+                              handleRoleChange(l._id, e.target.value)
+                            }
+                          >
+                            <option value="HR">HR</option>
+                            <option value="TL">TL</option>
+                          </select>
+                        </td>
                         <td>
                           <select
                             value={l.activityStatus}
