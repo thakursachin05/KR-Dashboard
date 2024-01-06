@@ -6,6 +6,7 @@ import axios from "axios";
 
 function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
   const dispatch = useDispatch();
+  const storeUserData = JSON.parse(localStorage.getItem("user"));
 
   const { message } = extraObject;
 
@@ -18,6 +19,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       approvedAt: "notNull",
       isAdmin: "false",
       activityStatus: "ACTIVE",
+      role : storeUserData.role
     };
     try {
       const response = await axios.get(baseURL, { params: params });

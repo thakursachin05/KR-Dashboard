@@ -23,7 +23,7 @@ const ProfileSettings = () => {
       try {
         const response = await axios.get(`${API}/employee/?id=${user._id}`);
         localStorage.setItem("user", JSON.stringify(response.data.data[0]));
-        setUserData(response.data.data[0])
+        setUserData(response.data.data[0]);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -209,32 +209,39 @@ const ProfileSettings = () => {
           </div>
           {userData.isAdmin === false ? (
             <>
-              <div>
-                <label className="label">Present Days</label>
-                <input
-                  type="text"
-                  name="presentDays"
-                  disabled
-                  className="input input-bordered w-full"
-                  value={userData.presentDays?.length}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <label className="label">Status</label>
-                <input
-                  type="text"
-                  name="activityStatus"
-                  disabled
-                  className="input input-bordered w-full"
-                  value={
-                    userData.activityStatus === null
-                      ? "New Joinee"
-                      : userData.activityStatus
-                  }
-                  onChange={handleInputChange}
-                />
-              </div>
+              {user.role?.includes("HR") ? (
+                <>
+                  <div>
+                    <label className="label">Present Days</label>
+                    <input
+                      type="text"
+                      name="presentDays"
+                      disabled
+                      className="input input-bordered w-full"
+                      value={userData.presentDays?.length}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Status</label>
+                    <input
+                      type="text"
+                      name="activityStatus"
+                      disabled
+                      className="input input-bordered w-full"
+                      value={
+                        userData.activityStatus === null
+                          ? "New Joinee"
+                          : userData.activityStatus
+                      }
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </>
+              ) : (
+                " "
+              )}
+
               <div>
                 <label className="label">
                   Last Date on which Lead was Assigned

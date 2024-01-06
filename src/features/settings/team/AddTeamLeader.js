@@ -8,15 +8,11 @@ import ErrorText from "../../../components/Typography/ErrorText";
 import { API } from "../../../utils/constants";
 
 function AddTeamLeader() {
-  const todayDate = new Date().toISOString().split("T")[0];
   const INITIAL_REGISTER_OBJ = {
     name: "",
     password: "",
     email: "",
     contact: "",
-    role: ["teamLeader"],
-    activityStatus: "active",
-    approvedAt: todayDate,
   };
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -41,13 +37,24 @@ function AddTeamLeader() {
       return setErrorMessage("Password requirements: 8 characters minimum");
     } else {
       try {
-        const response = await axios.post(`${API}/auth/signup`, registerObj);
+        const tokenResponse = localStorage.getItem("accessToken");
+        const tokenData = JSON.parse(tokenResponse);
+        const token = tokenData.token;
+        // console.log(token);
+        // Set the Authorization header with the token
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await axios.post(`${API}/employee/addTeamLeader`, registerObj,config);
         if (response.status === 200) {
+          console.log("respeonse",response)
           dispatch(
-            showNotification({ message: "Registered Successfully!", status: 1 })
+            showNotification({ message: "Team Leader Created Successfully!", status: 1 })
           );
 
-          window.location.href = "/teamLeaders";
+          // window.location.href = "/teamLeaders";
         }
       } catch (error) {
         dispatch(

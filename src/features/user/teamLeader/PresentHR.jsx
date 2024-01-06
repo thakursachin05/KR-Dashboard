@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { openModal } from "../../common/modalSlice";
-import {
-  CONFIRMATION_MODAL_CLOSE_TYPES,
-  MODAL_BODY_TYPES,
-} from "../../../utils/globalConstantUtil";
 import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
@@ -14,9 +8,9 @@ import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
-import HRList from "../../user/teamLeader/HRList";
 
-function TeamLeader() {
+function PresentHR() {
+  // console.log("emploeyeeedata", employeeData);
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -29,6 +23,7 @@ function TeamLeader() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
+  const storeUserData = JSON.parse(localStorage.getItem("user"));
 
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
@@ -46,7 +41,7 @@ function TeamLeader() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, (currentPage - 1) * itemsPerPage),
-        role: ["TL"],
+        teamLeaderId : storeUserData._id
       };
       const baseURL = `${API}/employee`;
       try {
@@ -65,40 +60,7 @@ function TeamLeader() {
     };
 
     fetchData();
-  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-
-  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
-
-  const deleteCurrentLead = (id) => {
-    dispatch(
-      openModal({
-        title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
-        extraObject: {
-          message: `Are you sure you want to delete this Member?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-          index: id,
-          // index,
-        },
-      })
-    );
-  };
-
-  
-  const AssignHR = (id) => {
-    dispatch(
-      openModal({
-        title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
-        extraObject: {
-          message: `Are you sure you want to delete this Member?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-          index: id,
-          // index,
-        },
-      })
-    );
-  };
+  }, [itemsPerPage, memberDeleted,storeUserData._id, memberStatus, dispatch, currentPage]);
 
   const handleStatusChange = async (memberId, newStatus) => {
     try {
@@ -213,10 +175,11 @@ function TeamLeader() {
 
   // Function to trigger the download
   const downloadXLSX = (data) => {
+    const todayDate = new Date().toISOString().split("T")[0];
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
+    link.download = `HR_List_Present_today_${todayDate}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -236,15 +199,10 @@ function TeamLeader() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Team Leaders
+          Export Present HR
         </button>
       </div>
     );
-  };
-
-  const handleHRList = (employee) => {
-    console.log("emplpoyee data from leader page", employee);
-    return <HRList employeeData={employee} />;
   };
 
   return (
@@ -262,7 +220,7 @@ function TeamLeader() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Team Leaders ${teamMember?.count}`}
+          title={`Total HR Present Today ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -300,12 +258,10 @@ function TeamLeader() {
                   >
                     Phone Number
                   </th>
-                  <td>HR assigned</td>
                   <td>Last Lead Assigned</td>
+                  <td>Called Leads</td>
                   <td>Last Date Assigned</td>
-                  <td>Assign New HR</td>
                   <th>Status</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -315,10 +271,8 @@ function TeamLeader() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
-                      <td onClick={() => handleHRList(l)}>
-                        {l.hrList ? l.hrList?.length : 0}
-                      </td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
+                      <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(
@@ -327,12 +281,6 @@ function TeamLeader() {
                             )
                           : "N/A"}
                       </td>
-                      <td className="text-center">
-                        <button className="btn btn-square btn-ghost w-[60px] bg-blue-700 hover:bg-blue-800 text-white hover:text-gray-300 transition">
-                          Assign
-                        </button>
-                      </td>
-
                       <td>
                         <select
                           value={l.activityStatus}
@@ -344,16 +292,6 @@ function TeamLeader() {
                           <option value="DEAD">Dead</option>
                           <option value="ACTIVE">Active</option>
                         </select>
-                      </td>
-                      <td>
-                        <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
-                          >
-                            <TrashIcon className="w-5" />
-                          </button>
-                        </div>
                       </td>
                     </tr>
                   );
@@ -393,4 +331,4 @@ function TeamLeader() {
   );
 }
 
-export default TeamLeader;
+export default PresentHR;

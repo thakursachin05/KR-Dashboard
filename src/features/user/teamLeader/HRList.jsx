@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { openModal } from "../../common/modalSlice";
-import {
-  CONFIRMATION_MODAL_CLOSE_TYPES,
-  MODAL_BODY_TYPES,
-} from "../../../utils/globalConstantUtil";
 import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
@@ -15,8 +9,8 @@ import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
 
-function HRList({ employeeData }) {
-  console.log("emploeyeeedata", employeeData);
+function HRList() {
+  // console.log("emploeyeeedata", employeeData);
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -29,6 +23,7 @@ function HRList({ employeeData }) {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
+  const storeUserData = JSON.parse(localStorage.getItem("user"));
 
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
@@ -41,15 +36,12 @@ function HRList({ employeeData }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const todayDate = new Date().toISOString().split("T")[0];
 
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, (currentPage - 1) * itemsPerPage),
-        approvedAt: "notNull",
-        isAdmin: "false",
-        presentDays: todayDate,
+        teamLeaderId : storeUserData._id
       };
       const baseURL = `${API}/employee`;
       try {
@@ -68,24 +60,7 @@ function HRList({ employeeData }) {
     };
 
     fetchData();
-  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-
-  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
-
-  const deleteCurrentLead = (id) => {
-    dispatch(
-      openModal({
-        title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
-        extraObject: {
-          message: `Are you sure you want to delete this Member?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-          index: id,
-          // index,
-        },
-      })
-    );
-  };
+  }, [itemsPerPage, memberDeleted,storeUserData._id, memberStatus, dispatch, currentPage]);
 
   const handleStatusChange = async (memberId, newStatus) => {
     try {
@@ -200,10 +175,11 @@ function HRList({ employeeData }) {
 
   // Function to trigger the download
   const downloadXLSX = (data) => {
+    const todayDate = new Date().toISOString().split("T")[0];
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
+    link.download = `HR_List_${todayDate}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -223,7 +199,7 @@ function HRList({ employeeData }) {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Present Member
+          Export HR
         </button>
       </div>
     );
@@ -244,7 +220,7 @@ function HRList({ employeeData }) {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Present Members ${teamMember?.count}`}
+          title={`Total HR ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -282,11 +258,10 @@ function HRList({ employeeData }) {
                   >
                     Phone Number
                   </th>
-                  <td>HR assigned</td>
                   <td>Last Lead Assigned</td>
+                  <td>Called Leads</td>
                   <td>Last Date Assigned</td>
                   <th>Status</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -296,8 +271,8 @@ function HRList({ employeeData }) {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
-                      <td>{l.hrList ? l.hrList?.length : 0}</td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
+                      <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(
@@ -317,16 +292,6 @@ function HRList({ employeeData }) {
                           <option value="DEAD">Dead</option>
                           <option value="ACTIVE">Active</option>
                         </select>
-                      </td>
-                      <td>
-                        <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
-                          >
-                            <TrashIcon className="w-5" />
-                          </button>
-                        </div>
                       </td>
                     </tr>
                   );

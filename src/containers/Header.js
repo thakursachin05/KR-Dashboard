@@ -172,25 +172,21 @@ function Header() {
         </div>
 
         <div className="order-last">
-          {storedUserData.isAdmin === false ? (
-            storedUserData.approvedAt !== null ? (
-              <div
-                className={
-                  attendanceMarked
-                    ? "text-black cursor-pointer bg-green-500 rounded p-1 mr-5"
-                    : "text-black cursor-pointer bg-red-500 rounded p-1 mr-5"
-                }
-                onClick={isButtonEnabled ? handleAttendanceMarking : null}
-                style={{
-                  opacity: isButtonEnabled ? 1 : 0.5,
-                  pointerEvents: isButtonEnabled ? "auto" : "none",
-                }}
-              >
-                {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
-              </div>
-            ) : (
-              ""
-            )
+          {storedUserData.role?.includes("HR") ? (
+            <div
+              className={
+                attendanceMarked
+                  ? "text-black cursor-pointer bg-green-500 rounded p-1 mr-5"
+                  : "text-black cursor-pointer bg-red-500 rounded p-1 mr-5"
+              }
+              onClick={isButtonEnabled ? handleAttendanceMarking : null}
+              style={{
+                opacity: isButtonEnabled ? 1 : 0.5,
+                pointerEvents: isButtonEnabled ? "auto" : "none",
+              }}
+            >
+              {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
+            </div>
           ) : (
             ""
           )}

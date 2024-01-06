@@ -14,7 +14,7 @@ const user = JSON.parse(localStorage.getItem("user"));
 
 const routes = [];
 
-if (user.approvedAt && !isAdmin) {
+if (user.approvedAt && !isAdmin && user?.role?.includes("HR")) {
   routes.push(
     {
       path: "/app/userLeads",
@@ -30,6 +30,31 @@ if (user.approvedAt && !isAdmin) {
       path: "/app/previousLeads",
       icon: <ArrowRightOnRectangleIcon className={iconClasses} />,
       name: "Previous Assigned Leads",
+    }
+  );
+}
+
+if (user.approvedAt && !isAdmin && user?.role?.includes("TL")) {
+  routes.push(
+    {
+      path: "/app/notAssigned",
+      icon: <ArrowRightOnRectangleIcon className={iconClasses} />,
+      name: "Not Assigned Leads",
+    },
+    {
+      path: "/app/reset-password",
+      icon: <UserIcon className={submenuIconClasses} />,
+      name: "Reset Password",
+    },
+    {
+      path: "/app/teamMembers",
+      icon: <UsersIcon className={submenuIconClasses} />,
+      name: "Team Members",
+    },
+    {
+      path: "/app/activeMembers",
+      icon: <SparklesIcon className={submenuIconClasses} />,
+      name: "Today Present Member",
     }
   );
 }
