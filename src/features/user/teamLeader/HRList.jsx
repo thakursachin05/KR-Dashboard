@@ -8,6 +8,8 @@ import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
+import { openModal } from "../../common/modalSlice";
+import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from "../../../utils/globalConstantUtil";
 
 function HRList() {
   // console.log("emploeyeeedata", employeeData);
@@ -36,12 +38,11 @@ function HRList() {
 
   useEffect(() => {
     const fetchData = async () => {
-
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, (currentPage - 1) * itemsPerPage),
-        teamLeaderId : storeUserData._id
+        teamLeaderId: storeUserData._id,
       };
       const baseURL = `${API}/employee`;
       try {
@@ -60,8 +61,29 @@ function HRList() {
     };
 
     fetchData();
-  }, [itemsPerPage, memberDeleted,storeUserData._id, memberStatus, dispatch, currentPage]);
+  }, [
+    itemsPerPage,
+    memberDeleted,
+    storeUserData._id,
+    memberStatus,
+    dispatch,
+    currentPage,
+  ]);
 
+  const WithdrawLeads = (contact) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to withdraw all open leads of this Member?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
+          contact: contact,
+          // index,
+        },
+      })
+    );
+  };
   const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
@@ -261,7 +283,8 @@ function HRList() {
                   <td>Last Lead Assigned</td>
                   <td>Called Leads</td>
                   <td>Last Date Assigned</td>
-                  <th>Status</th>
+                  <td>Activity Status</td>
+                  <td>Open Leads</td>
                 </tr>
               </thead>
               <tbody>
@@ -292,6 +315,14 @@ function HRList() {
                           <option value="DEAD">Dead</option>
                           <option value="ACTIVE">Active</option>
                         </select>
+                      </td>
+                      <td className="text-center">
+                        <button
+                          onClick={() => WithdrawLeads(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Withdraw
+                        </button>
                       </td>
                     </tr>
                   );

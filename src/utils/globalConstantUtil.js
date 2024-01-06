@@ -24,7 +24,8 @@ module.exports = Object.freeze({
         LEAD_DELETE : "LEAD_DELETE",
         DELETE_ALL_LEAD : "DELETE_ALL_LEAD",
         MEMBER_DELETE : "MEMBER_DELETE",
-        MERGE_WEBSITE_LEADS : "MERGE_WEBSITE_LEADS"
+        MERGE_WEBSITE_LEADS : "MERGE_WEBSITE_LEADS",
+        WITHDRAW_LEADS : "WITHDRAW_LEADS"
     },
 });
 

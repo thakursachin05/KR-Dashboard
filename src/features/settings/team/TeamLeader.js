@@ -97,6 +97,21 @@ function TeamLeader() {
     );
   };
 
+  const WithdrawLeads = (contact) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to withdraw all open leads of this Member?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
+          contact: contact,
+          // index,
+        },
+      })
+    );
+  };
+
   const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
@@ -141,13 +156,12 @@ function TeamLeader() {
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  
   const handleRoleChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
         role: [newStatus],
-        hrList: []
+        hrList: [],
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
@@ -345,6 +359,7 @@ function TeamLeader() {
                   <td>Assign New HR</td>
                   <td>Role</td>
                   <th>Status</th>
+                  <th>Open Leads</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -368,22 +383,22 @@ function TeamLeader() {
                       <td className="text-center">
                         <button
                           onClick={() => AssignHR(l._id)}
-                          className="btn btn-square btn-ghost w-[60px] bg-blue-700 hover:bg-blue-800 text-white hover:text-gray-300 transition"
+                          className="btn btn-primary normal-case btn-sm"
                         >
                           Assign
                         </button>
                       </td>
                       <td>
-                          <select
-                            value={l.role?.[0]}
-                            onChange={(e) =>
-                              handleRoleChange(l._id, e.target.value)
-                            }
-                          >
-                            <option value="HR">HR</option>
-                            <option value="TL">TL</option>
-                          </select>
-                        </td>
+                        <select
+                          value={l.role?.[0]}
+                          onChange={(e) =>
+                            handleRoleChange(l._id, e.target.value)
+                          }
+                        >
+                          <option value="HR">HR</option>
+                          <option value="TL">TL</option>
+                        </select>
+                      </td>
                       <td>
                         <select
                           value={l.activityStatus}
@@ -395,6 +410,14 @@ function TeamLeader() {
                           <option value="DEAD">Dead</option>
                           <option value="ACTIVE">Active</option>
                         </select>
+                      </td>
+                      <td className="text-center">
+                        <button
+                          onClick={() => WithdrawLeads(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Withdraw
+                        </button>
                       </td>
                       <td>
                         <div className="flex item-center justify-between">

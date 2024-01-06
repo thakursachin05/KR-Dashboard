@@ -9,9 +9,57 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
   //   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
-  const { message, type, index, params } = extraObject;
+  const { message, type, index, contact, params } = extraObject;
 
   const proceedWithYes = async () => {
+    if (type === CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS) {
+      try {
+        const storedToken = localStorage.getItem("accessToken");
+
+        if (storedToken) {
+          const accessToken = JSON.parse(storedToken).token;
+
+          if (accessToken) {
+            const headers = {
+              Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await axios.get(
+              `${API}/lead/takeLeadsBack`,
+              {
+                contact: contact,
+              },
+              {
+                headers,
+              }
+            );
+
+            console.log("response", response.data);
+
+            dispatch(sliceLeadDeleted(true));
+            dispatch(
+              showNotification({
+                message: `${response.data.status.message}`,
+                status: 1,
+              })
+            );
+          }
+        } else {
+          dispatch(
+            showNotification({ message: "Access token not found", status: 0 })
+          );
+        }
+      } catch (error) {
+        console.log("error", error);
+        dispatch(
+          showNotification({
+            message: `${error.response.data.error}`,
+            status: 0,
+          })
+        );
+      }
+    }
+
     if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MERGE_WEBSITE_LEADS) {
       try {
         const storedToken = localStorage.getItem("accessToken");
@@ -24,9 +72,13 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
               Authorization: `Bearer ${accessToken}`,
             };
 
-            await axios.post(`${API}/lead/webLeadToLeads`,{}, {
-              headers
-            });
+            await axios.post(
+              `${API}/lead/webLeadToLeads`,
+              {},
+              {
+                headers,
+              }
+            );
 
             dispatch(sliceLeadDeleted(true));
             dispatch(showNotification({ message: "Lead Merged!", status: 1 }));
