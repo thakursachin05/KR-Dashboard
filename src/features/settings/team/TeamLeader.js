@@ -14,7 +14,6 @@ import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
-import HRList from "../../user/teamLeader/HRList";
 
 function TeamLeader() {
   const dispatch = useDispatch();
@@ -41,7 +40,6 @@ function TeamLeader() {
 
   useEffect(() => {
     const fetchData = async () => {
-
       const params = {
         page: currentPage,
         limit: itemsPerPage,
@@ -84,16 +82,15 @@ function TeamLeader() {
     );
   };
 
-  
   const AssignHR = (id) => {
+    // console.log("tl id",id)
     dispatch(
       openModal({
-        title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        title: "Assign HR",
+        bodyType: MODAL_BODY_TYPES.ASSIGN_HR,
         extraObject: {
-          message: `Are you sure you want to delete this Member?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-          index: id,
+          message: `Enter the phone number of HR?`,
+          TLid: id,
           // index,
         },
       })
@@ -242,11 +239,6 @@ function TeamLeader() {
     );
   };
 
-  const handleHRList = (employee) => {
-    console.log("emplpoyee data from leader page", employee);
-    return <HRList employeeData={employee} />;
-  };
-
   return (
     <>
       <div className="mb-4 flex items-center">
@@ -315,9 +307,7 @@ function TeamLeader() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
-                      <td onClick={() => handleHRList(l)}>
-                        {l.hrList ? l.hrList?.length : 0}
-                      </td>
+                      <td>{l.hrList ? l.hrList?.length : 0}</td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>
                         {l.lastDateLeadAssigned
@@ -328,7 +318,10 @@ function TeamLeader() {
                           : "N/A"}
                       </td>
                       <td className="text-center">
-                        <button className="btn btn-square btn-ghost w-[60px] bg-blue-700 hover:bg-blue-800 text-white hover:text-gray-300 transition">
+                        <button
+                          onClick={() => AssignHR(l._id)}
+                          className="btn btn-square btn-ghost w-[60px] bg-blue-700 hover:bg-blue-800 text-white hover:text-gray-300 transition"
+                        >
                           Assign
                         </button>
                       </td>

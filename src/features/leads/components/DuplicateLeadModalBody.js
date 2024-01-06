@@ -29,7 +29,7 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
           try {
             // Extract a chunk of 700 records
             const chunk = allData.slice(offset, offset + chunkSize);
-            console.log("chunk data!",chunk);
+            // console.log("chunk data!",chunk);
 
             const response = await axios.post(
               `${API}/lead/bulk`,

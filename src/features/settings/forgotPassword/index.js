@@ -68,7 +68,12 @@ function ForgotPassword() {
           // window.location.href = "/app/teamMembers";
         }
       } catch (error) {
-        alert("Signup failed");
+        dispatch(
+          showNotification({
+            message: `${error.response.data.error}`,
+            status: 0,
+          })
+        );
       }
       setLoading(false);
     }
