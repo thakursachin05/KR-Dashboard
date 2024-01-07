@@ -23,6 +23,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   // const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
+  // const storedUserData = JSON.parse(localStorage.getItem("user"));
+
   // console.log("lead details",leadDetails)
 
   useEffect(() => {
@@ -105,6 +107,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
               {
                 leadPerEmployee: leadsPerEmployee,
                 typeOfEmployee: "active_status",
+                role : 'HR',
+
               },
               { headers }
             );

@@ -19,6 +19,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
   // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
+  // const storedUserData = JSON.parse(localStorage.getItem("user"));
+
   // let employeeDetails = JSON.parse(localStorage.getItem("total-employee-count"));
   const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
   const minimumLead = 1;
@@ -108,6 +110,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               {
                 leadPerEmployee: leadsPerEmployee,
                 typeOfEmployee: "present_today",
+                role : 'HR',
               },
               { headers }
             );
