@@ -22,7 +22,7 @@ function TemplatePointers() {
       }
     };
     fetchUserData();
-  }, [user?.teamLeaderId]);
+  }, []);
 
   return (
     <>

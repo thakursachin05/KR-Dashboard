@@ -171,7 +171,7 @@ function TeamLeader() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(
+           await axios.put(
             `${API}/employee/${memberId}`,
             employeeData,
             {
