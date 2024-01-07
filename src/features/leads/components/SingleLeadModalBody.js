@@ -22,6 +22,8 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
   );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
+  // const storedUserData = JSON.parse(localStorage.getItem("user"));
+
   // console.log("lead details",leadDetails)
 
 //   useEffect(() => {
