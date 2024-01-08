@@ -6,6 +6,12 @@ import axios from "axios";
 import { API } from "../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
+import { openModal } from "../../common/modalSlice";
+import {
+  CONFIRMATION_MODAL_CLOSE_TYPES,
+  MODAL_BODY_TYPES,
+} from "../../../utils/globalConstantUtil";
+
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
 
@@ -57,7 +63,6 @@ function PresentHR() {
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
@@ -71,6 +76,20 @@ function PresentHR() {
     dispatch,
     currentPage,
   ]);
+
+  const WithdrawLeads = (contact) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to withdraw all open leads of this Member?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
+          contact: contact,
+        },
+      })
+    );
+  };
 
   const handleStatusChange = async (memberId, newStatus) => {
     try {
@@ -113,7 +132,6 @@ function PresentHR() {
         showNotification({ message: "Error Status updating", status: 1 })
       );
     }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
   const itemsPerPageOptions =
@@ -270,8 +288,11 @@ function PresentHR() {
                   </th>
                   <td>Last Lead Assigned</td>
                   <td>Called Leads</td>
+                  <td>Closed Leads</td>
+
                   <td>Last Date Assigned</td>
                   <th>Status</th>
+                  <td>Open Leads</td>
                 </tr>
               </thead>
               <tbody>
@@ -283,6 +304,8 @@ function PresentHR() {
                       <td>{l.contact}</td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
+                      <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(
@@ -302,6 +325,14 @@ function PresentHR() {
                           <option value="DEAD">Dead</option>
                           <option value="ACTIVE">Active</option>
                         </select>
+                      </td>
+                      <td className="text-center">
+                        <button
+                          onClick={() => WithdrawLeads(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Withdraw
+                        </button>
                       </td>
                     </tr>
                   );

@@ -17,11 +17,6 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
   const storedUserData = JSON.parse(localStorage.getItem("user"));
 
   const proceedWithYes = async () => {
-    const activeEmployees = JSON.parse(
-      localStorage.getItem("active-member-count")
-    );
-    console.log("active eda", activeEmployees);
-
     if (totalLeads === 0 || totalEmployees === 0) {
       dispatch(
         showNotification({
@@ -98,7 +93,7 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
       <p className="text-xl  text-center my-3">
-        Total Employees : {totalEmployees}
+        Total HR : {totalEmployees}
       </p>
       <p className="text-xl  text-secondary text-center my-3">
         Leads Remaining : {Math.max(0, totalLeads - leadsPerEmployee)}
@@ -128,7 +123,7 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
 
       <div className="mt-4 flex items-center justify-center">
         <label htmlFor="employee_num" className="mr-2 text-xl">
-          Employee Contact Number:
+          HR Contact Number:
         </label>
         <input
           id="employee_num"

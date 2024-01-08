@@ -9,10 +9,12 @@ import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
 import { openModal } from "../../common/modalSlice";
-import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from "../../../utils/globalConstantUtil";
+import {
+  CONFIRMATION_MODAL_CLOSE_TYPES,
+  MODAL_BODY_TYPES,
+} from "../../../utils/globalConstantUtil";
 
 function HRList() {
-  // console.log("emploeyeeedata", employeeData);
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -55,7 +57,6 @@ function HRList() {
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
@@ -79,7 +80,6 @@ function HRList() {
           message: `Are you sure you want to withdraw all open leads of this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
           contact: contact,
-          // index,
         },
       })
     );
@@ -125,7 +125,6 @@ function HRList() {
         showNotification({ message: "Error Status updating", status: 1 })
       );
     }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
   const itemsPerPageOptions =
@@ -208,7 +207,6 @@ function HRList() {
   };
 
   const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
     const dataToExport = filteredLeads;
 
     downloadXLSX(dataToExport);
@@ -282,6 +280,8 @@ function HRList() {
                   </th>
                   <td>Last Lead Assigned</td>
                   <td>Called Leads</td>
+                  <td>Closed Leads</td>
+
                   <td>Last Date Assigned</td>
                   <td>Activity Status</td>
                   <td>Open Leads</td>
@@ -296,6 +296,8 @@ function HRList() {
                       <td>{l.contact}</td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
+                      <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+                     
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(

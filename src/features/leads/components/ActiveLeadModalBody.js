@@ -18,6 +18,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
+  const storedUserData = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
@@ -46,6 +47,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           approvedAt: "notNull",
           activityStatus: "ACTIVE",
           isAdmin: "false",
+          ...(storedUserData.role?.includes("TL")
+            ? { teamLeaderId: storedUserData._id }
+            : {}),
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -70,7 +74,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, totalLeads]);
+  }, [todayDate, totalLeads, storedUserData.role, storedUserData._id]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
@@ -96,14 +100,27 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
           try {
-            const response = await axios.post(
-              `${API}/lead/assign`,
-              {
-                leadPerEmployee: leadsPerEmployee,
-                typeOfEmployee: "present_today",
-              },
-              { headers }
-            );
+            let response;
+            if (storedUserData.isAdmin) {
+              response = await axios.post(
+                `${API}/lead/assign`,
+                {
+                  leadPerEmployee: leadsPerEmployee,
+                  typeOfEmployee: "present_today",
+                  role: "HR",
+                },
+                { headers }
+              );
+            } else {
+              response = await axios.post(
+                `${API}/lead/assign/tl/${storedUserData._id}`,
+                {
+                  leadPerEmployee: leadsPerEmployee,
+                  typeOfEmployee: "present_today",
+                },
+                { headers }
+              );
+            }
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -141,21 +158,19 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   return (
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
-      <p className="text-xl  text-center my-3">
-        Total Employees : {totalEmployees}
-      </p>
+      <p className="text-xl  text-center my-3">Total HR : {totalEmployees}</p>
       <p className="text-xl text-blue-400 text-center my-3">
-        Employees Present Today: {activeEmployees}
+        HR Present Today: {activeEmployees}
       </p>
       <p className="text-xl text-success  text-center my-3">
-        Employees Receive Leads : {employeegetLeads}
+        HR Receive Leads : {employeegetLeads}
       </p>
       <p className="text-xl text-amber-500 text-center my-3">
-        Employees Not Receive Leads : {employeesWithoutLeads}
+        HR Not Receive Leads : {employeesWithoutLeads}
       </p>
       {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
         <p className="text-xl text-red-600 text-center my-3">
-          1 employee will recieve {excessLeads} leads
+          1 HR will recieve {excessLeads} leads
         </p>
       ) : (
         ""
@@ -168,7 +183,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
       <div className="mt-4 flex items-center justify-center">
         <label htmlFor="leadsInput" className="mr-2 text-xl">
-          Leads per employee:
+          Leads per HR:
         </label>
         <input
           id="leadsInput"

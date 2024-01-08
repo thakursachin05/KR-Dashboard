@@ -50,6 +50,9 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           approvedAt: "notNull",
           activityStatus: "ACTIVE",
           isAdmin: "false",
+          ...(storedUserData.role?.includes("TL")
+          ? { teamLeaderId: storedUserData._id }
+          : {}),
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -74,13 +77,11 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, totalLeads]);
+  }, [todayDate, totalLeads,storedUserData.role,storedUserData._id,]);
 
   const proceedWithYes = async () => {
-    console.log("checing tin not lead aasinged");
 
     const activeEmployees = JSON.parse(localStorage.getItem("inActive-count"));
-    console.log("active employee", activeEmployees);
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
         showNotification({
@@ -159,20 +160,20 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
       <p className="text-xl  text-center my-3">
-        Total Employees : {totalEmployees}
+        Total HR : {totalEmployees}
       </p>
       <p className="text-xl text-blue-400 text-center my-3">
-        Employees didn't get lead today: {activeEmployees}
+        HR didn't get lead today: {activeEmployees}
       </p>
       <p className="text-xl text-success  text-center my-3">
-        Employees Receive Leads : {employeegetLeads}
+        HR Receive Leads : {employeegetLeads}
       </p>
       <p className="text-xl text-amber-500  text-center my-3">
-        Employees Not Receive Leads : {employeesWithoutLeads}
+        HR Not Receive Leads : {employeesWithoutLeads}
       </p>
       {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
         <p className="text-xl text-red-600 text-center my-3">
-          1 employee will recieve {excessLeads} leads
+          1 HR will recieve {excessLeads} leads
         </p>
       ) : (
         ""
@@ -185,7 +186,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
 
       <div className="mt-4 flex items-center justify-center">
         <label htmlFor="leadsInput" className="text-xl mr-2">
-          Leads per employee:
+          Leads per HR:
         </label>
         <input
           id="leadsInput"

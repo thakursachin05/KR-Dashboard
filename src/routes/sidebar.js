@@ -39,7 +39,7 @@ if (user.approvedAt && !isAdmin && user?.role?.includes("TL")) {
     {
       path: "/app/notAssigned",
       icon: <ArrowRightOnRectangleIcon className={iconClasses} />,
-      name: "Not Assigned Leads",
+      name: "Leads in Stock",
     },
     {
       path: "/app/reset-password",
@@ -49,12 +49,12 @@ if (user.approvedAt && !isAdmin && user?.role?.includes("TL")) {
     {
       path: "/app/teamMembers",
       icon: <UsersIcon className={submenuIconClasses} />,
-      name: "Team Members",
+      name: "HR List",
     },
     {
       path: "/app/activeMembers",
       icon: <SparklesIcon className={submenuIconClasses} />,
-      name: "Today Present Member",
+      name: "Today Present HR",
     }
   );
 }
