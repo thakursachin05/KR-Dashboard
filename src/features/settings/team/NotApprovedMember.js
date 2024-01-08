@@ -192,7 +192,7 @@ function NotApprovedMembers() {
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
+    link.download = "not_approved_HR.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -212,7 +212,7 @@ function NotApprovedMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Member
+          Export Not Approved HR
         </button>
       </div>
     );
@@ -233,7 +233,7 @@ function NotApprovedMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Not Approved Members ${teamMember?.count}`}
+          title={`Total Not Approved HR ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >

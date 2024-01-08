@@ -115,7 +115,7 @@ if (isAdmin) {
     {
       path: "/app/activeMembers",
       icon: <SparklesIcon className={submenuIconClasses} />,
-      name: "Today Present Member",
+      name: "Today Present HR",
     },
     {
       path: "/app/todayAssignedLeads",
@@ -126,7 +126,7 @@ if (isAdmin) {
     {
       path: "/app/notApproved",
       icon: <QuestionMarkCircleIcon className={submenuIconClasses} />,
-      name: "Not Approved Members",
+      name: "Not Approved HR",
     }
   );
 }

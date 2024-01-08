@@ -86,6 +86,20 @@ function ActiveMembers() {
     );
   };
 
+  const ChangeTeamLeader = (contact) => {
+    dispatch(
+      openModal({
+        title: "Change Team Leader",
+        bodyType: MODAL_BODY_TYPES.CHANGE_TL,
+        extraObject: {
+          message: `Enter the phone number of Team Leader`,
+          type: MODAL_BODY_TYPES.CHANGE_TL,
+          hrContact: contact,
+        },
+      })
+    );
+  };
+
   const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
@@ -202,7 +216,7 @@ function ActiveMembers() {
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
+    link.download = "present_HR.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -222,7 +236,7 @@ function ActiveMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Present Member
+          Export Present HR
         </button>
       </div>
     );
@@ -243,7 +257,7 @@ function ActiveMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Present Members ${teamMember?.count}`}
+          title={`Total Present HR ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -283,7 +297,9 @@ function ActiveMembers() {
                   </th>
                   <td>Last Lead Assigned</td>
                   <td>Called Leads</td>
+                  <td>Closed Leads</td>
                   <td>Last Date Assigned</td>
+                  <td>Change TL</td>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -297,6 +313,8 @@ function ActiveMembers() {
                       <td>{l.contact}</td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>{l.calledLeads ? l.calledLeads?.length : 0}</td>
+                      <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(
@@ -304,6 +322,14 @@ function ActiveMembers() {
                               "dd/MM/yyyy"
                             )
                           : "N/A"}
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => ChangeTeamLeader(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Change
+                        </button>
                       </td>
                       <td>
                         <select
