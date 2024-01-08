@@ -100,6 +100,20 @@ function TeamMembers() {
     );
   };
 
+  const ChangeTeamLeader = (contact) => {
+    dispatch(
+      openModal({
+        title: "Change Team Leader",
+        bodyType: MODAL_BODY_TYPES.CHANGE_TL,
+        extraObject: {
+          message: `Enter the phone number of Team Leader`,
+          type: MODAL_BODY_TYPES.CHANGE_TL,
+          hrContact: contact,
+        },
+      })
+    );
+  };
+
   const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
@@ -158,13 +172,9 @@ function TeamMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
-            {
-              headers,
-            }
-          );
+          await axios.put(`${API}/employee/${memberId}`, employeeData, {
+            headers,
+          });
 
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
@@ -261,7 +271,7 @@ function TeamMembers() {
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
+    link.download = `hr_list.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -281,7 +291,7 @@ function TeamMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Team Members
+          Export HR
         </button>
       </div>
     );
@@ -300,7 +310,7 @@ function TeamMembers() {
       </div>
 
       <TitleCard
-        title={`Total Team Members ${teamMember?.count}`}
+        title={`Total HR ${teamMember?.count}`}
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >
@@ -348,6 +358,7 @@ function TeamMembers() {
                     <td>Closed Leads</td>
 
                     <td>Last Date Assigned</td>
+                    <td>Change TL</td>
 
                     <th>Role</th>
                     <th>Status</th>
@@ -378,6 +389,14 @@ function TeamMembers() {
                                 "dd/MM/yyyy"
                               )
                             : "N/A"}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => ChangeTeamLeader(l.contact)}
+                            className="btn btn-primary  normal-case btn-sm"
+                          >
+                            Change
+                          </button>
                         </td>
                         <td>
                           <select

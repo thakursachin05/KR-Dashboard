@@ -105,12 +105,12 @@ if (isAdmin) {
     {
       path: "/app/teamLeaders",
       icon: <UserIcon className={submenuIconClasses} />,
-      name: "Team Leaders",
+      name: "Team Leaders List",
     },
     {
       path: "/app/teamMembers",
       icon: <UsersIcon className={submenuIconClasses} />,
-      name: "Team Members",
+      name: "HR List",
     },
     {
       path: "/app/activeMembers",
