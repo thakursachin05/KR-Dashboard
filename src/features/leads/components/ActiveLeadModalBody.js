@@ -22,7 +22,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  const storedUserData = localStorage.getItem("user");
+  // const storedUserData = localStorage.getItem("user");
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
