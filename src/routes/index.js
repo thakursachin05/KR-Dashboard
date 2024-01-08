@@ -84,7 +84,7 @@ if (isAdmin) {
       component: WebsiteLeads,
     },
     {
-      path: "/notCalledLeads",
+      path: "/calledLeads",
       component: NotCalledLeads,
     },
     {

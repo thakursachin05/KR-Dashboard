@@ -36,25 +36,29 @@ function AddTeamLeader() {
     if (!isPasswordValid(registerObj.password)) {
       return setErrorMessage("Password requirements: 8 characters minimum");
     } else {
+      registerObj.password = registerObj.password.replace(/\s/g, "");
+      registerObj.contact = registerObj.contact.replace(/\s/g, "");
       try {
         const tokenResponse = localStorage.getItem("accessToken");
         const tokenData = JSON.parse(tokenResponse);
         const token = tokenData.token;
-        // console.log(token);
-        // Set the Authorization header with the token
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         };
-        const response = await axios.post(`${API}/employee/addTeamLeader`, registerObj,config);
+        const response = await axios.post(
+          `${API}/employee/addTeamLeader`,
+          registerObj,
+          config
+        );
         if (response.status === 200) {
-          console.log("respeonse",response)
           dispatch(
-            showNotification({ message: "Team Leader Created Successfully!", status: 1 })
+            showNotification({
+              message: "Team Leader Created Successfully!",
+              status: 1,
+            })
           );
-
-          // window.location.href = "/teamLeaders";
         }
       } catch (error) {
         dispatch(

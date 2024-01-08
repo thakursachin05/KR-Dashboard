@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setPageTitle } from '../../features/common/headerSlice'
-import NotCalledLeads from '../../features/leads/NotCalledLeads'
+import CalledLeads from '../../features/leads/CalledLeads'
 
 function InternalPage(){
 
@@ -12,7 +12,7 @@ function InternalPage(){
       }, [dispatch])
       
     return(
-        <NotCalledLeads />
+        <CalledLeads />
     )
 }
 

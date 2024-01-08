@@ -12,7 +12,7 @@ import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
 } from "../../utils/globalConstantUtil";
-function NotCalledLeads() {
+function CalledLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,13 +39,12 @@ function NotCalledLeads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        assigneeStatus : "CALLED"
+        assigneeStatus: "CALLED",
       };
       const baseURL = `${API}/lead`;
       try {
         const response = await axios.get(baseURL, { params: params });
         if (response.status === 200) {
-          // localStorage.setItem("lead-details", JSON.stringify(response.data));
           setLeadData(response.data);
         } else {
           console.log("access token incorrect");
@@ -157,7 +156,7 @@ function NotCalledLeads() {
             message: `Are you sure you want to delete ALL leads?`,
             type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
             params: {
-              dateClosed: "notNull",
+              assigneeStatus: "CALLED",
             },
           },
         })
@@ -173,7 +172,7 @@ function NotCalledLeads() {
             message: `Are you sure you want to delete ALL leads?`,
             type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
             params: {
-              dateClosed: "notNull",
+              assigneeStatus: "CALLED",
               OlderThanLast7Days: true,
             },
           },
@@ -218,7 +217,7 @@ function NotCalledLeads() {
       </div>
 
       <TitleCard
-        title={`Closed Leads ${leadData?.count}`}
+        title={`Called Leads ${leadData?.count}`}
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >
@@ -350,4 +349,4 @@ function NotCalledLeads() {
   );
 }
 
-export default NotCalledLeads;
+export default CalledLeads;
