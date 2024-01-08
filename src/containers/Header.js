@@ -119,6 +119,8 @@ function Header() {
 
       updatedUser.calledLeads = [];
 
+      updatedUser.closedLeads = [];
+
       // Make the API call to update the user data
       await axios.put(
         `${API}/employee/${updatedUser._id}`,
@@ -146,7 +148,7 @@ function Header() {
       dispatch(
         showNotification({
           message: "Error updating attendance. Please try again.",
-          status: 2,
+          status: 0,
         })
       );
     }
