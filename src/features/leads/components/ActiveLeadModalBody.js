@@ -13,16 +13,11 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   const [employeegetLeads, setEmployeesGetLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
-
-  // i want to count number of active employeees,
-  // by checking the employee last present days,
-  // if it has today date, then it will be marked as active member else not
-  // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  // let employeeDetails = JSON.parse(localStorage.getItem("total-employee-count"));
-  const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
+  const totalEmployees = JSON.parse(
+    localStorage.getItem("total-employee-count")
+  );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  // const storedUserData = localStorage.getItem("user");
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);

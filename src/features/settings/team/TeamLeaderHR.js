@@ -46,8 +46,7 @@ function TeamLeaderHR() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        teamLeaderId : teamLeaderId
-        // activityStatus : "ACTIVE"
+        teamLeaderId: teamLeaderId,
       };
       const baseURL = `${API}/employee`;
       try {
@@ -60,15 +59,19 @@ function TeamLeaderHR() {
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
 
     fetchData();
-  }, [itemsPerPage, memberDeleted,teamLeaderId, memberStatus, dispatch, currentPage]);
-
-  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
+  }, [
+    itemsPerPage,
+    memberDeleted,
+    teamLeaderId,
+    memberStatus,
+    dispatch,
+    currentPage,
+  ]);
 
   const deleteCurrentLead = (id) => {
     dispatch(
@@ -79,7 +82,6 @@ function TeamLeaderHR() {
           message: `Are you sure you want to delete this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
           index: id,
-          // index,
         },
       })
     );
@@ -94,7 +96,20 @@ function TeamLeaderHR() {
           message: `Are you sure you want to withdraw all open leads of this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
           contact: contact,
-          // index,
+        },
+      })
+    );
+  };
+
+  const ChangeTeamLeader = (contact) => {
+    dispatch(
+      openModal({
+        title: "Change Team Leader",
+        bodyType: MODAL_BODY_TYPES.CHANGE_TL,
+        extraObject: {
+          message: `Enter the phone number of Team Leader`,
+          type: MODAL_BODY_TYPES.CHANGE_TL,
+          hrContact: contact,
         },
       })
     );
@@ -339,8 +354,10 @@ function TeamLeaderHR() {
                     >
                       Phone Number
                     </th>
+                    <th>Changle TL</th>
                     <td>Last Lead Assigned</td>
                     <td>Called Leads</td>
+                    <td>Closed Leads</td>
                     <td>Last Date Assigned</td>
 
                     <th>Role</th>
@@ -361,8 +378,18 @@ function TeamLeaderHR() {
                         <td>{l.name}</td>
                         <td>{l.email}</td>
                         <td>{l.contact}</td>
+
+                        <td>
+                          <button
+                            onClick={() => ChangeTeamLeader(l.contact)}
+                            className="btn btn-primary  normal-case btn-sm"
+                          >
+                            Change
+                          </button>
+                        </td>
                         <td>{l.lastNumberOfLeadAssigned}</td>
                         <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
+                        <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
                         <td>
                           {l.lastDateLeadAssigned
                             ? format(

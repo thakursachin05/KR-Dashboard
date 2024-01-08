@@ -63,3 +63,11 @@
 .table th:first-child {
   position: relative;
 }
+
+td{
+  text-align: center;
+}
+
+th{
+  text-align: center;
+}

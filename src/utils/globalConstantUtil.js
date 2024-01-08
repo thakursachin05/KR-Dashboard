@@ -13,7 +13,9 @@ module.exports = Object.freeze({
         ASSIGN_TO_SINGLE : "ASSIGN_TO_SINGLE",
         ASSIGN_HR : "ASSIGN_HR",
         ASSIGN_TO_TL : "ASSIGN_TO_TL",
+        CHANGE_TL : "CHANGE_TL",
         DEFAULT : "",
+
     },
 
     RIGHT_DRAWER_TYPES : {
@@ -26,7 +28,8 @@ module.exports = Object.freeze({
         DELETE_ALL_LEAD : "DELETE_ALL_LEAD",
         MEMBER_DELETE : "MEMBER_DELETE",
         MERGE_WEBSITE_LEADS : "MERGE_WEBSITE_LEADS",
-        WITHDRAW_LEADS : "WITHDRAW_LEADS"
+        WITHDRAW_LEADS : "WITHDRAW_LEADS",
+        
     },
 });
 

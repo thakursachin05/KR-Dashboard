@@ -58,15 +58,12 @@ function TeamLeader() {
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
 
     fetchData();
   }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-
-  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
     dispatch(
@@ -77,22 +74,20 @@ function TeamLeader() {
           message: `Are you sure you want to delete this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
           index: id,
-          // index,
         },
       })
     );
   };
 
   const AssignHR = (id) => {
-    // console.log("tl id",id)
     dispatch(
       openModal({
         title: "Assign HR",
         bodyType: MODAL_BODY_TYPES.ASSIGN_HR,
         extraObject: {
-          message: `Enter the phone number of HR?`,
+          type: MODAL_BODY_TYPES.ASSIGN_HR,
+          message: `Enter the phone number of HR`,
           TLid: id,
-          // index,
         },
       })
     );
@@ -107,7 +102,6 @@ function TeamLeader() {
           message: `Are you sure you want to withdraw all open leads of this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
           contact: contact,
-          // index,
         },
       })
     );
@@ -152,49 +146,6 @@ function TeamLeader() {
     } catch (error) {
       dispatch(
         showNotification({ message: "Error Status updating", status: 1 })
-      );
-    }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
-  };
-
-  const handleRoleChange = async (memberId, newStatus) => {
-    try {
-      const storedToken = localStorage.getItem("accessToken");
-      const employeeData = {
-        role: [newStatus],
-        hrList: [],
-      };
-      if (storedToken) {
-        const accessToken = JSON.parse(storedToken).token;
-
-        if (accessToken) {
-          const headers = {
-            Authorization: `Bearer ${accessToken}`,
-          };
-
-          await axios.put(`${API}/employee/${memberId}`, employeeData, {
-            headers,
-          });
-
-          dispatch(sliceMemberStatus(newStatus));
-          dispatch(
-            showNotification({
-              message: `Role Updated Successfully`,
-              status: 1,
-            })
-          );
-        }
-      } else {
-        dispatch(
-          showNotification({
-            message: `Access Token not found`,
-            status: 0,
-          })
-        );
-      }
-    } catch (error) {
-      dispatch(
-        showNotification({ message: `Error in updating Role`, status: 0 })
       );
     }
   };
@@ -354,7 +305,6 @@ function TeamLeader() {
                   <td>Last Lead Assigned</td>
                   <td>Last Date Assigned</td>
                   <td>Assign New HR</td>
-                  <td>Role</td>
                   <th>Status</th>
                   <th>Open Leads</th>
                   <th>Action</th>
@@ -391,17 +341,6 @@ function TeamLeader() {
                         >
                           Assign
                         </button>
-                      </td>
-                      <td>
-                        <select
-                          value={l.role?.[0]}
-                          onChange={(e) =>
-                            handleRoleChange(l._id, e.target.value)
-                          }
-                        >
-                          <option value="HR">HR</option>
-                          <option value="TL">TL</option>
-                        </select>
                       </td>
                       <td>
                         <select

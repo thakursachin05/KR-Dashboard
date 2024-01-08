@@ -1,62 +1,108 @@
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { API } from "../../../../utils/constants";
-import {sliceMemberDeleted } from "../../../leads/leadSlice";
+import { sliceMemberDeleted } from "../../../leads/leadSlice";
 import { showNotification } from "../../../common/headerSlice";
 import { useState } from "react";
 import InputText from "../../../../components/Input/InputText";
+import { MODAL_BODY_TYPES } from "../../../../utils/globalConstantUtil";
 function AssignHRModel({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [contact, setContact] = useState("");
   const [HRname, setHRname] = useState("");
-  const { message, TLid } = extraObject;
+  const { message, TLid, type, hrContact } = extraObject;
 
   const proceedWithAssign = async () => {
-    try {
-      const storedToken = localStorage.getItem("accessToken");
+    contact.contact = contact.contact.replace(/\s/g, "");
+    if (type === MODAL_BODY_TYPES.ASSIGN_HR) {
+      try {
+        const storedToken = localStorage.getItem("accessToken");
 
-      if (storedToken) {
-        const accessToken = JSON.parse(storedToken).token;
+        if (storedToken) {
+          const accessToken = JSON.parse(storedToken).token;
 
-        if (accessToken) {
-          const headers = {
-            Authorization: `Bearer ${accessToken}`,
-          };
+          if (accessToken) {
+            const headers = {
+              Authorization: `Bearer ${accessToken}`,
+            };
 
-          const response = await axios.put(
-            `${API}/employee/addHRToTeamLeader/${TLid}`,
-            {
-              contact: contact.contact,
-            },
-            {
-              headers,
-            }
-          );
-          dispatch(sliceMemberDeleted(true));
+            const response = await axios.put(
+              `${API}/employee/addHRToTeamLeader/${TLid}`,
+              {
+                contact: contact.contact,
+              },
+              {
+                headers,
+              }
+            );
+            dispatch(sliceMemberDeleted(true));
+            dispatch(
+              showNotification({
+                message: `${response.data.message}`,
+                status: 1,
+              })
+            );
+          }
+        } else {
           dispatch(
-            showNotification({
-              message: `${response.data.message}`,
-              status: 1,
-            })
+            showNotification({ message: "Access token not found", status: 0 })
           );
         }
-      } else {
+      } catch (error) {
         dispatch(
-          showNotification({ message: "Access token not found", status: 0 })
+          showNotification({
+            message: `${error.response.data.error}`,
+            status: 0,
+          })
         );
       }
-    } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.error}`,
-          status: 0,
-        })
-      );
+    } else if (type === MODAL_BODY_TYPES.CHANGE_TL) {
+      try {
+        const storedToken = localStorage.getItem("accessToken");
+
+        if (storedToken) {
+          const accessToken = JSON.parse(storedToken).token;
+
+          if (accessToken) {
+            const headers = {
+              Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await axios.put(
+              `${API}/employee/addHRToTeamLeader/${hrContact}`,
+              {
+                contact: contact.contact,
+              },
+              {
+                headers,
+              }
+            );
+            dispatch(sliceMemberDeleted(true));
+            dispatch(
+              showNotification({
+                message: `${response.data.message}`,
+                status: 1,
+              })
+            );
+          }
+        } else {
+          dispatch(
+            showNotification({ message: "Access token not found", status: 0 })
+          );
+        }
+      } catch (error) {
+        dispatch(
+          showNotification({
+            message: `${error.response.data.error}`,
+            status: 0,
+          })
+        );
+      }
     }
     closeModal();
   };
 
-  const findHR = async () => {
+  const findEmployee = async () => {
     try {
       const response = await axios.get(
         `${API}/employee/?contact=${contact.contact}`
@@ -102,7 +148,7 @@ function AssignHRModel({ extraObject, closeModal }) {
         </div>
         <div className="items-center flex justify-center">
           <button
-            onClick={() => findHR()}
+            onClick={() => findEmployee()}
             className={"btn mt-2  d-block btn-primary"}
           >
             Search
