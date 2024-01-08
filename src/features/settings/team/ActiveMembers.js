@@ -86,6 +86,21 @@ function ActiveMembers() {
     );
   };
 
+  const WithdrawLeads = (contact) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to withdraw all open leads of this Member?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
+          contact: contact,
+          // index,
+        },
+      })
+    );
+  };
+
   const ChangeTeamLeader = (contact) => {
     dispatch(
       openModal({
@@ -301,6 +316,7 @@ function ActiveMembers() {
                   <td>Last Date Assigned</td>
                   <td>Change TL</td>
                   <th>Status</th>
+                  <th>Open Leads</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -342,6 +358,14 @@ function ActiveMembers() {
                           <option value="DEAD">Dead</option>
                           <option value="ACTIVE">Active</option>
                         </select>
+                      </td>
+                      <td className="text-center">
+                        <button
+                          onClick={() => WithdrawLeads(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Withdraw
+                        </button>
                       </td>
                       <td>
                         <div className="flex item-center justify-between">
