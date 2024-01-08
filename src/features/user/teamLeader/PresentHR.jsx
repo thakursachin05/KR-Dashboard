@@ -43,7 +43,7 @@ function PresentHR() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, (currentPage - 1) * itemsPerPage),
-        assignedDate: todayIST,
+        presentDays: todayIST,
         teamLeaderId: storeUserData._id,
       };
       const baseURL = `${API}/employee`;

@@ -19,7 +19,9 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       approvedAt: "notNull",
       isAdmin: "false",
       activityStatus: "ACTIVE",
-      role : storeUserData.role
+      ...(storeUserData.role?.includes("TL")
+        ? { teamLeaderId: storeUserData._id }
+        : {}),
     };
     try {
       const response = await axios.get(baseURL, { params: params });
@@ -47,7 +49,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "inactive":
         dispatch(
           openModal({
-            title: "Employees who didn't get Leads Today",
+            title: "Present Employees who didn't get Leads Today",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE,
           })
         );
@@ -66,6 +68,14 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           openModal({
             title: "To Single Employee",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_SINGLE,
+          })
+        );
+        break;
+      case "teamLeaders":
+        dispatch(
+          openModal({
+            title: "To Team Leaders",
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_TL,
           })
         );
         break;
@@ -90,7 +100,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("inactive")}
         >
-          Employees who didn't get Leads Today
+         Present Employees who didn't get Leads Today
         </button>
 
         <button
@@ -104,6 +114,12 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           onClick={() => openAddNewLeadModal("single")}
         >
           To Particular Employee
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => openAddNewLeadModal("teamLeaders")}
+        >
+          To Team Leaders
         </button>
       </div>
     </>

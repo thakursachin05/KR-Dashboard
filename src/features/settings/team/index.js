@@ -345,6 +345,8 @@ function TeamMembers() {
                     </th>
                     <td>Last Lead Assigned</td>
                     <td>Called Leads</td>
+                    <td>Closed Leads</td>
+
                     <td>Last Date Assigned</td>
 
                     <th>Role</th>
@@ -367,6 +369,8 @@ function TeamMembers() {
                         <td>{l.contact}</td>
                         <td>{l.lastNumberOfLeadAssigned}</td>
                         <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
+                        <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+
                         <td>
                           {l.lastDateLeadAssigned
                             ? format(

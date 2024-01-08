@@ -12,6 +12,7 @@ import TotalLeadModalBody from '../features/leads/components/TotalLeadModalBody'
 import StatsLeadModalBody from '../features/leads/components/StatsLeadModalBody'
 import SingleLeadModalBody from '../features/leads/components/SingleLeadModalBody'
 import AssignHRModel from '../features/settings/team/components/AssignHRModel'
+import TLLeadModalBody from '../features/leads/components/TLLeadModalBody'
 
 function ModalLayout(){
 
@@ -50,6 +51,7 @@ function ModalLayout(){
                              [MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE] : <InActiveLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_TO_TOTAL] : <TotalLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_TO_SINGLE] : <SingleLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_TO_TL] : <TLLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              
                              [MODAL_BODY_TYPES.DEFAULT] : <div></div>
                     }[bodyType]

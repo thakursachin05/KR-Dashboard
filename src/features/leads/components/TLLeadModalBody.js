@@ -1,28 +1,82 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { showNotification } from "../../common/headerSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
 import { sliceLeadDeleted } from "../leadSlice";
 
-function SingleLeadModalBody({ extraObject, closeModal }) {
+function TLLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
+  const [activeEmployees, setActiveEmployees] = useState(0);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
-  const [contact, setContact] = useState("");
+  const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
+  const [employeegetLeads, setEmployeesGetLeads] = useState(0);
+  const [excessLeads, setExcessLeads] = useState(0);
+  const todayDate = new Date().toISOString().split("T")[0];
   const totalEmployees = JSON.parse(
     localStorage.getItem("total-employee-count")
   );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  const storedUserData = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
+    const donothaveLeads = activeEmployees - employeegetLeads;
+    setEmployeesWithoutLeads(Math.max(0, Math.floor(donothaveLeads)));
+    setEmployeesGetLeads(
+      activeEmployees - Math.max(0, Math.floor(donothaveLeads))
+    );
+
+    if (donothaveLeads < 0) {
+      setExcessLeads(-1 * donothaveLeads);
+    } else {
+      setExcessLeads(totalLeads % leadsPerEmployee);
+    }
+  }, [totalLeads, activeEmployees, leadsPerEmployee]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const baseURL = `${API}/employee`;
+      try {
+        const params = {
+          page: 0,
+          limit: 0,
+          offset: 0,
+          role: "TL",
+          activityStatus: "ACTIVE",
+          isAdmin: "false",
+        };
+        const response = await axios.get(baseURL, { params: params });
+
+        if (response.status === 200) {
+          localStorage.setItem(
+            "active-member-count",
+            JSON.stringify(response.data.count)
+          );
+          const activeEmployees = response.data.count;
+          setActiveEmployees(activeEmployees);
+          if (activeEmployees >= totalLeads) {
+            setLeadsPerEmployee(1);
+          } else {
+            let perHead = Math.floor(totalLeads / activeEmployees);
+            setLeadsPerEmployee(perHead);
+          }
+        } else {
+          console.log("access token incorrect");
+        }
+      } catch (error) {
+        console.error("error", error);
+      }
+    };
+    fetchData();
+  }, [todayDate, totalLeads]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
       localStorage.getItem("active-member-count")
     );
-    console.log("active eda", activeEmployees);
 
-    if (totalLeads === 0 || totalEmployees === 0) {
+    if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
         showNotification({
           message: "Leads or members is empty",
@@ -40,26 +94,16 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
           const headers = {
             Authorization: `Bearer ${accessToken}`,
           };
-          console.log("userdata", storedUserData);
           try {
-            let response;
-            if (storedUserData.isAdmin) {
-              response = await axios.post(
-                `${API}/lead/assign/${contact}`,
-                {
-                  leadPerEmployee: leadsPerEmployee,
-                },
-                { headers }
-              );
-            } else {
-              response = await axios.post(
-                `${API}/lead/assign/tl/${storedUserData._id}/${contact}`,
-                {
-                  leadPerEmployee: leadsPerEmployee,
-                },
-                { headers }
-              );
-            }
+            const response = await axios.post(
+              `${API}/lead/assign`,
+              {
+                leadPerEmployee: leadsPerEmployee,
+                typeOfEmployee: "active_status",
+                role: "TL",
+              },
+              { headers }
+            );
 
             if (response.status === 200) {
               localStorage.setItem(
@@ -97,16 +141,31 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
   return (
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
-      <p className="text-xl  text-center my-3">
-        Total Employees : {totalEmployees}
+      <p className="text-xl text-blue-400 text-center my-3">
+        Total Team Leader: {activeEmployees}
       </p>
+      <p className="text-xl text-success  text-center my-3">
+        TL Receive Leads : {employeegetLeads}
+      </p>
+      <p className="text-xl text-amber-500 text-center my-3">
+        TL Not Receive Leads : {employeesWithoutLeads}
+      </p>
+      {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
+        <p className="text-xl text-red-600 text-center my-3">
+          1 TL will recieve {excessLeads} leads
+        </p>
+      ) : (
+        ""
+      )}
+
       <p className="text-xl  text-secondary text-center my-3">
-        Leads Remaining : {Math.max(0, totalLeads - leadsPerEmployee)}
+        Leads Remaining :{" "}
+        {Math.max(0, totalLeads - leadsPerEmployee * activeEmployees)}
       </p>
 
       <div className="mt-4 flex items-center justify-center">
         <label htmlFor="leadsInput" className="mr-2 text-xl">
-          Leads Count:
+          Leads per Team Leader:
         </label>
         <input
           id="leadsInput"
@@ -126,20 +185,6 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
         />
       </div>
 
-      <div className="mt-4 flex items-center justify-center">
-        <label htmlFor="employee_num" className="mr-2 text-xl">
-          Employee Contact Number:
-        </label>
-        <input
-          id="employee_num"
-          type="number"
-          value={contact}
-          onChange={(e) => {
-            setContact(e.target.value);
-          }}
-          className="border p-1"
-        />
-      </div>
       <div className="modal-action mt-12">
         <button className="btn btn-outline w-36" onClick={() => closeModal()}>
           Cancel
@@ -156,4 +201,4 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
   );
 }
 
-export default SingleLeadModalBody;
+export default TLLeadModalBody;

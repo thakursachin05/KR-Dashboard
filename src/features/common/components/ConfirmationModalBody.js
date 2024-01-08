@@ -24,7 +24,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
               Authorization: `Bearer ${accessToken}`,
             };
 
-            const response = await axios.get(
+            const response = await axios.post(
               `${API}/lead/takeLeadsBack`,
               {
                 contact: contact,
@@ -39,7 +39,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
             dispatch(sliceLeadDeleted(true));
             dispatch(
               showNotification({
-                message: `${response.data.status.message}`,
+                message: `${response.data.message}`,
                 status: 1,
               })
             );
@@ -53,14 +53,12 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
         console.log("error", error);
         dispatch(
           showNotification({
-            message: `${error.response.data.error}`,
+            message: `${error.response.data.message}`,
             status: 0,
           })
         );
       }
-    }
-
-    if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MERGE_WEBSITE_LEADS) {
+    } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MERGE_WEBSITE_LEADS) {
       try {
         const storedToken = localStorage.getItem("accessToken");
 
@@ -93,9 +91,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
           showNotification({ message: "Error Merging Lead", status: 0 })
         );
       }
-    }
-
-    if (type === CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD) {
+    } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD) {
       try {
         const storedToken = localStorage.getItem("accessToken");
 
@@ -125,9 +121,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
           showNotification({ message: "Error deleting Lead", status: 1 })
         );
       }
-    }
-
-    if (type === CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE) {
+    } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE) {
       try {
         const storedToken = localStorage.getItem("accessToken");
 
@@ -155,8 +149,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
           showNotification({ message: "Error deleting Lead", status: 1 })
         );
       }
-    }
-    if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE) {
+    } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE) {
       try {
         const storedToken = localStorage.getItem("accessToken");
 

@@ -77,6 +77,11 @@ if (isAdmin) {
       name: "Not Assigned Leads",
     },
     {
+      path: "/app/notCalledLeads",
+      icon: <ArrowRightOnRectangleIcon className={iconClasses} />,
+      name: "Not Called Leads",
+    },
+    {
       path: "/app/closedLeads",
       icon: <WalletIcon className={iconClasses} />,
       name: "Closed Leads",

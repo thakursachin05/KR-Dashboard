@@ -12,6 +12,7 @@ module.exports = Object.freeze({
         STATS_LEADS : "STATS_LEADS",
         ASSIGN_TO_SINGLE : "ASSIGN_TO_SINGLE",
         ASSIGN_HR : "ASSIGN_HR",
+        ASSIGN_TO_TL : "ASSIGN_TO_TL",
         DEFAULT : "",
     },
 

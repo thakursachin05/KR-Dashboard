@@ -161,9 +161,9 @@ function HRList() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead.contact.includes(filterValue) ||
-      lead.activityStatus.toLowerCase().includes(filterValue.toLowerCase())
+      lead.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.contact?.includes(filterValue) ||
+      lead.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 

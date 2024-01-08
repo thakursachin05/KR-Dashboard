@@ -8,24 +8,18 @@ import { sliceLeadDeleted } from "../leadSlice";
 function InActiveLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [activeEmployees, setActiveEmployees] = useState(0);
-  // const { leads } = useSelector((state) => state.lead);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
   const [employeegetLeads, setEmployeesGetLeads] = useState(0);
 
-  // i want to count number of active employeees,
-  // by checking the employee last present days,
-  // if it has today date, then it will be marked as active member else not
-  // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
-  // const totalEmployees = JSON.parse(localStorage.getItem("total-lead-count"));
+  const totalEmployees = JSON.parse(
+    localStorage.getItem("total-employee-count")
+  );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  // const storedUserData = JSON.parse(localStorage.getItem("user"));
-
-  // console.log("lead details",leadDetails)
+  const storedUserData = localStorage.getItem("user");
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
@@ -102,24 +96,32 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
           try {
-            const response = await axios.post(
-              `${API}/lead/assign`,
-              {
-                leadPerEmployee: leadsPerEmployee,
-                typeOfEmployee: "active_status",
-                role : 'HR',
-
-              },
-              { headers }
-            );
-
+            let response;
+            if (storedUserData.role?.includes("TL")) {
+              response = await axios.post(
+                `${API}/lead/assign/tl/${storedUserData._id}`,
+                {
+                  leadPerEmployee: leadsPerEmployee,
+                  typeOfEmployee: "active_status",
+                },
+                { headers }
+              );
+            } else {
+              response = await axios.post(
+                `${API}/lead/assign`,
+                {
+                  leadPerEmployee: leadsPerEmployee,
+                  typeOfEmployee: "active_status",
+                  role: "HR",
+                },
+                { headers }
+              );
+            }
             if (response.status === 200) {
               localStorage.setItem(
                 "lead-details",
                 JSON.stringify(response.data)
               );
-              // leadDetails = response.data;
-              // console.log("all lead data", response.data);
             } else {
               console.log("access token incorrect");
             }
@@ -193,21 +195,6 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           className="border p-1"
         />
       </div>
-
-      {/* <div className="mt-4">
-        <p className="text-center">
-          {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
-        </p>
-        <p className="text-center">
-          {employeesWithoutLeads > 0
-            ? excessLeads !== 0
-              ? `1 employee will recieve ${excessLeads} leads`
-              : "No Leads are Remaining"
-            : `${
-                totalLeads - leadsPerEmployee * activeEmployees
-              } leads are remaining not assigned to anyone`}
-        </p>
-      </div> */}
 
       <div className="modal-action mt-12">
         <button className="btn btn-outline w-36" onClick={() => closeModal()}>

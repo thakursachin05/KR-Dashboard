@@ -8,7 +8,6 @@ import { sliceLeadDeleted } from "../leadSlice";
 function ActiveLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [activeEmployees, setActiveEmployees] = useState(0);
-  // const { leads } = useSelector((state) => state.lead);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [employeegetLeads, setEmployeesGetLeads] = useState(0);
@@ -19,13 +18,11 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   // by checking the employee last present days,
   // if it has today date, then it will be marked as active member else not
   // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  // const storedUserData = JSON.parse(localStorage.getItem("user"));
-
   // let employeeDetails = JSON.parse(localStorage.getItem("total-employee-count"));
   const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  // console.log("lead details",leadDetails)
+  const storedUserData = localStorage.getItem("user");
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
@@ -84,7 +81,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
     const activeEmployees = JSON.parse(
       localStorage.getItem("active-member-count")
     );
-    // console.log("active eda", activeEmployees);
 
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
@@ -110,7 +106,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
               {
                 leadPerEmployee: leadsPerEmployee,
                 typeOfEmployee: "present_today",
-                role : 'HR',
               },
               { headers }
             );
@@ -197,21 +192,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           className="border p-1"
         />
       </div>
-
-      {/* <div className="mt-4">
-        <p className="text-center">
-          {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
-        </p>
-        <p className="text-center">
-          {employeesWithoutLeads > 0
-            ? excessLeads !== 0
-              ? `1 employee will recieve ${excessLeads} leads`
-              : "No Leads are Remaining"
-            : `${
-                totalLeads - leadsPerEmployee * activeEmployees
-              } leads are remaining not assigned to anyone`}
-        </p>
-      </div> */}
 
       <div className="modal-action mt-12">
         <button className="btn btn-outline w-36" onClick={() => closeModal()}>

@@ -8,12 +8,16 @@ const Leads = lazy(() => import("../pages/protected/Leads"));
 const OpenLeads = lazy(() => import("../pages/protected/OpenLeads"));
 
 const ClosedLeads = lazy(() => import("../pages/protected/ClosedLeads"));
+const NotCalledLeads = lazy(() => import("../pages/protected/NotCalledLeads"));
+
 const ResetPasswordHR = lazy(() =>
   import("../features/user/teamLeader/ResetPasswordHR")
 );
 
 const HRList = lazy(() => import("../features/user/teamLeader/HRList"));
-const AssignLeadsHR = lazy(() => import("../features/user/teamLeader/AssignLeadsHR"));
+const AssignLeadsHR = lazy(() =>
+  import("../features/user/teamLeader/AssignLeadsHR")
+);
 const PresentHR = lazy(() => import("../features/user/teamLeader/PresentHR"));
 
 const TotalAssignedLeads = lazy(() =>
@@ -24,7 +28,7 @@ const WebsiteLeads = lazy(() => import("../pages/protected/WebsiteLeads"));
 
 const Team = lazy(() => import("../pages/protected/Team"));
 const TeamLeaders = lazy(() => import("../pages/protected/TeamLeaders"));
-
+const TeamLeaderHR = lazy(() => import("../pages/protected/TeamLeaderHR"));
 const AddTL = lazy(() => import("../pages/protected/AddTL"));
 
 const ProfileSettings = lazy(() =>
@@ -80,17 +84,13 @@ if (isAdmin) {
       component: WebsiteLeads,
     },
     {
+      path: "/notCalledLeads",
+      component: NotCalledLeads,
+    },
+    {
       path: "/totalAssignedLeads",
       component: TotalAssignedLeads,
     },
-    // {
-    //   path: "/openLeads",
-    //   component: OpenLeads,
-    // },
-    // {
-    //   path: "/closedLeads",
-    //   component: ClosedLeads,
-    // },
     {
       path: "/todayAssignedLeads",
       component: TodayAssignedLeads,
@@ -102,6 +102,10 @@ if (isAdmin) {
     {
       path: "/teamLeaders",
       component: TeamLeaders,
+    },
+    {
+      path: `/teamLeaderHR/:teamLeaderId`,
+      component: TeamLeaderHR,
     },
     {
       path: "/addTL",
