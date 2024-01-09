@@ -31,8 +31,6 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           "total-employee-count",
           JSON.stringify(response.data.count)
         );
-      } else {
-        console.log("access token incorrect");
       }
     } catch (error) {
       console.error("error", error);

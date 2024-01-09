@@ -61,7 +61,6 @@ function ActiveMembers() {
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
@@ -129,15 +128,10 @@ function ActiveMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
-            {
-              headers,
-            }
-          );
+          await axios.put(`${API}/employee/${memberId}`, employeeData, {
+            headers,
+          });
 
-          console.log("status updated data", response.data);
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
@@ -148,12 +142,12 @@ function ActiveMembers() {
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({ message: "Error Status updating", status: 0 })
       );
     }
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
@@ -295,7 +289,6 @@ function ActiveMembers() {
                     Name
                   </th>
 
-                  <th>Email Id</th>
                   <th
                     onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
@@ -314,8 +307,11 @@ function ActiveMembers() {
                   <td>Called Leads</td>
                   <td>Closed Leads</td>
                   <td>Last Date Assigned</td>
-                  <td>Change TL</td>
+                  <td>TL Name</td>
+                  <td>Manage TL</td>
                   <th>Status</th>
+                  <th>Email Id</th>
+
                   <th>Open Leads</th>
                   <th>Action</th>
                 </tr>
@@ -325,7 +321,6 @@ function ActiveMembers() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
-                      <td>{l.email}</td>
                       <td>{l.contact}</td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>{l.calledLeads ? l.calledLeads?.length : 0}</td>
@@ -339,12 +334,16 @@ function ActiveMembers() {
                             )
                           : "N/A"}
                       </td>
+                      <td>{l.teamLeaderName ? l.teamLeaderName : "N/A"}</td>
+
                       <td>
                         <button
                           onClick={() => ChangeTeamLeader(l.contact)}
-                          className="btn btn-primary  normal-case btn-sm"
+                          className={`btn ${
+                            l.teamLeaderName ? "btn-primary" : "btn-secondary"
+                          }  normal-case btn-sm`}
                         >
-                          Change
+                          {l.teamLeaderName ? "Change" : "Assign"}
                         </button>
                       </td>
                       <td>
@@ -359,6 +358,8 @@ function ActiveMembers() {
                           <option value="ACTIVE">Active</option>
                         </select>
                       </td>
+                      <td>{l.email}</td>
+
                       <td className="text-center">
                         <button
                           onClick={() => WithdrawLeads(l.contact)}

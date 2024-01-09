@@ -22,7 +22,6 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
   const storedUserData = localStorage.getItem("user");
 
-
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
     const donothaveLeads = activeEmployees - employeegetLeads;
@@ -51,8 +50,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           activityStatus: "ACTIVE",
           isAdmin: "false",
           ...(storedUserData.role?.includes("TL")
-          ? { teamLeaderId: storedUserData._id }
-          : {}),
+            ? { teamLeaderId: storedUserData._id }
+            : {}),
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -77,10 +76,9 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, totalLeads,storedUserData.role,storedUserData._id,]);
+  }, [todayDate, totalLeads, storedUserData.role, storedUserData._id]);
 
   const proceedWithYes = async () => {
-
     const activeEmployees = JSON.parse(localStorage.getItem("inActive-count"));
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
@@ -128,8 +126,12 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
                 "lead-details",
                 JSON.stringify(response.data)
               );
-            } else {
-              console.log("access token incorrect");
+              dispatch(
+                showNotification({
+                  message: `${response.data.message}`,
+                  status: 1,
+                })
+              );
             }
           } catch (error) {
             console.error("error", error);
@@ -138,17 +140,14 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
         dispatch(sliceLeadDeleted(true));
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
-      dispatch(showNotification({ message: "Leads Assigned!", status: 1 }));
     } catch (error) {
-      console.error("Error assigning leads", error);
-
       dispatch(
         showNotification({
           message: "Error assigning leads. Please try again.",
-          status: 1,
+          status: 0,
         })
       );
     }
@@ -159,9 +158,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   return (
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
-      <p className="text-xl  text-center my-3">
-        Total HR : {totalEmployees}
-      </p>
+      <p className="text-xl  text-center my-3">Total HR : {totalEmployees}</p>
       <p className="text-xl text-blue-400 text-center my-3">
         HR didn't get lead today: {activeEmployees}
       </p>

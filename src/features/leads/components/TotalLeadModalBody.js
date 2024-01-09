@@ -73,7 +73,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate,storedUserData.role,storedUserData._id, totalLeads]);
+  }, [todayDate, storedUserData.role, storedUserData._id, totalLeads]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
@@ -125,27 +125,33 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
                 "lead-details",
                 JSON.stringify(response.data)
               );
-            } else {
-              console.log("access token incorrect");
+              dispatch(
+                showNotification({
+                  message: `${response.data.message}`,
+                  status: 1,
+                })
+              );
             }
           } catch (error) {
-            console.error("error", error);
+            dispatch(
+              showNotification({
+                message: "Error assigning leads. Please try again.",
+                status: 0,
+              })
+            );
           }
         }
         dispatch(sliceLeadDeleted(true));
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
-      dispatch(showNotification({ message: "Leads Assigned!", status: 1 }));
     } catch (error) {
-      console.error("Error assigning leads", error);
-
       dispatch(
         showNotification({
           message: "Error assigning leads. Please try again.",
-          status: 1,
+          status: 0,
         })
       );
     }

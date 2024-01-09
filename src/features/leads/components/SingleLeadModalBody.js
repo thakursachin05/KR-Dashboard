@@ -61,27 +61,33 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
                 "lead-details",
                 JSON.stringify(response.data)
               );
-            } else {
-              console.log("access token incorrect");
+              dispatch(
+                showNotification({
+                  message: `${response.data.message}`,
+                  status: 1,
+                })
+              );
             }
           } catch (error) {
-            console.error("error", error);
+            dispatch(
+              showNotification({
+                message: "Error assigning leads. Please try again.",
+                status: 0,
+              })
+            );
           }
         }
         dispatch(sliceLeadDeleted(true));
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
-      dispatch(showNotification({ message: "Leads Assigned!", status: 1 }));
     } catch (error) {
-      console.error("Error assigning leads", error);
-
       dispatch(
         showNotification({
           message: "Error assigning leads. Please try again.",
-          status: 1,
+          status: 0,
         })
       );
     }
@@ -92,9 +98,7 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
   return (
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
-      <p className="text-xl  text-center my-3">
-        Total HR : {totalEmployees}
-      </p>
+      <p className="text-xl  text-center my-3">Total HR : {totalEmployees}</p>
       <p className="text-xl  text-secondary text-center my-3">
         Leads Remaining : {Math.max(0, totalLeads - leadsPerEmployee)}
       </p>

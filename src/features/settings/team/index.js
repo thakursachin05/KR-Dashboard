@@ -338,7 +338,6 @@ function TeamMembers() {
                       Name
                     </th>
 
-                    <th>Email Id</th>
                     <th
                       onClick={() => handleSort("contact")}
                       className={`cursor-pointer ${
@@ -358,9 +357,12 @@ function TeamMembers() {
                     <td>Closed Leads</td>
 
                     <td>Last Date Assigned</td>
-                    <td>Change TL</td>
+                    <td>TL Name</td>
 
+                    <td>Manage TL</td>
                     <th>Role</th>
+                    <th>Email Id</th>
+
                     <th>Status</th>
                     <th>Open Leads</th>
                     <th>Action</th>
@@ -376,7 +378,6 @@ function TeamMembers() {
                             : "N/A"}
                         </td>
                         <td>{l.name}</td>
-                        <td>{l.email}</td>
                         <td>{l.contact}</td>
                         <td>{l.lastNumberOfLeadAssigned}</td>
                         <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
@@ -390,14 +391,16 @@ function TeamMembers() {
                               )
                             : "N/A"}
                         </td>
+                        <td>{l.teamLeaderName ? l.teamLeaderName : "N/A"}</td>
                         <td>
                           <button
                             onClick={() => ChangeTeamLeader(l.contact)}
-                            className="btn btn-primary  normal-case btn-sm"
+                            className={`btn ${l.teamLeaderName ? "btn-primary" : "btn-secondary"}  normal-case btn-sm`}
                           >
-                            Change
+                            {l.teamLeaderName ? "Change" : "Assign"}
                           </button>
                         </td>
+
                         <td>
                           <select
                             value={l.role?.[0]}
@@ -409,6 +412,8 @@ function TeamMembers() {
                             <option value="TL">TL</option>
                           </select>
                         </td>
+                        <td>{l.email}</td>
+
                         <td>
                           <select
                             value={l.activityStatus}

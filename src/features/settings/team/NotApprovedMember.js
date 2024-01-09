@@ -112,12 +112,12 @@ function NotApprovedMembers() {
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Member updating", status: 1 })
+        showNotification({ message: "Error Member updating", status: 0 })
       );
     }
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);

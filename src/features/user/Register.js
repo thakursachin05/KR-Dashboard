@@ -38,6 +38,8 @@ function Register() {
     if (!isPasswordValid(registerObj.password)) {
       return setErrorMessage("Password requirements: 8 characters minimum");
     } else {
+      registerObj.password = registerObj.password.replace(/\s/g, "");
+      registerObj.contact = registerObj.contact.replace(/\s/g, "");
       try {
         const response = await axios.post(`${API}/auth/signup`, registerObj);
         if (response.status === 200) {

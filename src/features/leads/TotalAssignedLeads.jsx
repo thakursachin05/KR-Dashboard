@@ -142,7 +142,7 @@ function TotalAssignedLeads() {
         dispatch(
           showNotification({
             message: "Name and contact are required.",
-            status: 2,
+            status: 0,
           })
         );
         return;
@@ -176,12 +176,10 @@ function TotalAssignedLeads() {
       setEditedData({ name: "", contact: "" });
       setCurrentlyEditing(null);
     } catch (error) {
-      console.error("Error updating lead:", error);
-
       dispatch(
         showNotification({
           message: "Error updating lead. Please try again.",
-          status: 2,
+          status: 0,
         })
       );
     }

@@ -121,7 +121,7 @@ function TeamLeader() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(
+          await axios.put(
             `${API}/employee/${memberId}`,
             employeeData,
             {
@@ -129,7 +129,6 @@ function TeamLeader() {
             }
           );
 
-          console.log("status updated data", response.data);
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
@@ -140,12 +139,12 @@ function TeamLeader() {
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({ message: "Error Status updating", status: 0 })
       );
     }
   };
