@@ -45,6 +45,7 @@ function ModalLayout(){
                              [MODAL_BODY_TYPES.DUPLICATE_LEADS] : <DuplicateLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.STATS_LEADS] : <StatsLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.CHANGE_TL] : <AssignHRModel extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_TL] : <AssignHRModel extraObject={extraObject} closeModal={close}/>,
                             
                              [MODAL_BODY_TYPES.ASSIGN_HR] : <AssignHRModel extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_LEADS] : <AssignLeadModalBody extraObject={extraObject} closeModal={close}/>,

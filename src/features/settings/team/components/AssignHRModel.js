@@ -10,7 +10,7 @@ function AssignHRModel({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [contact, setContact] = useState("");
   const [HRname, setHRname] = useState("");
-  const { message, TLid, type, hrContact } = extraObject;
+  const { message, TLid, type, hrId } = extraObject;
 
   const proceedWithAssign = async () => {
     contact.contact = contact.contact.replace(/\s/g, "");
@@ -51,7 +51,7 @@ function AssignHRModel({ extraObject, closeModal }) {
       } catch (error) {
         dispatch(
           showNotification({
-            message: `${error.response.data.error}`,
+            message: `${error.response.data.message}`,
             status: 0,
           })
         );
@@ -68,8 +68,51 @@ function AssignHRModel({ extraObject, closeModal }) {
               Authorization: `Bearer ${accessToken}`,
             };
 
+            const response = await axios.post(
+              `${API}/employee/changeTl/${hrId}`,
+              {
+                contact: contact.contact,
+              },
+              {
+                headers,
+              }
+            );
+            dispatch(sliceMemberDeleted(true));
+            dispatch(
+              showNotification({
+                message: `${response.data.message}`,
+                status: 1,
+              })
+            );
+          }
+        } else {
+          dispatch(
+            showNotification({ message: "Access token not found", status: 0 })
+          );
+        }
+      } catch (error) {
+        console.log(error);
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
+            status: 0,
+          })
+        );
+      }
+    } else if (type === MODAL_BODY_TYPES.ASSIGN_TL) {
+      try {
+        const storedToken = localStorage.getItem("accessToken");
+
+        if (storedToken) {
+          const accessToken = JSON.parse(storedToken).token;
+
+          if (accessToken) {
+            const headers = {
+              Authorization: `Bearer ${accessToken}`,
+            };
+
             const response = await axios.put(
-              `${API}/employee/addHRToTeamLeader/${hrContact}`,
+              `${API}/employee/addTeamLeaderToHR/${hrId}`,
               {
                 contact: contact.contact,
               },
@@ -93,7 +136,7 @@ function AssignHRModel({ extraObject, closeModal }) {
       } catch (error) {
         dispatch(
           showNotification({
-            message: `${error.response.data.error}`,
+            message: `${error.response.data.message}`,
             status: 0,
           })
         );

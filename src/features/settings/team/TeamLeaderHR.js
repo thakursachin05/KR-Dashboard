@@ -101,7 +101,7 @@ function TeamLeaderHR() {
     );
   };
 
-  const ChangeTeamLeader = (contact) => {
+  const ChangeTeamLeader = (hrId) => {
     dispatch(
       openModal({
         title: "Change Team Leader",
@@ -109,7 +109,7 @@ function TeamLeaderHR() {
         extraObject: {
           message: `Enter the phone number of Team Leader`,
           type: MODAL_BODY_TYPES.CHANGE_TL,
-          hrContact: contact,
+          hrId: hrId,
         },
       })
     );
@@ -381,10 +381,12 @@ function TeamLeaderHR() {
 
                         <td>
                           <button
-                            onClick={() => ChangeTeamLeader(l.contact)}
-                            className="btn btn-primary  normal-case btn-sm"
+                            onClick={() => ChangeTeamLeader(l._id)}
+                            className={`btn ${
+                              l.teamLeaderName ? "btn-primary" : "btn-secondary"
+                            }  normal-case btn-sm`}
                           >
-                            Change
+                            {l.teamLeaderName ? "Change" : "Assign"}
                           </button>
                         </td>
                         <td>{l.lastNumberOfLeadAssigned}</td>

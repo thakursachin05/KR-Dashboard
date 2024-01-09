@@ -100,15 +100,16 @@ function TeamMembers() {
     );
   };
 
-  const ChangeTeamLeader = (contact) => {
+  const ChangeTeamLeader = (hrId, tlId) => {
     dispatch(
       openModal({
-        title: "Change Team Leader",
-        bodyType: MODAL_BODY_TYPES.CHANGE_TL,
+        title: `${tlId ? "Change Team Leader" : "Assign Team Leader"}`,
+        bodyType: MODAL_BODY_TYPES.tlId ? "CHANGE_TL" : "ASSIGN_TL",
         extraObject: {
-          message: `Enter the phone number of Team Leader`,
-          type: MODAL_BODY_TYPES.CHANGE_TL,
-          hrContact: contact,
+          message: "Enter the phone number of Team Leader",
+          type: MODAL_BODY_TYPES.tlId ? "CHANGE_TL" : "ASSIGN_TL",
+          TLid: tlId ? tlId : null, 
+          hrId: tlId ? null : hrId, 
         },
       })
     );
@@ -394,8 +395,12 @@ function TeamMembers() {
                         <td>{l.teamLeaderName ? l.teamLeaderName : "N/A"}</td>
                         <td>
                           <button
-                            onClick={() => ChangeTeamLeader(l.contact)}
-                            className={`btn ${l.teamLeaderName ? "btn-primary" : "btn-secondary"}  normal-case btn-sm`}
+                            onClick={() =>
+                              ChangeTeamLeader(l._id, l.teamLeaderId)
+                            }
+                            className={`btn ${
+                              l.teamLeaderName ? "btn-primary" : "btn-secondary"
+                            }  normal-case btn-sm`}
                           >
                             {l.teamLeaderName ? "Change" : "Assign"}
                           </button>
