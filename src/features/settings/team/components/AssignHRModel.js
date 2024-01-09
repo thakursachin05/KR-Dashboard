@@ -11,7 +11,7 @@ function AssignHRModel({ extraObject, closeModal }) {
   const [contact, setContact] = useState("");
   const [HRname, setHRname] = useState("");
   const { message, TLid, type, hrId } = extraObject;
-
+  // console.log("tlid and HRid",TLid,hrId)
   const proceedWithAssign = async () => {
     contact.contact = contact.contact.replace(/\s/g, "");
     if (type === MODAL_BODY_TYPES.ASSIGN_HR) {
@@ -112,7 +112,7 @@ function AssignHRModel({ extraObject, closeModal }) {
             };
 
             const response = await axios.put(
-              `${API}/employee/addTeamLeaderToHR/${hrId}`,
+              `${API}/employee/addTeamLeaderToHR/${TLid}`,
               {
                 contact: contact.contact,
               },

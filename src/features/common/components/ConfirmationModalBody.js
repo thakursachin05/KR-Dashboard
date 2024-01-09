@@ -113,12 +113,12 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
           }
         } else {
           dispatch(
-            showNotification({ message: "Access token not found", status: 1 })
+            showNotification({ message: "Access token not found", status: 0 })
           );
         }
       } catch (error) {
         dispatch(
-          showNotification({ message: "Error deleting Lead", status: 1 })
+          showNotification({ message: "Error deleting Lead", status: 0 })
         );
       }
     } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE) {
@@ -141,12 +141,12 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
           }
         } else {
           dispatch(
-            showNotification({ message: "Access token not found", status: 1 })
+            showNotification({ message: "Access token not found", status: 0 })
           );
         }
       } catch (error) {
         dispatch(
-          showNotification({ message: "Error deleting Lead", status: 1 })
+          showNotification({ message: "Error deleting Lead", status: 0 })
         );
       }
     } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE) {
@@ -171,12 +171,12 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
           }
         } else {
           dispatch(
-            showNotification({ message: "Access token not found", status: 1 })
+            showNotification({ message: "Access token not found", status: 0 })
           );
         }
       } catch (error) {
         dispatch(
-          showNotification({ message: "Error deleting employee", status: 1 })
+          showNotification({ message: "Error deleting employee", status: 0 })
         );
       }
     }

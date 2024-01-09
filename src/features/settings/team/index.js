@@ -101,6 +101,8 @@ function TeamMembers() {
   };
 
   const ChangeTeamLeader = (hrId, tlId) => {
+    // console.log("tlid and HRid initially from ", tlId, hrId);
+
     dispatch(
       openModal({
         title: `${tlId ? "Change Team Leader" : "Assign Team Leader"}`,
