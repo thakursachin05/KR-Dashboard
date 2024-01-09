@@ -121,13 +121,9 @@ function TeamLeader() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
-            {
-              headers,
-            }
-          );
+          await axios.put(`${API}/employee/${memberId}`, employeeData, {
+            headers,
+          });
 
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
@@ -300,6 +296,8 @@ function TeamLeader() {
                   >
                     Phone Number
                   </th>
+                  <th>Withdrawn Leads</th>
+                  <th>Withdrawn Date</th>
                   <td>HR assigned</td>
                   <td>Last Lead Assigned</td>
                   <td>Last Date Assigned</td>
@@ -316,6 +314,17 @@ function TeamLeader() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
+                      <td>
+                        {l.leadsWithdrawn[0] ? l.leadsWithdrawn[0].count : 0}
+                      </td>
+                      <td>
+                        {l.leadsWithdrawn[0]
+                          ? format(
+                              new Date(l?.leadsWithdrawn[0].date),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
                       <td>
                         <Link
                           className="btn btn-primary  normal-case btn-sm"
