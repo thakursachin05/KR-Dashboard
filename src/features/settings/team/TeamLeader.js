@@ -281,7 +281,6 @@ function TeamLeader() {
                     Name
                   </th>
 
-                  <th>Email Id</th>
                   <th
                     onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
@@ -296,13 +295,16 @@ function TeamLeader() {
                   >
                     Phone Number
                   </th>
-                  <th>Withdrawn Leads</th>
-                  <th>Withdrawn Date</th>
+                  <th>Status</th>
+
+                  <th>Saved Leads</th>
+                  <th>Saved Date</th>
                   <td>HR assigned</td>
                   <td>Last Lead Assigned</td>
                   <td>Last Date Assigned</td>
                   <td>Assign New HR</td>
-                  <th>Status</th>
+                  <th>Email Id</th>
+
                   <th>Open Leads</th>
                   <th>Action</th>
                 </tr>
@@ -312,8 +314,19 @@ function TeamLeader() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
-                      <td>{l.email}</td>
                       <td>{l.contact}</td>
+                      <td>
+                        <select
+                          value={l.activityStatus}
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
+                          }
+                        >
+                          <option value="HOLD">Hold</option>
+                          <option value="DEAD">Dead</option>
+                          <option value="ACTIVE">Active</option>
+                        </select>
+                      </td>
                       <td>
                         {l.leadsWithdrawn[0] ? l.leadsWithdrawn[0].count : 0}
                       </td>
@@ -350,18 +363,8 @@ function TeamLeader() {
                           Assign
                         </button>
                       </td>
-                      <td>
-                        <select
-                          value={l.activityStatus}
-                          onChange={(e) =>
-                            handleStatusChange(l._id, e.target.value)
-                          }
-                        >
-                          <option value="HOLD">Hold</option>
-                          <option value="DEAD">Dead</option>
-                          <option value="ACTIVE">Active</option>
-                        </select>
-                      </td>
+                      <td>{l.email}</td>
+
                       <td className="text-center">
                         <button
                           onClick={() => WithdrawLeads(l.contact)}

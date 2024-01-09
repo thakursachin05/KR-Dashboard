@@ -303,12 +303,15 @@ function ActiveMembers() {
                   >
                     Phone Number
                   </th>
+                  <th>RollBack Leads</th>
+                  <th>RollBack Date</th>
+                  <td>TL Name</td>
+                  <td>Manage TL</td>
                   <td>Last Lead Assigned</td>
                   <td>Called Leads</td>
                   <td>Closed Leads</td>
                   <td>Last Date Assigned</td>
-                  <td>TL Name</td>
-                  <td>Manage TL</td>
+
                   <th>Status</th>
                   <th>Email Id</th>
 
@@ -322,14 +325,13 @@ function ActiveMembers() {
                     <tr key={k}>
                       <td>{l.name}</td>
                       <td>{l.contact}</td>
-                      <td>{l.lastNumberOfLeadAssigned}</td>
-                      <td>{l.calledLeads ? l.calledLeads?.length : 0}</td>
-                      <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
-
                       <td>
-                        {l.lastDateLeadAssigned
+                        {l.leadsWithdrawn[0] ? l.leadsWithdrawn[0].count : 0}
+                      </td>
+                      <td>
+                        {l.leadsWithdrawn[0]
                           ? format(
-                              new Date(l?.lastDateLeadAssigned),
+                              new Date(l?.leadsWithdrawn[0].date),
                               "dd/MM/yyyy"
                             )
                           : "N/A"}
@@ -346,6 +348,19 @@ function ActiveMembers() {
                           {l.teamLeaderName ? "Change" : "Assign"}
                         </button>
                       </td>
+                      <td>{l.lastNumberOfLeadAssigned}</td>
+                      <td>{l.calledLeads ? l.calledLeads?.length : 0}</td>
+                      <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+
+                      <td>
+                        {l.lastDateLeadAssigned
+                          ? format(
+                              new Date(l?.lastDateLeadAssigned),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
+
                       <td>
                         <select
                           value={l.activityStatus}

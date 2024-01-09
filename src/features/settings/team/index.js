@@ -108,8 +108,8 @@ function TeamMembers() {
         extraObject: {
           message: "Enter the phone number of Team Leader",
           type: MODAL_BODY_TYPES.tlId ? "CHANGE_TL" : "ASSIGN_TL",
-          TLid: tlId ? tlId : null, 
-          hrId: tlId ? null : hrId, 
+          TLid: tlId ? tlId : null,
+          hrId: tlId ? null : hrId,
         },
       })
     );
@@ -324,6 +324,8 @@ function TeamMembers() {
                 <thead>
                   <tr>
                     <th>Joined Date</th>
+                    <th>Role</th>
+
                     <th
                       onClick={() => handleSort("name")}
                       className={`cursor-pointer ${
@@ -353,18 +355,21 @@ function TeamMembers() {
                     >
                       Phone Number
                     </th>
+                    <th>Status</th>
+                    <th>RollBack Leads</th>
+                    <th>RollBack Date</th>
+                    <td>TL Name</td>
+
+                    <td>Manage TL</td>
+
                     <td>Last Lead Assigned</td>
                     <td>Called Leads</td>
                     <td>Closed Leads</td>
 
                     <td>Last Date Assigned</td>
-                    <td>TL Name</td>
 
-                    <td>Manage TL</td>
-                    <th>Role</th>
                     <th>Email Id</th>
 
-                    <th>Status</th>
                     <th>Open Leads</th>
                     <th>Action</th>
                   </tr>
@@ -378,34 +383,6 @@ function TeamMembers() {
                             ? format(new Date(l?.approvedAt), "dd/MM/yyyy")
                             : "N/A"}
                         </td>
-                        <td>{l.name}</td>
-                        <td>{l.contact}</td>
-                        <td>{l.lastNumberOfLeadAssigned}</td>
-                        <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
-                        <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
-
-                        <td>
-                          {l.lastDateLeadAssigned
-                            ? format(
-                                new Date(l?.lastDateLeadAssigned),
-                                "dd/MM/yyyy"
-                              )
-                            : "N/A"}
-                        </td>
-                        <td>{l.teamLeaderName ? l.teamLeaderName : "N/A"}</td>
-                        <td>
-                          <button
-                            onClick={() =>
-                              ChangeTeamLeader(l._id, l.teamLeaderId)
-                            }
-                            className={`btn ${
-                              l.teamLeaderName ? "btn-primary" : "btn-secondary"
-                            }  normal-case btn-sm`}
-                          >
-                            {l.teamLeaderName ? "Change" : "Assign"}
-                          </button>
-                        </td>
-
                         <td>
                           <select
                             value={l.role?.[0]}
@@ -417,8 +394,8 @@ function TeamMembers() {
                             <option value="TL">TL</option>
                           </select>
                         </td>
-                        <td>{l.email}</td>
-
+                        <td>{l.name}</td>
+                        <td>{l.contact}</td>
                         <td>
                           <select
                             value={l.activityStatus}
@@ -431,6 +408,46 @@ function TeamMembers() {
                             <option value="ACTIVE">Active</option>
                           </select>
                         </td>
+                        <td>
+                          {l.leadsWithdrawn[0] ? l.leadsWithdrawn[0].count : 0}
+                        </td>
+                        <td>
+                          {l.leadsWithdrawn[0]
+                            ? format(
+                                new Date(l?.leadsWithdrawn[0].date),
+                                "dd/MM/yyyy"
+                              )
+                            : "N/A"}
+                        </td>
+                        <td>{l.teamLeaderName ? l.teamLeaderName : "N/A"}</td>
+
+                        <td>
+                          <button
+                            onClick={() =>
+                              ChangeTeamLeader(l._id, l.teamLeaderId)
+                            }
+                            className={`btn ${
+                              l.teamLeaderName ? "btn-primary" : "btn-secondary"
+                            }  normal-case btn-sm`}
+                          >
+                            {l.teamLeaderName ? "Change" : "Assign"}
+                          </button>
+                        </td>
+                        <td>{l.lastNumberOfLeadAssigned}</td>
+                        <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
+                        <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+
+                        <td>
+                          {l.lastDateLeadAssigned
+                            ? format(
+                                new Date(l?.lastDateLeadAssigned),
+                                "dd/MM/yyyy"
+                              )
+                            : "N/A"}
+                        </td>
+
+                        <td>{l.email}</td>
+
                         <td className="text-center">
                           <button
                             onClick={() => WithdrawLeads(l.contact)}
