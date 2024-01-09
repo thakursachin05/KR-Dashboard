@@ -56,7 +56,7 @@ function ResetPasswordHR() {
         if (response.status === 200) {
           dispatch(
             showNotification({
-              message: "Password Updated Successfully!",
+              message: `${response.data.message}`,
               status: 1,
             })
           );
@@ -68,7 +68,7 @@ function ResetPasswordHR() {
       } catch (error) {
         dispatch(
           showNotification({
-            message: `${error.response.data.error}`,
+            message: `${error.response.data.message}`,
             status: 0,
           })
         );

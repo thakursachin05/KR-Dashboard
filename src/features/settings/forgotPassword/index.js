@@ -64,7 +64,7 @@ function ForgotPassword() {
       } catch (error) {
         dispatch(
           showNotification({
-            message: `${error.response.data.error}`,
+            message: `${error.response.data.message}`,
             status: 0,
           })
         );

@@ -102,19 +102,30 @@ function TeamMembers() {
 
   const ChangeTeamLeader = (hrId, tlId) => {
     // console.log("tlid and HRid initially from ", tlId, hrId);
+    tlId
+      ? dispatch(
+          openModal({
+            title: "Change Team Leader",
+            bodyType: MODAL_BODY_TYPES.CHANGE_TL,
 
-    dispatch(
-      openModal({
-        title: `${tlId ? "Change Team Leader" : "Assign Team Leader"}`,
-        bodyType: MODAL_BODY_TYPES.tlId ? "CHANGE_TL" : "ASSIGN_TL",
-        extraObject: {
-          message: "Enter the phone number of Team Leader",
-          type: MODAL_BODY_TYPES.tlId ? "CHANGE_TL" : "ASSIGN_TL",
-          TLid: tlId ? tlId : null,
-          hrId: tlId ? null : hrId,
-        },
-      })
-    );
+            extraObject: {
+              message: "Enter the phone number of New Team Leader",
+              type: MODAL_BODY_TYPES.CHANGE_TL,
+              hrId: hrId,
+            },
+          })
+        )
+      : dispatch(
+          openModal({
+            title: "Assign Team Leader",
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TL,
+            extraObject: {
+              message: "Enter the phone number of Team Leader",
+              type: MODAL_BODY_TYPES.ASSIGN_TL,
+              hrId: hrId,
+            },
+          })
+        );
   };
 
   const handleStatusChange = async (memberId, newStatus) => {
@@ -161,12 +172,6 @@ function TeamMembers() {
   const handleRoleChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
-      const employeeData = {
-        role: [newStatus],
-        teamLeaderId: null,
-        calledLeads: [],
-        presentDays: [],
-      };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
 
@@ -175,14 +180,18 @@ function TeamMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          await axios.put(`${API}/employee/${memberId}`, employeeData, {
-            headers,
-          });
+          const res = await axios.post(
+            `${API}/employee/convert-role/${memberId}`,
+            {},
+            {
+              headers,
+            }
+          );
 
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: `Role Updated Successfully`,
+              message: `${res.data.message}`,
               status: 1,
             })
           );
@@ -197,7 +206,7 @@ function TeamMembers() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: `Error in updating Role`, status: 0 })
+        showNotification({ message: `${error.data.message}`, status: 0 })
       );
     }
   };

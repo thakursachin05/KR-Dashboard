@@ -64,7 +64,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "single":
         dispatch(
           openModal({
-            title: "To Single HR",
+            title: "To Particular Employee",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_SINGLE,
           })
         );
@@ -111,7 +111,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("single")}
         >
-          To Particular HR
+          To Particular Employee
         </button>
         {storedUserData.isAdmin ? (
           <button

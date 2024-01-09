@@ -173,14 +173,18 @@ function TeamLeaderHR() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          await axios.put(`${API}/employee/${memberId}`, employeeData, {
-            headers,
-          });
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
+            {
+              headers,
+            }
+          );
 
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: `Role Updated Successfully`,
+              message: `${response.data.message}`,
               status: 1,
             })
           );
@@ -195,7 +199,10 @@ function TeamLeaderHR() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: `Error in updating Role`, status: 0 })
+        showNotification({
+          message: `${error.response.data.message}`,
+          status: 0,
+        })
       );
     }
   };

@@ -122,11 +122,7 @@ function Header() {
       updatedUser.closedLeads = [];
 
       // Make the API call to update the user data
-      await axios.put(
-        `${API}/employee/${updatedUser._id}`,
-        updatedUser,
-        config
-      );
+      await axios.put(`${API}/employee/${updatedUser._id}`, {}, config);
 
       // Update the local storage with the modified user data
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -174,7 +170,7 @@ function Header() {
         </div>
 
         <div className="order-last">
-          {storedUserData.role?.includes("HR") ? (
+          {storedUserData.role?.includes("HR") && storedUserData.approveAt ? (
             <div
               className={
                 attendanceMarked

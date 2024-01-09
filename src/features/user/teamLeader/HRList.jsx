@@ -106,11 +106,11 @@ function HRList() {
             }
           );
 
-          console.log("status updated data", response.data);
+          // console.log("status updated data", response.data);
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: "Status Updated Successfully!",
+              message: `${response.data.message}`,
               status: 1,
             })
           );
@@ -122,7 +122,10 @@ function HRList() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({
+          message: `${error.response.data.message}`,
+          status: 0,
+        })
       );
     }
   };

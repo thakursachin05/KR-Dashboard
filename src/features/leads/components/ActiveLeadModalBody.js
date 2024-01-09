@@ -138,7 +138,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             // console.error("error", error);
             dispatch(
               showNotification({
-                message: "Error assigning leads. Please try again.",
+                message: `${error.response.data.message}`,
+
                 status: 0,
               })
             );
@@ -153,7 +154,8 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
     } catch (error) {
       dispatch(
         showNotification({
-          message: "Error assigning leads. Please try again.",
+          message: `${error.response.data.message}`,
+
           status: 0,
         })
       );

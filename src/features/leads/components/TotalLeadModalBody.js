@@ -135,7 +135,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           } catch (error) {
             dispatch(
               showNotification({
-                message: "Error assigning leads. Please try again.",
+                message: `${error.response.data.message}`,
+
                 status: 0,
               })
             );
@@ -150,7 +151,8 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
     } catch (error) {
       dispatch(
         showNotification({
-          message: "Error assigning leads. Please try again.",
+          message: `${error.response.data.message}`,
+
           status: 0,
         })
       );

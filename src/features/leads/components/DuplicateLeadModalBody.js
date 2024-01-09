@@ -49,8 +49,9 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
           } catch (error) {
             dispatch(
               showNotification({
-                message: `${error.data.message}`,
-                status: 1,
+                message: `${error.response.data.message}`,
+
+                status: 0,
               })
             );
           }
@@ -59,8 +60,9 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
         // console.error("Error pushing lead data:", error);
         dispatch(
           showNotification({
-            message: `${error.data.message}`,
-            status: 1,
+            message: `${error.response.data.message}`,
+
+            status: 0,
           })
         );
       }

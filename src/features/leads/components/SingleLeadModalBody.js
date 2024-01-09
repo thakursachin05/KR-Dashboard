@@ -35,7 +35,6 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
           const headers = {
             Authorization: `Bearer ${accessToken}`,
           };
-          console.log("userdata", storedUserData);
           try {
             let response;
             if (storedUserData.isAdmin) {
@@ -69,9 +68,10 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
               );
             }
           } catch (error) {
+            console.log("erorr",error)
             dispatch(
               showNotification({
-                message: "Error assigning leads. Please try again.",
+                message: `${error.response.data.message}`,
                 status: 0,
               })
             );
@@ -84,9 +84,11 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
         );
       }
     } catch (error) {
+      console.log("erorr",error)
+
       dispatch(
         showNotification({
-          message: "Error assigning leads. Please try again.",
+          message: `${error.response.data.message}`,
           status: 0,
         })
       );

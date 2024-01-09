@@ -129,7 +129,10 @@ function PresentHR() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({
+          message: `${error.response.data.message}`,
+          status: 0,
+        })
       );
     }
   };

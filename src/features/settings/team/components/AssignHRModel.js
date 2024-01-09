@@ -12,6 +12,8 @@ function AssignHRModel({ extraObject, closeModal }) {
   const [HRname, setHRname] = useState("");
   const { message, TLid, type, hrId } = extraObject;
   // console.log("tlid and HRid",TLid,hrId)
+
+  // console.log("body type",type)
   const proceedWithAssign = async () => {
     contact.contact = contact.contact.replace(/\s/g, "");
     if (type === MODAL_BODY_TYPES.ASSIGN_HR) {
@@ -112,7 +114,7 @@ function AssignHRModel({ extraObject, closeModal }) {
             };
 
             const response = await axios.put(
-              `${API}/employee/addTeamLeaderToHR/${TLid}`,
+              `${API}/employee/addTeamLeaderToHR/${hrId}`,
               {
                 contact: contact.contact,
               },
@@ -156,7 +158,7 @@ function AssignHRModel({ extraObject, closeModal }) {
     } catch (error) {
       dispatch(
         showNotification({
-          message: `${error.response.data.error}`,
+          message: `${error.response.data.message}`,
           status: 0,
         })
       );
