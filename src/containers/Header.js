@@ -170,7 +170,7 @@ function Header() {
         </div>
 
         <div className="order-last">
-          {storedUserData.role?.includes("HR") && storedUserData.approveAt ? (
+          {storedUserData.role?.includes("HR") ? (
             <div
               className={
                 attendanceMarked
