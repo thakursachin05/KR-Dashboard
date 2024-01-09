@@ -88,6 +88,7 @@ function NotApprovedMembers() {
       const employeeData = {
         approvedAt: todayDate,
         activityStatus: "ACTIVE",
+        role : ["HR"]
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
