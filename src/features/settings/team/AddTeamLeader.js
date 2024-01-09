@@ -59,6 +59,7 @@ function AddTeamLeader() {
               status: 1,
             })
           );
+          setRegisterObj(INITIAL_REGISTER_OBJ)
         }
       } catch (error) {
         dispatch(

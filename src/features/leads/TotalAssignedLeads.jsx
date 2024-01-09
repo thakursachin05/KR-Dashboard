@@ -278,13 +278,13 @@ function TotalAssignedLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Leads
+          Export
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={deleteLeads}
         >
-          Delete All Leads
+          Delete All
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"

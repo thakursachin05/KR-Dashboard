@@ -323,7 +323,7 @@ function TeamLeaderHR() {
               <table className="table w-full">
                 <thead>
                   <tr>
-                    <th>Joined Date</th>
+                    <th>Joined On</th>
                     <th>Role</th>
 
                     <th
@@ -360,10 +360,10 @@ function TeamLeaderHR() {
                     <th>RollBack Leads</th>
                     <th>RollBack Date</th>
                     <th>Changle TL</th>
-                    <td>Last Lead Assigned</td>
-                    <td>Called Leads</td>
-                    <td>Closed Leads</td>
-                    <td>Last Date Assigned</td>
+                    <td>Last Lead </td>
+                    <td>Called </td>
+                    <td>Closed </td>
+                    <td>Date Assigned</td>
 
                     <th>Email Id</th>
 

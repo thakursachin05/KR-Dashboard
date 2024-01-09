@@ -266,6 +266,7 @@ function TeamLeader() {
             <table className="table w-full">
               <thead>
                 <tr>
+                  <th>Joined On</th>
                   <th
                     onClick={() => handleSort("name")}
                     className={`cursor-pointer ${
@@ -299,10 +300,10 @@ function TeamLeader() {
 
                   <th>Saved Leads</th>
                   <th>Saved Date</th>
-                  <td>HR assigned</td>
-                  <td>Last Lead Assigned</td>
-                  <td>Last Date Assigned</td>
-                  <td>Assign New HR</td>
+                  <td>Total HR</td>
+                  <td>Last Lead </td>
+                  <td> Date Assigned</td>
+                  <td>New HR</td>
                   <th>Email Id</th>
 
                   <th>Open Leads</th>
@@ -313,6 +314,11 @@ function TeamLeader() {
                 {filteredLeads?.map((l, k) => {
                   return (
                     <tr key={k}>
+                      <td>
+                        {l.approvedAt
+                          ? format(new Date(l?.approvedAt), "dd/MM/yyyy")
+                          : "N/A"}
+                      </td>
                       <td>{l.name}</td>
                       <td>{l.contact}</td>
                       <td>

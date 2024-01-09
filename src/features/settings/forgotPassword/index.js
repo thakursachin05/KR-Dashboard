@@ -9,9 +9,7 @@ import { API } from "../../../utils/constants";
 
 function ForgotPassword() {
   const INITIAL_REGISTER_OBJ = {
-    // name: "",
     password: "",
-    // email: "",
     contact: "",
   };
 
@@ -29,18 +27,16 @@ function ForgotPassword() {
     if (registerObj.contact.trim() === "")
       return setErrorMessage("Phone number is required!");
     if (!isPasswordValid(registerObj.password)) {
-      return setErrorMessage(
-        "Password requirements: 8 characters minimum, including at least one uppercase letter, one digit, and one special character."
-      );
+      return setErrorMessage("Password requirements: 8 characters minimum");
     } else {
       setLoading(true);
       await fetchData();
+      registerObj.password = registerObj.password.replace(/\s/g, "");
+      registerObj.contact = registerObj.contact.replace(/\s/g, "");
       try {
         const tokenResponse = localStorage.getItem("accessToken");
         const tokenData = JSON.parse(tokenResponse);
         const token = tokenData.token;
-        // console.log(token);
-        // Set the Authorization header with the token
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -64,8 +60,6 @@ function ForgotPassword() {
           );
 
           setRegisterObj(INITIAL_REGISTER_OBJ);
-
-          // window.location.href = "/app/teamMembers";
         }
       } catch (error) {
         dispatch(
@@ -80,9 +74,7 @@ function ForgotPassword() {
   };
 
   const isPasswordValid = (password) => {
-    return (
-      password.length >= 8
-    );
+    return password.length >= 8;
   };
 
   // const isEmailValid = (email) => {

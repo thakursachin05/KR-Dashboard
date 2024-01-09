@@ -323,7 +323,7 @@ function TeamMembers() {
               <table className="table w-full">
                 <thead>
                   <tr>
-                    <th>Joined Date</th>
+                    <th>Joined On</th>
                     <th>Role</th>
 
                     <th
@@ -362,11 +362,11 @@ function TeamMembers() {
 
                     <td>Manage TL</td>
 
-                    <td>Last Lead Assigned</td>
-                    <td>Called Leads</td>
-                    <td>Closed Leads</td>
+                    <td>Last Lead </td>
+                    <td>Called </td>
+                    <td>Closed </td>
 
-                    <td>Last Date Assigned</td>
+                    <td> Date Assigned</td>
 
                     <th>Email Id</th>
 

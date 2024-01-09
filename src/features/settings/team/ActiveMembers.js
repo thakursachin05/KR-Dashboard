@@ -307,10 +307,10 @@ function ActiveMembers() {
                   <th>RollBack Date</th>
                   <td>TL Name</td>
                   <td>Manage TL</td>
-                  <td>Last Lead Assigned</td>
-                  <td>Called Leads</td>
-                  <td>Closed Leads</td>
-                  <td>Last Date Assigned</td>
+                  <td>Last Lead </td>
+                  <td>Called </td>
+                  <td>Closed </td>
+                  <td> Date Assigned</td>
 
                   <th>Status</th>
                   <th>Email Id</th>

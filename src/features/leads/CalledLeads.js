@@ -186,19 +186,19 @@ function CalledLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Leads
+          Export
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLeads()}
         >
-          Delete All Leads
+          Delete All
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLast7DaysLeads()}
         >
-          Delete leads 7+ days old
+          Delete 7+ days old
         </button>
       </div>
     );
