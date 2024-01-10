@@ -16,7 +16,19 @@ import { sliceLeadDeleted } from "../features/leads/leadSlice";
 import { showNotification } from "../features/common/headerSlice";
 
 function Header() {
-  const storedUserData = JSON.parse(localStorage.getItem("user"));
+  let storedUserData;
+  const userString = localStorage.getItem("user");
+  if (userString !== null && userString !== undefined) {
+    try {
+      storedUserData = JSON.parse(userString);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      localStorage.clear();
+    }
+  } else {
+    localStorage.clear();
+  }
+
   const [isButtonEnabled, setIsButtonEnabled] = useState(true);
   const isTodayPresent = storedUserData?.presentDays?.some((date) => {
     // Assuming date is a string in the format "YYYY-MM-DDTHH:mm:ss.sssZ"
@@ -108,24 +120,15 @@ function Header() {
       // Get the user data from local storage
       const storedUserData = JSON.parse(localStorage.getItem("user"));
 
-      // Get today's date in the format "YYYY-MM-DD"
-      const today = new Date().toISOString().split("T")[0];
-
-      // Clone the user object to avoid modifying the original directly
-      const updatedUser = { ...storedUserData };
-
-      // Update the presentDays array by pushing today's date
-      updatedUser.presentDays = [today];
-
-      updatedUser.calledLeads = [];
-
-      updatedUser.closedLeads = [];
-
       // Make the API call to update the user data
-      await axios.put(`${API}/employee/${updatedUser._id}`, {}, config);
+      const response = await axios.post(
+        `${API}/employee/markAttendance/${storedUserData._id}`,
+        {},
+        config
+      );
 
       // Update the local storage with the modified user data
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      localStorage.setItem("user", JSON.stringify(response.data.data[0]));
 
       // Update the state if needed
       setAttendanceMarked(true);
@@ -170,7 +173,7 @@ function Header() {
         </div>
 
         <div className="order-last">
-          {storedUserData.role?.includes("HR") ? (
+          {storedUserData?.role?.includes("HR") ? (
             <div
               className={
                 attendanceMarked

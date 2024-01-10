@@ -51,7 +51,19 @@ const UserPreviousLeads = lazy(() =>
   import("../pages/protected/UserPreviousLeads")
 );
 const isAdmin = localStorage.getItem("isAdmin") === "true";
-const user = JSON.parse(localStorage.getItem("user"));
+
+let user;
+const userString = localStorage.getItem("user");
+if (userString !== null && userString !== undefined) {
+  try {
+    user = JSON.parse(userString);
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    localStorage.clear();
+  }
+} else {
+  localStorage.clear();
+}
 
 const routes = [
   {
@@ -128,7 +140,7 @@ if (isAdmin) {
       component: NotApprovedMembers,
     }
   );
-} else if (user.role?.includes("HR")) {
+} else if (user?.role?.includes("HR")) {
   routes.push(
     {
       path: "/userLeads",
@@ -145,7 +157,7 @@ if (isAdmin) {
       component: UserPreviousLeads,
     }
   );
-} else if (user.role?.includes("TL")) {
+} else if (user?.role?.includes("TL")) {
   routes.push(
     {
       path: "/notAssigned",

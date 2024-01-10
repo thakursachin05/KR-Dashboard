@@ -3,7 +3,19 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { API } from "../../../utils/constants";
 
-const user = JSON.parse(localStorage.getItem("user"));
+let user;
+const userString = localStorage.getItem("user");
+if (userString !== null && userString !== undefined) {
+  try {
+    user = JSON.parse(userString);
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    localStorage.clear();
+  }
+} else {
+  localStorage.clear();
+}
+
 const TOKEN = localStorage.getItem("accessToken");
 
 function TemplatePointers() {
@@ -27,7 +39,7 @@ function TemplatePointers() {
   return (
     <>
       {TOKEN ? (
-        user.isAdmin ? (
+        user?.isAdmin ? (
           <>
             <h1 className="text-2xl mt-8 font-bold">Admin Dashboard</h1>
 
@@ -74,7 +86,7 @@ function TemplatePointers() {
               </Link>
             </div>
           </>
-        ) : user.approvedAt ? (
+        ) : user?.approvedAt ? (
           <>
             <div className="bg-base-100  p-6 rounded-lg shadow-lg">
               <p className="text-lg font-semibold mb-4">

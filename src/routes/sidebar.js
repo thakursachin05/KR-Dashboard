@@ -23,11 +23,23 @@ import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCirc
 const iconClasses = `h-6 w-6`;
 const submenuIconClasses = `h-5 w-5`;
 const isAdmin = localStorage.getItem("isAdmin") === "true";
-const user = JSON.parse(localStorage.getItem("user"));
+
+let user;
+const userString = localStorage.getItem("user");
+if (userString !== null && userString !== undefined) {
+  try {
+    user = JSON.parse(userString);
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    localStorage.clear();
+  }
+} else {
+  localStorage.clear();
+}
 
 const routes = [];
 
-if (user.approvedAt && !isAdmin && user?.role?.includes("HR")) {
+if (user?.approvedAt && !isAdmin && user?.role?.includes("HR")) {
   routes.push(
     {
       path: "/app/userLeads",
@@ -47,7 +59,7 @@ if (user.approvedAt && !isAdmin && user?.role?.includes("HR")) {
   );
 }
 
-if (user.approvedAt && !isAdmin && user?.role?.includes("TL")) {
+if (user?.approvedAt && !isAdmin && user?.role?.includes("TL")) {
   routes.push(
     {
       path: "/app/notAssigned",
