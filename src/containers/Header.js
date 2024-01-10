@@ -126,9 +126,9 @@ function Header() {
         {},
         config
       );
-
+      console.log("response",response)
       // Update the local storage with the modified user data
-      localStorage.setItem("user", JSON.stringify(response.data.data[0]));
+      localStorage.setItem("user", JSON.stringify(response.data.employee));
 
       // Update the state if needed
       setAttendanceMarked(true);
