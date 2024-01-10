@@ -70,7 +70,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
               Authorization: `Bearer ${accessToken}`,
             };
 
-            await axios.post(
+           const response =  await axios.post(
               `${API}/lead/webLeadToLeads`,
               {},
               {
@@ -79,16 +79,16 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
             );
 
             dispatch(sliceLeadDeleted(true));
-            dispatch(showNotification({ message: "Lead Merged!", status: 1 }));
+            dispatch(showNotification({ message: `${response.data.message}`, status: 1 }));
           }
         } else {
           dispatch(
-            showNotification({ message: "Access token not found", status: 0 })
+            showNotification({ message: `Access token not found`, status: 0 })
           );
         }
       } catch (error) {
         dispatch(
-          showNotification({ message: "Error Merging Lead", status: 0 })
+          showNotification({ message: `${error.response.data.message}`, status: 0 })
         );
       }
     } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD) {
@@ -103,13 +103,13 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
               Authorization: `Bearer ${accessToken}`,
             };
 
-            await axios.delete(`${API}/lead/delete/bulk`, {
+           const response = await axios.delete(`${API}/lead/delete/bulk`, {
               headers,
               params: params,
             });
 
             dispatch(sliceLeadDeleted(true));
-            dispatch(showNotification({ message: "Lead Deleted!", status: 1 }));
+            dispatch(showNotification({ message: `${response.data.message}`, status: 1 }));
           }
         } else {
           dispatch(
@@ -118,7 +118,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
         }
       } catch (error) {
         dispatch(
-          showNotification({ message: "Error deleting Lead", status: 0 })
+          showNotification({ message: `${error.response.data.message}`, status: 0 })
         );
       }
     } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE) {
@@ -133,11 +133,11 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
               Authorization: `Bearer ${accessToken}`,
             };
 
-            await axios.delete(`${API}/lead/${index}`, {
+            const response = await axios.delete(`${API}/lead/${index}`, {
               headers,
             });
             dispatch(sliceLeadDeleted(true));
-            dispatch(showNotification({ message: "Lead Deleted!", status: 1 }));
+            dispatch(showNotification({ message: `${response.data.message}`, status: 1 }));
           }
         } else {
           dispatch(
@@ -146,7 +146,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
         }
       } catch (error) {
         dispatch(
-          showNotification({ message: "Error deleting Lead", status: 0 })
+          showNotification({ message: `${error.response.data.message}`, status: 0 })
         );
       }
     } else if (type === CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE) {
@@ -161,12 +161,12 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
               Authorization: `Bearer ${accessToken}`,
             };
 
-            await axios.delete(`${API}/employee/${index}`, {
+            const response = await axios.delete(`${API}/employee/${index}`, {
               headers,
             });
             dispatch(sliceMemberDeleted(true));
             dispatch(
-              showNotification({ message: "Employee Deleted!", status: 1 })
+              showNotification({ message: `${response.data.message}`, status: 1 })
             );
           }
         } else {
@@ -176,7 +176,7 @@ function ConfirmationModalBody({ extraObject, closeModal }) {
         }
       } catch (error) {
         dispatch(
-          showNotification({ message: "Error deleting employee", status: 0 })
+          showNotification({ message: `${error.response.data.message}`, status: 0 })
         );
       }
     }
