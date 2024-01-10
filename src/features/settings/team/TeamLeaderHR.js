@@ -40,6 +40,16 @@ function TeamLeaderHR() {
     setCurrentPage(pageNumber);
   };
 
+  const todayDate = new Date().toISOString().split("T")[0];
+
+  const isSameDate = (date1, date2) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const params = {
@@ -363,7 +373,7 @@ function TeamLeaderHR() {
                       Phone Number
                     </th>
                     <th>Status</th>
-
+                    <th>Attendance</th>
                     <th>RollBack Leads</th>
                     <th>RollBack Date</th>
                     <th>Changle TL</th>
@@ -412,6 +422,23 @@ function TeamLeaderHR() {
                             <option value="DEAD">Dead</option>
                             <option value="ACTIVE">Active</option>
                           </select>
+                        </td>
+                        <td>
+                          <div
+                            className={`btn ${
+                              l.presentDays.some((date) =>
+                                isSameDate(new Date(date), new Date(todayDate))
+                              )
+                                ? "btn-success"
+                                : "btn-tertiary"
+                            } normal-case btn-sm`}
+                          >
+                            {l.presentDays.some((date) =>
+                              isSameDate(new Date(date), new Date(todayDate))
+                            )
+                              ? "Present"
+                              : "Absent"}
+                          </div>
                         </td>
                         <td>
                           {l.leadsWithdrawn[0] ? l.leadsWithdrawn[0].count : 0}

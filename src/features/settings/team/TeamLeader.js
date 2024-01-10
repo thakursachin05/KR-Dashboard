@@ -301,6 +301,7 @@ function TeamLeader() {
                   <th>Saved Leads</th>
                   <th>Saved Date</th>
                   <td>Total HR</td>
+                  <td>Present HR</td>
                   <td>Last Lead </td>
                   <td> Date Assigned</td>
                   <td>New HR</td>
@@ -351,6 +352,12 @@ function TeamLeader() {
                         >
                           {l.hrList ? l.hrList?.length : 0}
                         </Link>
+                      </td>
+
+                      <td>
+                        <div className="btn btn-success  normal-case btn-sm">
+                          {l.presentHRCount ? l.presentHRCount : 0}
+                        </div>
                       </td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>
