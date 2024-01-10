@@ -90,21 +90,21 @@ function Header() {
     setIsButtonEnabled(isTimeInRange);
   }, []);
 
-  const getLatestData = async () => {
-    try {
-      const storedUserData = JSON.parse(localStorage.getItem("user"));
-      const res = await axios.get(`${API}/employee/?id=${storedUserData._id}`);
-      if (res.status === 200) {
-        localStorage.setItem("user", JSON.stringify(res.data.data[0]));
-      }
-    } catch (error) {
-      console.log("err", error);
-    }
-  };
+  // const getLatestData = async () => {
+  //   try {
+  //     const storedUserData = JSON.parse(localStorage.getItem("user"));
+  //     const res = await axios.get(`${API}/employee/?id=${storedUserData._id}`);
+  //     if (res.status === 200) {
+  //       localStorage.setItem("user", JSON.stringify(res.data.data[0]));
+  //     }
+  //   } catch (error) {
+  //     console.log("err", error);
+  //   }
+  // };
 
   const handleAttendanceMarking = async () => {
     if (attendanceMarked) return;
-    await getLatestData();
+    // await getLatestData();
 
     try {
       const tokenResponse = localStorage.getItem("accessToken");
@@ -137,7 +137,7 @@ function Header() {
 
       dispatch(
         showNotification({
-          message: "Attendance Marked!",
+          message: `${response.data.message}`,
           status: 1,
         })
       );
@@ -146,7 +146,7 @@ function Header() {
 
       dispatch(
         showNotification({
-          message: "Error updating attendance. Please try again.",
+          message: `${error.response.data.message}`,
           status: 0,
         })
       );
@@ -177,8 +177,8 @@ function Header() {
             <div
               className={
                 attendanceMarked
-                  ? "text-black cursor-pointer bg-green-500 rounded p-1 mr-5"
-                  : "text-black cursor-pointer bg-red-500 rounded p-1 mr-5"
+                  ? "btn btn-success normal-case btn-sm p-1 mr-5"
+                  : "btn btn-danger bg-red-600 normal-case btn-sm p-1 mr-5"
               }
               onClick={isButtonEnabled ? handleAttendanceMarking : null}
               style={{
