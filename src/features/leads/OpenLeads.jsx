@@ -47,7 +47,6 @@ function OpenLeads() {
         assignedTo: "null",
         dateClosed: "null",
         isWebLead: false,
-
       };
       const baseURL = `${API}/lead`;
       try {
@@ -116,7 +115,7 @@ function OpenLeads() {
         dispatch(
           showNotification({
             message: "Name and contact are required.",
-            status: 2,
+            status: 0,
           })
         );
         return;
@@ -146,16 +145,13 @@ function OpenLeads() {
         })
       );
 
-      // Clear the edited values and toggle off editing mode
       setEditedData({ name: "", contact: "" });
       setCurrentlyEditing(null);
     } catch (error) {
-      console.error("Error updating lead:", error);
-
       dispatch(
         showNotification({
           message: "Error updating lead. Please try again.",
-          status: 2,
+          status: 0,
         })
       );
     }
@@ -220,7 +216,7 @@ function OpenLeads() {
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
+    link.download = `fresh_data.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -239,7 +235,7 @@ function OpenLeads() {
     const openAddNewLeadModal = () => {
       dispatch(
         openModal({
-          title: "Assign Leads",
+          title: "Distribute Leads",
           bodyType: MODAL_BODY_TYPES.ASSIGN_LEADS,
           extraObject: {
             message: `Choose employees to assign`,
@@ -271,20 +267,20 @@ function OpenLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLeads()}
         >
-          Delete All Leads
+          Delete All
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal()}
         >
-          Assign Leads
+          Distribute Leads
         </button>
 
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Leads
+          Export 
         </button>
       </div>
     );

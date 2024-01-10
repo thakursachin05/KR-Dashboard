@@ -14,8 +14,10 @@ import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { useParams } from "react-router-dom";
 
-function TeamMembers() {
+function TeamLeaderHR() {
+  const { teamLeaderId } = useParams();
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -54,10 +56,7 @@ function TeamMembers() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        approvedAt: "notNull",
-        isAdmin: "false",
-        role: ["HR"],
-        // activityStatus : "ACTIVE"
+        teamLeaderId: teamLeaderId,
       };
       const baseURL = `${API}/employee`;
       try {
@@ -70,15 +69,19 @@ function TeamMembers() {
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
 
     fetchData();
-  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-
-  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
+  }, [
+    itemsPerPage,
+    memberDeleted,
+    teamLeaderId,
+    memberStatus,
+    dispatch,
+    currentPage,
+  ]);
 
   const deleteCurrentLead = (id) => {
     dispatch(
@@ -89,7 +92,6 @@ function TeamMembers() {
           message: `Are you sure you want to delete this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
           index: id,
-          // index,
         },
       })
     );
@@ -104,38 +106,23 @@ function TeamMembers() {
           message: `Are you sure you want to withdraw all open leads of this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
           contact: contact,
-          // index,
         },
       })
     );
   };
 
-  const ChangeTeamLeader = (hrId, tlId) => {
-    // console.log("tlid and HRid initially from ", tlId, hrId);
-    tlId
-      ? dispatch(
-          openModal({
-            title: "Change Team Leader",
-            bodyType: MODAL_BODY_TYPES.CHANGE_TL,
-
-            extraObject: {
-              message: "Enter the phone number of New Team Leader",
-              type: MODAL_BODY_TYPES.CHANGE_TL,
-              hrId: hrId,
-            },
-          })
-        )
-      : dispatch(
-          openModal({
-            title: "Assign Team Leader",
-            bodyType: MODAL_BODY_TYPES.ASSIGN_TL,
-            extraObject: {
-              message: "Enter the phone number of Team Leader",
-              type: MODAL_BODY_TYPES.ASSIGN_TL,
-              hrId: hrId,
-            },
-          })
-        );
+  const ChangeTeamLeader = (hrId) => {
+    dispatch(
+      openModal({
+        title: "Change Team Leader",
+        bodyType: MODAL_BODY_TYPES.CHANGE_TL,
+        extraObject: {
+          message: `Enter the phone number of Team Leader`,
+          type: MODAL_BODY_TYPES.CHANGE_TL,
+          hrId: hrId,
+        },
+      })
+    );
   };
 
   const handleStatusChange = async (memberId, newStatus) => {
@@ -182,6 +169,12 @@ function TeamMembers() {
   const handleRoleChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
+      const employeeData = {
+        role: [newStatus],
+        teamLeaderId: null,
+        calledLeads: [],
+        presentDays: [],
+      };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
 
@@ -190,9 +183,9 @@ function TeamMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const res = await axios.post(
-            `${API}/employee/convert-role/${memberId}`,
-            {},
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
             {
               headers,
             }
@@ -201,7 +194,7 @@ function TeamMembers() {
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: `${res.data.message}`,
+              message: `${response.data.message}`,
               status: 1,
             })
           );
@@ -216,7 +209,10 @@ function TeamMembers() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: `${error.data.message}`, status: 0 })
+        showNotification({
+          message: `${error.response.data.message}`,
+          status: 0,
+        })
       );
     }
   };
@@ -293,7 +289,7 @@ function TeamMembers() {
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = `hr_list.xlsx`;
+    link.download = "exported_data.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -380,15 +376,11 @@ function TeamMembers() {
                     <th>Attendance</th>
                     <th>RollBack Leads</th>
                     <th>RollBack Date</th>
-                    <td>TL Name</td>
-
-                    <td>Manage TL</td>
-
+                    <th>Changle TL</th>
                     <td>Last Lead </td>
                     <td>Called </td>
                     <td>Closed </td>
-
-                    <td> Date Assigned</td>
+                    <td>Date Assigned</td>
 
                     <th>Email Id</th>
 
@@ -417,6 +409,7 @@ function TeamMembers() {
                           </select>
                         </td>
                         <td>{l.name}</td>
+
                         <td>{l.contact}</td>
                         <td>
                           <select
@@ -458,13 +451,9 @@ function TeamMembers() {
                               )
                             : "N/A"}
                         </td>
-                        <td>{l.teamLeaderName ? l.teamLeaderName : "N/A"}</td>
-
                         <td>
                           <button
-                            onClick={() =>
-                              ChangeTeamLeader(l._id, l.teamLeaderId)
-                            }
+                            onClick={() => ChangeTeamLeader(l._id)}
                             className={`btn ${
                               l.teamLeaderName ? "btn-primary" : "btn-secondary"
                             }  normal-case btn-sm`}
@@ -475,7 +464,6 @@ function TeamMembers() {
                         <td>{l.lastNumberOfLeadAssigned}</td>
                         <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
                         <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
-
                         <td>
                           {l.lastDateLeadAssigned
                             ? format(
@@ -544,4 +532,4 @@ function TeamMembers() {
   );
 }
 
-export default TeamMembers;
+export default TeamLeaderHR;

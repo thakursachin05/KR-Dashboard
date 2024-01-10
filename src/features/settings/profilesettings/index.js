@@ -9,7 +9,19 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 
 const ProfileSettings = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user;
+  const userString = localStorage.getItem("user");
+  if (userString !== null && userString !== undefined) {
+    try {
+      user = JSON.parse(userString);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      localStorage.clear();
+    }
+  } else {
+    localStorage.clear();
+  }
+
   const [userData, setUserData] = useState(user);
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +35,7 @@ const ProfileSettings = () => {
       try {
         const response = await axios.get(`${API}/employee/?id=${user._id}`);
         localStorage.setItem("user", JSON.stringify(response.data.data[0]));
-        setUserData(response.data.data[0])
+        setUserData(response.data.data[0]);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -129,7 +141,7 @@ const ProfileSettings = () => {
               type="text"
               name="name"
               className="input input-bordered w-full"
-              value={userData.name}
+              value={userData?.name}
               onChange={handleInputChange}
             />
           </div>
@@ -139,7 +151,7 @@ const ProfileSettings = () => {
               type="text"
               name="email"
               className="input input-bordered w-full"
-              value={userData.email}
+              value={userData?.email}
               onChange={handleInputChange}
             />
           </div>
@@ -170,7 +182,7 @@ const ProfileSettings = () => {
             <select
               name="gender"
               className="input input-bordered w-full"
-              value={userData.gender || ""}
+              value={userData?.gender || ""}
               onChange={handleInputChange}
             >
               <option value="" disabled>
@@ -188,7 +200,7 @@ const ProfileSettings = () => {
               type="number"
               name="contact"
               className="input input-bordered w-full"
-              value={userData.contact}
+              value={userData?.contact}
               onChange={handleInputChange}
             />
           </div>
@@ -200,41 +212,48 @@ const ProfileSettings = () => {
               name="dob"
               className="input input-bordered w-full"
               value={
-                userData.dob
-                  ? new Date(userData.dob).toISOString().split("T")[0]
+                userData?.dob
+                  ? new Date(userData?.dob).toISOString().split("T")[0]
                   : ""
               }
               onChange={handleInputChange}
             />
           </div>
-          {userData.isAdmin === false ? (
+          {userData?.isAdmin === false ? (
             <>
-              <div>
-                <label className="label">Present Days</label>
-                <input
-                  type="text"
-                  name="presentDays"
-                  disabled
-                  className="input input-bordered w-full"
-                  value={userData.presentDays?.length}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <label className="label">Status</label>
-                <input
-                  type="text"
-                  name="activityStatus"
-                  disabled
-                  className="input input-bordered w-full"
-                  value={
-                    userData.activityStatus === null
-                      ? "New Joinee"
-                      : userData.activityStatus
-                  }
-                  onChange={handleInputChange}
-                />
-              </div>
+              {user?.role?.includes("HR") ? (
+                <>
+                  <div>
+                    <label className="label">Present Days</label>
+                    <input
+                      type="text"
+                      name="presentDays"
+                      disabled
+                      className="input input-bordered w-full"
+                      value={userData?.presentDays?.length}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Status</label>
+                    <input
+                      type="text"
+                      name="activityStatus"
+                      disabled
+                      className="input input-bordered w-full"
+                      value={
+                        userData?.activityStatus === null
+                          ? "New Joinee"
+                          : userData?.activityStatus
+                      }
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </>
+              ) : (
+                " "
+              )}
+
               <div>
                 <label className="label">
                   Last Date on which Lead was Assigned

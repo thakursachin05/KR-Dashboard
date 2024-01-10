@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import { sliceLeadDeleted } from "./leadSlice";
 import Pagination from "../../components/Pagination";
-import { showNotification } from "../common/headerSlice";
 import axios from "axios";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
@@ -13,15 +12,11 @@ import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
 } from "../../utils/globalConstantUtil";
-import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-function WebsiteLeads() {
+function CalledLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [editedData, setEditedData] = useState({ name: "", contact: "" });
-  const [currentlyEditing, setCurrentlyEditing] = useState(null);
-
   const [sortConfig, setSortConfig] = useState({
     column: "name",
     order: "asc",
@@ -44,18 +39,12 @@ function WebsiteLeads() {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        assignedTo: "null",
-        dateClosed: "null",
-        isWebLead: true,
+        assigneeStatus: "CALLED",
       };
       const baseURL = `${API}/lead`;
       try {
         const response = await axios.get(baseURL, { params: params });
         if (response.status === 200) {
-          localStorage.setItem(
-            "fresh-lead-count",
-            JSON.stringify(response.data.count)
-          );
           setLeadData(response.data);
         } else {
           console.log("access token incorrect");
@@ -82,79 +71,6 @@ function WebsiteLeads() {
       });
     } else {
       setSortConfig({ column, order: "asc" });
-    }
-  };
-
-  const deleteCurrentLead = (index) => {
-    dispatch(
-      openModal({
-        title: "Confirmation",
-        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
-        extraObject: {
-          message: `Are you sure you want to delete this lead?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.LEAD_DELETE,
-          index: index,
-        },
-      })
-    );
-  };
-
-  const toggleEdit = (index) => {
-    setEditedData({
-      name: filteredLeads[index].name,
-      contact: filteredLeads[index].contact,
-    });
-
-    setCurrentlyEditing((prevIndex) => (prevIndex === index ? null : index));
-  };
-
-  const handleSaveEdit = async (leadId, index) => {
-    try {
-      // Validate edited data (you can add more validation as needed)
-      if (!editedData.name || !editedData.contact) {
-        dispatch(
-          showNotification({
-            message: "Name and contact are required.",
-            status: 0,
-          })
-        );
-        return;
-      }
-      const tokenResponse = localStorage.getItem("accessToken");
-      const tokenData = JSON.parse(tokenResponse);
-      const token = tokenData.token;
-
-      // Set the Authorization header with the token
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const updatedLead = {
-        name: editedData.name,
-        contact: editedData.contact,
-      };
-
-      await axios.put(`${API}/lead/${leadId}`, updatedLead, config);
-      dispatch(sliceLeadDeleted(true));
-
-      dispatch(
-        showNotification({
-          message: "Lead updated successfully!",
-          status: 1,
-        })
-      );
-
-      // Clear the edited values and toggle off editing mode
-      setEditedData({ name: "", contact: "" });
-      setCurrentlyEditing(null);
-    } catch (error) {
-      dispatch(
-        showNotification({
-          message: "Error updating lead. Please try again.",
-          status: 0,
-        })
-      );
     }
   };
 
@@ -231,7 +147,6 @@ function WebsiteLeads() {
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
-    const dispatch = useDispatch();
     const deleteLeads = async () => {
       dispatch(
         openModal({
@@ -241,26 +156,24 @@ function WebsiteLeads() {
             message: `Are you sure you want to delete ALL leads?`,
             type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
             params: {
-              assignedTo: "null",
-              dateClosed: "null",
-              isWebLead: true,
+              assigneeStatus: "CALLED",
             },
           },
         })
       );
     };
-    const mergeLeads = async () => {
+
+    const deleteLast7DaysLeads = async () => {
       dispatch(
         openModal({
           title: "Confirmation",
           bodyType: MODAL_BODY_TYPES.CONFIRMATION,
           extraObject: {
-            message: `Are you sure you want to Merge All leads?`,
-            type: CONFIRMATION_MODAL_CLOSE_TYPES.MERGE_WEBSITE_LEADS,
+            message: `Are you sure you want to delete ALL leads?`,
+            type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
             params: {
-              assignedTo: "null",
-              dateClosed: "null",
-              isWebLead: true,
+              assigneeStatus: "CALLED",
+              OlderThanLast7Days: true,
             },
           },
         })
@@ -271,21 +184,21 @@ function WebsiteLeads() {
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={() => deleteLeads()}
-        >
-          Delete All 
-        </button>
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={() => mergeLeads()}
-        >
-          Merge All
-        </button>
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
           Export
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => deleteLeads()}
+        >
+          Delete All
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={() => deleteLast7DaysLeads()}
+        >
+          Delete 7+ days old
         </button>
       </div>
     );
@@ -304,7 +217,7 @@ function WebsiteLeads() {
       </div>
 
       <TitleCard
-        title={`Website Leads ${leadData?.count}`}
+        title={`Called Leads ${leadData?.count}`}
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >
@@ -346,7 +259,37 @@ function WebsiteLeads() {
                     >
                       Phone Number
                     </th>
-                    <th className="text-center">Action</th>
+                    <th
+                      onClick={() => handleSort("assigneeName")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "assigneeName" ? "font-bold" : ""
+                      } ${
+                        sortConfig.column === "assigneeName"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Assignee Name
+                    </th>
+                    <th
+                      onClick={() => handleSort("assigneeContact")}
+                      className={`cursor-pointer ${
+                        sortConfig.column === "assigneeContact"
+                          ? "font-bold"
+                          : ""
+                      } ${
+                        sortConfig.column === "assigneeContact"
+                          ? sortConfig.order === "asc"
+                            ? "sort-asc"
+                            : "sort-desc"
+                          : ""
+                      }`}
+                    >
+                      Assignee Contact
+                    </th>
+                    <th>Assigned Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -360,30 +303,12 @@ function WebsiteLeads() {
                         </td>
                         <td>{l.name}</td>
                         <td>{l.contact}</td>
+                        <td>{l.assignedTo}</td>
+                        <td>{l.assigneeContact}</td>
                         <td>
-                          <div className="flex item-center justify-between">
-                            <button
-                              className="btn btn-square btn-ghost"
-                              onClick={() => deleteCurrentLead(l._id)}
-                            >
-                              <TrashIcon className="w-5" />
-                            </button>
-                            <div className="flex flex-col items-center justify-center">
-                              <button
-                                className="btn btn-square btn-ghost"
-                                onClick={() => toggleEdit(k)}
-                              >
-                                {currentlyEditing === k ? "Cancel" : "Edit"}
-                              </button>
-                              {currentlyEditing === k && (
-                                <button
-                                  onClick={() => handleSaveEdit(l._id, k)}
-                                >
-                                  SAVE
-                                </button>
-                              )}
-                            </div>
-                          </div>
+                          {l?.assignedDate
+                            ? format(new Date(l?.assignedDate), "dd/MM/yyyy")
+                            : "N/A"}
                         </td>
                       </tr>
                     );
@@ -424,4 +349,4 @@ function WebsiteLeads() {
   );
 }
 
-export default WebsiteLeads;
+export default CalledLeads;

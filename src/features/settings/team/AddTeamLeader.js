@@ -1,15 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import LandingIntro from "./LandingIntro";
-import ErrorText from "../../components/Typography/ErrorText";
-import InputText from "../../components/Input/InputText";
 import axios from "axios";
-import { API } from "../../utils/constants";
 import { useDispatch } from "react-redux";
-import { showNotification } from "../common/headerSlice";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { showNotification } from "../../common/headerSlice";
+import InputText from "../../../components/Input/InputText";
+import ErrorText from "../../../components/Typography/ErrorText";
+import { API } from "../../../utils/constants";
 
-function Register() {
+function AddTeamLeader() {
   const INITIAL_REGISTER_OBJ = {
     name: "",
     password: "",
@@ -41,13 +39,27 @@ function Register() {
       registerObj.password = registerObj.password.replace(/\s/g, "");
       registerObj.contact = registerObj.contact.replace(/\s/g, "");
       try {
-        const response = await axios.post(`${API}/auth/signup`, registerObj);
+        const tokenResponse = localStorage.getItem("accessToken");
+        const tokenData = JSON.parse(tokenResponse);
+        const token = tokenData.token;
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await axios.post(
+          `${API}/employee/addTeamLeader`,
+          registerObj,
+          config
+        );
         if (response.status === 200) {
           dispatch(
-            showNotification({ message: "Registered Successfully!", status: 1 })
+            showNotification({
+              message: "Team Leader Created Successfully!",
+              status: 1,
+            })
           );
-
-          window.location.href = "/login";
+          setRegisterObj(INITIAL_REGISTER_OBJ)
         }
       } catch (error) {
         dispatch(
@@ -86,14 +98,11 @@ function Register() {
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center">
-      <div className="card mx-auto w-full max-w-5xl  shadow-xl">
-        <div className="grid  md:grid-cols-2 grid-cols-1  bg-base-100 rounded-xl">
-          <div className="">
-            <LandingIntro />
-          </div>
+      <div className="card mx-auto w-full max-w-xl  shadow-xl">
+        <div className="grid  md:grid-cols-1 grid-cols-1  bg-base-100 rounded-xl">
           <div className="py-24 px-10">
             <h2 className="text-2xl font-semibold mb-2 text-center">
-              Register
+              Add Team Leader
             </h2>
             <form onSubmit={(e) => submitForm(e)}>
               <div className="mb-4">
@@ -145,17 +154,8 @@ function Register() {
 
               <ErrorText styleClass="mt-8">{errorMessage}</ErrorText>
               <button type="submit" className={"btn mt-2 w-full btn-primary"}>
-                Register
+                Create
               </button>
-
-              <div className="text-center mt-4">
-                Already have an account?{" "}
-                <Link to="/login">
-                  <span className="  inline-block  hover:text-primary hover:underline hover:cursor-pointer transition duration-200">
-                    Login
-                  </span>
-                </Link>
-              </div>
             </form>
           </div>
         </div>
@@ -164,4 +164,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default AddTeamLeader;

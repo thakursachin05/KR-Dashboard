@@ -8,27 +8,41 @@ const Leads = lazy(() => import("../pages/protected/Leads"));
 const OpenLeads = lazy(() => import("../pages/protected/OpenLeads"));
 
 const ClosedLeads = lazy(() => import("../pages/protected/ClosedLeads"));
+const NotCalledLeads = lazy(() => import("../pages/protected/NotCalledLeads"));
+
+const ResetPasswordHR = lazy(() =>
+  import("../features/user/teamLeader/ResetPasswordHR")
+);
+
+const HRList = lazy(() => import("../features/user/teamLeader/HRList"));
+const AssignLeadsHR = lazy(() =>
+  import("../features/user/teamLeader/AssignLeadsHR")
+);
+const PresentHR = lazy(() => import("../features/user/teamLeader/PresentHR"));
 
 const TotalAssignedLeads = lazy(() =>
   import("../pages/protected/TotalAssignedLeads")
 );
 
-const WebsiteLeads = lazy(() =>
-  import("../pages/protected/WebsiteLeads")
-);
+const WebsiteLeads = lazy(() => import("../pages/protected/WebsiteLeads"));
 
 const Team = lazy(() => import("../pages/protected/Team"));
+const TeamLeaders = lazy(() => import("../pages/protected/TeamLeaders"));
+const TeamLeaderHR = lazy(() => import("../pages/protected/TeamLeaderHR"));
+const AddTL = lazy(() => import("../pages/protected/AddTL"));
+
 const ProfileSettings = lazy(() =>
   import("../pages/protected/ProfileSettings")
 );
-const GettingStarted = lazy(() => import("../pages/GettingStarted"));
 const ForgotPassword = lazy(() => import("../pages/protected/ForgotPassword"));
 const ActiveMembers = lazy(() => import("../pages/protected/ActiveMembers"));
 const NotApprovedMembers = lazy(() =>
   import("../pages/protected/NotApprovedMembers")
 );
 const UserTodayLeads = lazy(() => import("../pages/protected/UserTodayLeads"));
-const TodayAssignedLeads = lazy(() => import("../pages/protected/TodayAssignedLeads"));
+const TodayAssignedLeads = lazy(() =>
+  import("../pages/protected/TodayAssignedLeads")
+);
 
 const UserClosedLeads = lazy(() =>
   import("../pages/protected/UserClosedLeads")
@@ -37,6 +51,19 @@ const UserPreviousLeads = lazy(() =>
   import("../pages/protected/UserPreviousLeads")
 );
 const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+let user;
+const userString = localStorage.getItem("user");
+if (userString !== null && userString !== undefined) {
+  try {
+    user = JSON.parse(userString);
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    localStorage.clear();
+  }
+} else {
+  localStorage.clear();
+}
 
 const routes = [
   {
@@ -47,10 +74,6 @@ const routes = [
   {
     path: "/settings-profile",
     component: ProfileSettings,
-  },
-  {
-    path: "/getting-started",
-    component: GettingStarted,
   },
   {
     path: "/404",
@@ -73,17 +96,13 @@ if (isAdmin) {
       component: WebsiteLeads,
     },
     {
+      path: "/calledLeads",
+      component: NotCalledLeads,
+    },
+    {
       path: "/totalAssignedLeads",
       component: TotalAssignedLeads,
     },
-    // {
-    //   path: "/openLeads",
-    //   component: OpenLeads,
-    // },
-    // {
-    //   path: "/closedLeads",
-    //   component: ClosedLeads,
-    // },
     {
       path: "/todayAssignedLeads",
       component: TodayAssignedLeads,
@@ -91,6 +110,18 @@ if (isAdmin) {
     {
       path: "/teamMembers",
       component: Team,
+    },
+    {
+      path: "/teamLeaders",
+      component: TeamLeaders,
+    },
+    {
+      path: `/teamLeaderHR/:teamLeaderId`,
+      component: TeamLeaderHR,
+    },
+    {
+      path: "/addTL",
+      component: AddTL,
     },
     {
       path: "/uploadLeads",
@@ -109,7 +140,7 @@ if (isAdmin) {
       component: NotApprovedMembers,
     }
   );
-} else {
+} else if (user?.role?.includes("HR")) {
   routes.push(
     {
       path: "/userLeads",
@@ -124,6 +155,27 @@ if (isAdmin) {
     {
       path: "/previousLeads",
       component: UserPreviousLeads,
+    }
+  );
+} else if (user?.role?.includes("TL")) {
+  routes.push(
+    {
+      path: "/notAssigned",
+      component: AssignLeadsHR,
+    },
+
+    {
+      path: "/reset-password",
+      component: ResetPasswordHR,
+    },
+
+    {
+      path: "/teamMembers",
+      component: HRList,
+    },
+    {
+      path: "/activeMembers",
+      component: PresentHR,
     }
   );
 }

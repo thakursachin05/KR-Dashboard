@@ -11,6 +11,8 @@ import InActiveLeadModalBody from '../features/leads/components/InActiveLeadModa
 import TotalLeadModalBody from '../features/leads/components/TotalLeadModalBody'
 import StatsLeadModalBody from '../features/leads/components/StatsLeadModalBody'
 import SingleLeadModalBody from '../features/leads/components/SingleLeadModalBody'
+import AssignHRModel from '../features/settings/team/components/AssignHRModel'
+import TLLeadModalBody from '../features/leads/components/TLLeadModalBody'
 
 function ModalLayout(){
 
@@ -41,13 +43,17 @@ function ModalLayout(){
                              [MODAL_BODY_TYPES.LEAD_ADD_NEW] : <AddLeadModalBody closeModal={close} extraObject={extraObject}/>,
                              [MODAL_BODY_TYPES.CONFIRMATION] : <ConfirmationModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.DUPLICATE_LEADS] : <DuplicateLeadModalBody extraObject={extraObject} closeModal={close}/>,
-                            
                              [MODAL_BODY_TYPES.STATS_LEADS] : <StatsLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.CHANGE_TL] : <AssignHRModel extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_TL] : <AssignHRModel extraObject={extraObject} closeModal={close}/>,
+                            
+                             [MODAL_BODY_TYPES.ASSIGN_HR] : <AssignHRModel extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_LEADS] : <AssignLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_TO_ACTIVE] : <ActiveLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE] : <InActiveLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_TO_TOTAL] : <TotalLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              [MODAL_BODY_TYPES.ASSIGN_TO_SINGLE] : <SingleLeadModalBody extraObject={extraObject} closeModal={close}/>,
+                             [MODAL_BODY_TYPES.ASSIGN_TO_TL] : <TLLeadModalBody extraObject={extraObject} closeModal={close}/>,
                              
                              [MODAL_BODY_TYPES.DEFAULT] : <div></div>
                     }[bodyType]

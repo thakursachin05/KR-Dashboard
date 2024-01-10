@@ -8,24 +8,17 @@ import { sliceLeadDeleted } from "../leadSlice";
 function ActiveLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [activeEmployees, setActiveEmployees] = useState(0);
-  // const { leads } = useSelector((state) => state.lead);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
   const [employeegetLeads, setEmployeesGetLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
-
-  // i want to count number of active employeees,
-  // by checking the employee last present days,
-  // if it has today date, then it will be marked as active member else not
-  // let leadDetails = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  // const storedUserData = JSON.parse(localStorage.getItem("user"));
-
-  // let employeeDetails = JSON.parse(localStorage.getItem("total-employee-count"));
-  const totalEmployees = JSON.parse(localStorage.getItem("total-employee-count"));
+  const totalEmployees = JSON.parse(
+    localStorage.getItem("total-employee-count")
+  );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  // console.log("lead details",leadDetails)
+  const storedUserData = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
@@ -54,6 +47,9 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           approvedAt: "notNull",
           activityStatus: "ACTIVE",
           isAdmin: "false",
+          ...(storedUserData.role?.includes("TL")
+            ? { teamLeaderId: storedUserData._id }
+            : {}),
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -78,13 +74,12 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, totalLeads]);
+  }, [todayDate, totalLeads, storedUserData.role, storedUserData._id]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
       localStorage.getItem("active-member-count")
     );
-    // console.log("active eda", activeEmployees);
 
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
       dispatch(
@@ -105,42 +100,63 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
           try {
-            const response = await axios.post(
-              `${API}/lead/assign`,
-              {
-                leadPerEmployee: leadsPerEmployee,
-                typeOfEmployee: "present_today",
-                role : 'HR',
-              },
-              { headers }
-            );
+            let response;
+            if (storedUserData.isAdmin) {
+              response = await axios.post(
+                `${API}/lead/assign`,
+                {
+                  leadPerEmployee: leadsPerEmployee,
+                  typeOfEmployee: "present_today",
+                  role: "HR",
+                },
+                { headers }
+              );
+            } else {
+              response = await axios.post(
+                `${API}/lead/assign/tl/${storedUserData._id}`,
+                {
+                  leadPerEmployee: leadsPerEmployee,
+                  typeOfEmployee: "present_today",
+                },
+                { headers }
+              );
+            }
 
             if (response.status === 200) {
               localStorage.setItem(
                 "lead-details",
                 JSON.stringify(response.data)
               );
-            } else {
-              console.log("access token incorrect");
+              dispatch(
+                showNotification({
+                  message: `${response.data.message}`,
+                  status: 1,
+                })
+              );
             }
           } catch (error) {
-            console.error("error", error);
+            // console.error("error", error);
+            dispatch(
+              showNotification({
+                message: `${error.response.data.message}`,
+
+                status: 0,
+              })
+            );
           }
         }
         dispatch(sliceLeadDeleted(true));
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
-      dispatch(showNotification({ message: "Leads Assigned!", status: 1 }));
     } catch (error) {
-      console.error("Error assigning leads", error);
-
       dispatch(
         showNotification({
-          message: "Error assigning leads. Please try again.",
-          status: 1,
+          message: `${error.response.data.message}`,
+
+          status: 0,
         })
       );
     }
@@ -151,21 +167,19 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
   return (
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
-      <p className="text-xl  text-center my-3">
-        Total Employees : {totalEmployees}
-      </p>
+      <p className="text-xl  text-center my-3">Total HR : {totalEmployees}</p>
       <p className="text-xl text-blue-400 text-center my-3">
-        Employees Present Today: {activeEmployees}
+        HR Present Today: {activeEmployees}
       </p>
       <p className="text-xl text-success  text-center my-3">
-        Employees Receive Leads : {employeegetLeads}
+        HR Receive Leads : {employeegetLeads}
       </p>
       <p className="text-xl text-amber-500 text-center my-3">
-        Employees Not Receive Leads : {employeesWithoutLeads}
+        HR Not Receive Leads : {employeesWithoutLeads}
       </p>
       {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
         <p className="text-xl text-red-600 text-center my-3">
-          1 employee will recieve {excessLeads} leads
+          1 HR will recieve {excessLeads} leads
         </p>
       ) : (
         ""
@@ -178,7 +192,7 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
 
       <div className="mt-4 flex items-center justify-center">
         <label htmlFor="leadsInput" className="mr-2 text-xl">
-          Leads per employee:
+          Leads per HR:
         </label>
         <input
           id="leadsInput"
@@ -197,21 +211,6 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           className="border p-1"
         />
       </div>
-
-      {/* <div className="mt-4">
-        <p className="text-center">
-          {`${employeesWithoutLeads} out of ${activeEmployees} employees will not receive leads.`}
-        </p>
-        <p className="text-center">
-          {employeesWithoutLeads > 0
-            ? excessLeads !== 0
-              ? `1 employee will recieve ${excessLeads} leads`
-              : "No Leads are Remaining"
-            : `${
-                totalLeads - leadsPerEmployee * activeEmployees
-              } leads are remaining not assigned to anyone`}
-        </p>
-      </div> */}
 
       <div className="modal-action mt-12">
         <button className="btn btn-outline w-36" onClick={() => closeModal()}>

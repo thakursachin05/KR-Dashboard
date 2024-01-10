@@ -94,7 +94,7 @@ function UserPreviousLeads() {
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
     } catch (error) {

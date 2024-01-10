@@ -13,8 +13,10 @@ import { API } from "../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
+import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
-function NotApprovedMembers() {
+function TeamLeader() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -39,31 +41,29 @@ function NotApprovedMembers() {
 
   useEffect(() => {
     const fetchData = async () => {
-      //   const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        approvedAt: "null",
-        isAdmin: "false",
+        offset: Math.max(0, (currentPage - 1) * itemsPerPage),
+        role: ["TL"],
       };
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("not-approved-count", JSON.stringify(response.data.count));
+        localStorage.setItem(
+          "active-member-count",
+          JSON.stringify(response.data.count)
+        );
         setTeamMember(response.data);
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
 
     fetchData();
   }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
-
-  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
 
   const deleteCurrentLead = (id) => {
     dispatch(
@@ -74,21 +74,44 @@ function NotApprovedMembers() {
           message: `Are you sure you want to delete this Member?`,
           type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
           index: id,
-          // index,
+        },
+      })
+    );
+  };
+
+  const AssignHR = (id) => {
+    dispatch(
+      openModal({
+        title: "Assign HR",
+        bodyType: MODAL_BODY_TYPES.ASSIGN_HR,
+        extraObject: {
+          type: MODAL_BODY_TYPES.ASSIGN_HR,
+          message: `Enter the phone number of HR`,
+          TLid: id,
+        },
+      })
+    );
+  };
+
+  const WithdrawLeads = (contact) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to withdraw all open leads of this Member?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
+          contact: contact,
         },
       })
     );
   };
 
   const handleStatusChange = async (memberId, newStatus) => {
-    const todayDate = new Date().toISOString().split("T")[0];
-
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
-        approvedAt: todayDate,
-        activityStatus: "ACTIVE",
-        role : ["HR"]
+        activityStatus: newStatus,
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
@@ -101,11 +124,11 @@ function NotApprovedMembers() {
           await axios.put(`${API}/employee/${memberId}`, employeeData, {
             headers,
           });
-          dispatch(sliceMemberDeleted(true));
 
+          dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: "Member Approved Successfully!",
+              message: "Status Updated Successfully!",
               status: 1,
             })
           );
@@ -117,14 +140,15 @@ function NotApprovedMembers() {
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Member updating", status: 0 })
+        showNotification({ message: "Error Status updating", status: 0 })
       );
     }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  const itemsPerPageOptions = teamMember?.count > 200 ? [10, 50, 200, teamMember?.count] : [10,50,100,200];
-
+  const itemsPerPageOptions =
+    teamMember?.count > 200
+      ? [10, 50, 200, teamMember?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -154,9 +178,9 @@ function NotApprovedMembers() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead?.contact?.includes(filterValue) ||
-      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
+      lead.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.contact?.includes(filterValue) ||
+      lead.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 
@@ -193,7 +217,7 @@ function NotApprovedMembers() {
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "not_approved_HR.xlsx";
+    link.download = "exported_data.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -213,7 +237,7 @@ function NotApprovedMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Not Approved HR
+          Export Team Leaders
         </button>
       </div>
     );
@@ -224,7 +248,7 @@ function NotApprovedMembers() {
       <div className="mb-4 flex items-center">
         <input
           type="text"
-          placeholder="Filter by Name or Phone"
+          placeholder="Filter by Name or Phone or Status"
           value={filterValue}
           onChange={handleFilterChange}
           className="input input-sm input-bordered  w-full max-w-xs"
@@ -234,7 +258,7 @@ function NotApprovedMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Not Approved HR ${teamMember?.count}`}
+          title={`Total Team Leaders ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -242,6 +266,7 @@ function NotApprovedMembers() {
             <table className="table w-full">
               <thead>
                 <tr>
+                  <th>Joined On</th>
                   <th
                     onClick={() => handleSort("name")}
                     className={`cursor-pointer ${
@@ -257,7 +282,6 @@ function NotApprovedMembers() {
                     Name
                   </th>
 
-                  <th>Email Id</th>
                   <th
                     onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
@@ -273,6 +297,17 @@ function NotApprovedMembers() {
                     Phone Number
                   </th>
                   <th>Status</th>
+
+                  <th>Saved Leads</th>
+                  <th>Saved Date</th>
+                  <td>Total HR</td>
+                  <td>Present HR</td>
+                  <td>Last Lead </td>
+                  <td> Date Assigned</td>
+                  <td>New HR</td>
+                  <th>Email Id</th>
+
+                  <th>Open Leads</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -280,25 +315,77 @@ function NotApprovedMembers() {
                 {filteredLeads?.map((l, k) => {
                   return (
                     <tr key={k}>
+                      <td>
+                        {l.approvedAt
+                          ? format(new Date(l?.approvedAt), "dd/MM/yyyy")
+                          : "N/A"}
+                      </td>
                       <td>{l.name}</td>
-                      <td>{l.email}</td>
                       <td>{l.contact}</td>
                       <td>
                         <select
-                          value={
-                            l.activityStatus === null
-                              ? "null"
-                              : l.activityStatus
+                          value={l.activityStatus}
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
                           }
-                          onChange={(e) => {
-                            handleStatusChange(l._id, e.target.value);
-                          }}
                         >
-                          <option value="null">Not Approved</option>
-                          <option value="ACTIVE">Approved</option>
+                          <option value="HOLD">Hold</option>
+                          <option value="DEAD">Dead</option>
+                          <option value="ACTIVE">Active</option>
                         </select>
                       </td>
+                      <td>
+                        {l.leadsWithdrawn[0] ? l.leadsWithdrawn[0].count : 0}
+                      </td>
+                      <td>
+                        {l.leadsWithdrawn[0]
+                          ? format(
+                              new Date(l?.leadsWithdrawn[0].date),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
+                      <td>
+                        <Link
+                          className="btn btn-primary  normal-case btn-sm"
+                          to={`/app/teamLeaderHR/${l._id}`}
+                        >
+                          {l.hrList ? l.hrList?.length : 0}
+                        </Link>
+                      </td>
 
+                      <td>
+                        <div className="btn btn-success  normal-case btn-sm">
+                          {l.presentHRCount ? l.presentHRCount : 0}
+                        </div>
+                      </td>
+                      <td>{l.lastNumberOfLeadAssigned}</td>
+                      <td>
+                        {l.lastDateLeadAssigned
+                          ? format(
+                              new Date(l?.lastDateLeadAssigned),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
+                      <td className="text-center">
+                        <button
+                          onClick={() => AssignHR(l._id)}
+                          className="btn btn-primary normal-case btn-sm"
+                        >
+                          Assign
+                        </button>
+                      </td>
+                      <td>{l.email}</td>
+
+                      <td className="text-center">
+                        <button
+                          onClick={() => WithdrawLeads(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Withdraw
+                        </button>
+                      </td>
                       <td>
                         <div className="flex item-center justify-between">
                           <button
@@ -347,4 +434,4 @@ function NotApprovedMembers() {
   );
 }
 
-export default NotApprovedMembers;
+export default TeamLeader;

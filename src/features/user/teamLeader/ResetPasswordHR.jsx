@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import ErrorText from "../../../components/Typography/ErrorText";
 import InputText from "../../../components/Input/InputText";
@@ -7,7 +6,7 @@ import { showNotification } from "../../common/headerSlice";
 import axios from "axios";
 import { API } from "../../../utils/constants";
 
-function ForgotPassword() {
+function ResetPasswordHR() {
   const INITIAL_REGISTER_OBJ = {
     password: "",
     contact: "",
@@ -17,26 +16,28 @@ function ForgotPassword() {
   const [errorMessage, setErrorMessage] = useState("");
   const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
   const dispatch = useDispatch();
-  let userId = "";
+  const storeUserData = JSON.parse(localStorage.getItem("user"));
 
   const submitForm = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     if (registerObj.password.trim() === "")
       return setErrorMessage("Password is required!");
-    if (registerObj.contact.trim() === "")
+    if (registerObj.contact.trim() === "") {
       return setErrorMessage("Phone number is required!");
+    } else {
+      const cleanedContact = registerObj.contact.replace(/\s/g, "");
+      registerObj.contact = cleanedContact;
+    }
     if (!isPasswordValid(registerObj.password)) {
       return setErrorMessage("Password requirements: 8 characters minimum");
     } else {
       setLoading(true);
-      await fetchData();
-      registerObj.password = registerObj.password.replace(/\s/g, "");
-      registerObj.contact = registerObj.contact.replace(/\s/g, "");
       try {
         const tokenResponse = localStorage.getItem("accessToken");
         const tokenData = JSON.parse(tokenResponse);
         const token = tokenData.token;
+
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -45,21 +46,24 @@ function ForgotPassword() {
 
         const userData = {
           password: registerObj.password,
+          contact: registerObj.contact,
         };
         const response = await axios.put(
-          `${API}/employee/${userId}`,
+          `${API}/employee/resetPass/${storeUserData?._id}`,
           userData,
           config
         );
         if (response.status === 200) {
           dispatch(
             showNotification({
-              message: "Password Updated Successfully!",
+              message: `${response.data.message}`,
               status: 1,
             })
           );
 
           setRegisterObj(INITIAL_REGISTER_OBJ);
+
+          // window.location.href = "/app/teamMembers";
         }
       } catch (error) {
         dispatch(
@@ -75,26 +79,6 @@ function ForgotPassword() {
 
   const isPasswordValid = (password) => {
     return password.length >= 8;
-  };
-
-  // const isEmailValid = (email) => {
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   return emailRegex.test(email);
-  // };
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        `${API}/employee?contact=${registerObj.contact}`
-      );
-      if (response.status === 200) {
-        // console.log("response dat of user", response.data);
-        userId = response.data.data[0]._id;
-        // window.location.href = "/app/teamMembers";
-      }
-    } catch (error) {
-      alert("Phone Number not found");
-    }
   };
 
   const updateFormValue = ({ updateType, value }) => {
@@ -165,4 +149,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;
+export default ResetPasswordHR;

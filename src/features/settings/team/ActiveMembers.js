@@ -61,7 +61,6 @@ function ActiveMembers() {
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
@@ -86,6 +85,35 @@ function ActiveMembers() {
     );
   };
 
+  const WithdrawLeads = (contact) => {
+    dispatch(
+      openModal({
+        title: "Confirmation",
+        bodyType: MODAL_BODY_TYPES.CONFIRMATION,
+        extraObject: {
+          message: `Are you sure you want to withdraw all open leads of this Member?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
+          contact: contact,
+          // index,
+        },
+      })
+    );
+  };
+
+  const ChangeTeamLeader = (hrId) => {
+    dispatch(
+      openModal({
+        title: "Change Team Leader",
+        bodyType: MODAL_BODY_TYPES.CHANGE_TL,
+        extraObject: {
+          message: `Enter the phone number of Team Leader`,
+          type: MODAL_BODY_TYPES.CHANGE_TL,
+          hrId: hrId,
+        },
+      })
+    );
+  };
+
   const handleStatusChange = async (memberId, newStatus) => {
     try {
       const storedToken = localStorage.getItem("accessToken");
@@ -100,15 +128,10 @@ function ActiveMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
-            {
-              headers,
-            }
-          );
+          await axios.put(`${API}/employee/${memberId}`, employeeData, {
+            headers,
+          });
 
-          console.log("status updated data", response.data);
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
@@ -119,12 +142,12 @@ function ActiveMembers() {
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Status updating", status: 1 })
+        showNotification({ message: "Error Status updating", status: 0 })
       );
     }
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
@@ -202,7 +225,7 @@ function ActiveMembers() {
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
+    link.download = "present_HR.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -222,7 +245,7 @@ function ActiveMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Present Member
+          Export Present HR
         </button>
       </div>
     );
@@ -243,7 +266,7 @@ function ActiveMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Present Members ${teamMember?.count}`}
+          title={`Total Present HR ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -266,7 +289,6 @@ function ActiveMembers() {
                     Name
                   </th>
 
-                  <th>Email Id</th>
                   <th
                     onClick={() => handleSort("contact")}
                     className={`cursor-pointer ${
@@ -281,10 +303,19 @@ function ActiveMembers() {
                   >
                     Phone Number
                   </th>
-                  <td>Last Lead Assigned</td>
-                  <td>Called Leads</td>
-                  <td>Last Date Assigned</td>
+                  <th>RollBack Leads</th>
+                  <th>RollBack Date</th>
+                  <td>TL Name</td>
+                  <td>Manage TL</td>
+                  <td>Last Lead </td>
+                  <td>Called </td>
+                  <td>Closed </td>
+                  <td> Date Assigned</td>
+
                   <th>Status</th>
+                  <th>Email Id</th>
+
+                  <th>Open Leads</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -293,10 +324,34 @@ function ActiveMembers() {
                   return (
                     <tr key={k}>
                       <td>{l.name}</td>
-                      <td>{l.email}</td>
                       <td>{l.contact}</td>
+                      <td>
+                        {l.leadsWithdrawn[0] ? l.leadsWithdrawn[0].count : 0}
+                      </td>
+                      <td>
+                        {l.leadsWithdrawn[0]
+                          ? format(
+                              new Date(l?.leadsWithdrawn[0].date),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
+                      <td>{l.teamLeaderName ? l.teamLeaderName : "N/A"}</td>
+
+                      <td>
+                        <button
+                          onClick={() => ChangeTeamLeader(l._id)}
+                          className={`btn ${
+                            l.teamLeaderName ? "btn-primary" : "btn-secondary"
+                          }  normal-case btn-sm`}
+                        >
+                          {l.teamLeaderName ? "Change" : "Assign"}
+                        </button>
+                      </td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
-                      <td>{l.calledLeads? l.calledLeads?.length : 0}</td>
+                      <td>{l.calledLeads ? l.calledLeads?.length : 0}</td>
+                      <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(
@@ -305,6 +360,7 @@ function ActiveMembers() {
                             )
                           : "N/A"}
                       </td>
+
                       <td>
                         <select
                           value={l.activityStatus}
@@ -316,6 +372,16 @@ function ActiveMembers() {
                           <option value="DEAD">Dead</option>
                           <option value="ACTIVE">Active</option>
                         </select>
+                      </td>
+                      <td>{l.email}</td>
+
+                      <td className="text-center">
+                        <button
+                          onClick={() => WithdrawLeads(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Withdraw
+                        </button>
                       </td>
                       <td>
                         <div className="flex item-center justify-between">

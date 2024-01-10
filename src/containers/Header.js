@@ -16,7 +16,19 @@ import { sliceLeadDeleted } from "../features/leads/leadSlice";
 import { showNotification } from "../features/common/headerSlice";
 
 function Header() {
-  const storedUserData = JSON.parse(localStorage.getItem("user"));
+  let storedUserData;
+  const userString = localStorage.getItem("user");
+  if (userString !== null && userString !== undefined) {
+    try {
+      storedUserData = JSON.parse(userString);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      localStorage.clear();
+    }
+  } else {
+    localStorage.clear();
+  }
+
   const [isButtonEnabled, setIsButtonEnabled] = useState(true);
   const isTodayPresent = storedUserData?.presentDays?.some((date) => {
     // Assuming date is a string in the format "YYYY-MM-DDTHH:mm:ss.sssZ"
@@ -78,21 +90,21 @@ function Header() {
     setIsButtonEnabled(isTimeInRange);
   }, []);
 
-  const getLatestData = async () => {
-    try {
-      const storedUserData = JSON.parse(localStorage.getItem("user"));
-      const res = await axios.get(`${API}/employee/?id=${storedUserData._id}`);
-      if (res.status === 200) {
-        localStorage.setItem("user", JSON.stringify(res.data.data[0]));
-      }
-    } catch (error) {
-      console.log("err", error);
-    }
-  };
+  // const getLatestData = async () => {
+  //   try {
+  //     const storedUserData = JSON.parse(localStorage.getItem("user"));
+  //     const res = await axios.get(`${API}/employee/?id=${storedUserData._id}`);
+  //     if (res.status === 200) {
+  //       localStorage.setItem("user", JSON.stringify(res.data.data[0]));
+  //     }
+  //   } catch (error) {
+  //     console.log("err", error);
+  //   }
+  // };
 
   const handleAttendanceMarking = async () => {
     if (attendanceMarked) return;
-    await getLatestData();
+    // await getLatestData();
 
     try {
       const tokenResponse = localStorage.getItem("accessToken");
@@ -108,26 +120,15 @@ function Header() {
       // Get the user data from local storage
       const storedUserData = JSON.parse(localStorage.getItem("user"));
 
-      // Get today's date in the format "YYYY-MM-DD"
-      const today = new Date().toISOString().split("T")[0];
-
-      // Clone the user object to avoid modifying the original directly
-      const updatedUser = { ...storedUserData };
-
-      // Update the presentDays array by pushing today's date
-      updatedUser.presentDays = [today];
-
-      updatedUser.calledLeads = [];
-
       // Make the API call to update the user data
-      await axios.put(
-        `${API}/employee/${updatedUser._id}`,
-        updatedUser,
+      const response = await axios.post(
+        `${API}/employee/markAttendance/${storedUserData._id}`,
+        {},
         config
       );
-
+      console.log("response",response)
       // Update the local storage with the modified user data
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      localStorage.setItem("user", JSON.stringify(response.data.employee));
 
       // Update the state if needed
       setAttendanceMarked(true);
@@ -136,7 +137,7 @@ function Header() {
 
       dispatch(
         showNotification({
-          message: "Attendance Marked!",
+          message: `${response.data.message}`,
           status: 1,
         })
       );
@@ -145,8 +146,8 @@ function Header() {
 
       dispatch(
         showNotification({
-          message: "Error updating attendance. Please try again.",
-          status: 2,
+          message: `${error.response.data.message}`,
+          status: 0,
         })
       );
     }
@@ -172,25 +173,21 @@ function Header() {
         </div>
 
         <div className="order-last">
-          {storedUserData.isAdmin === false ? (
-            storedUserData.approvedAt !== null ? (
-              <div
-                className={
-                  attendanceMarked
-                    ? "text-black cursor-pointer bg-green-500 rounded p-1 mr-5"
-                    : "text-black cursor-pointer bg-red-500 rounded p-1 mr-5"
-                }
-                onClick={isButtonEnabled ? handleAttendanceMarking : null}
-                style={{
-                  opacity: isButtonEnabled ? 1 : 0.5,
-                  pointerEvents: isButtonEnabled ? "auto" : "none",
-                }}
-              >
-                {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
-              </div>
-            ) : (
-              ""
-            )
+          {storedUserData?.role?.includes("HR") ? (
+            <div
+              className={
+                attendanceMarked
+                  ? "btn btn-success normal-case btn-sm p-1 mr-5"
+                  : "btn btn-danger bg-red-600 normal-case btn-sm p-1 mr-5"
+              }
+              onClick={isButtonEnabled ? handleAttendanceMarking : null}
+              style={{
+                opacity: isButtonEnabled ? 1 : 0.5,
+                pointerEvents: isButtonEnabled ? "auto" : "none",
+              }}
+            >
+              {attendanceMarked ? <h5>Present</h5> : <h5>Absent</h5>}
+            </div>
           ) : (
             ""
           )}

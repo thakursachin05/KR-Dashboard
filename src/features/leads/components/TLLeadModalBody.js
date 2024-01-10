@@ -5,21 +5,19 @@ import { API } from "../../../utils/constants";
 import axios from "axios";
 import { sliceLeadDeleted } from "../leadSlice";
 
-function InActiveLeadModalBody({ extraObject, closeModal }) {
+function TLLeadModalBody({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [activeEmployees, setActiveEmployees] = useState(0);
   const [leadsPerEmployee, setLeadsPerEmployee] = useState(1);
   const [employeesWithoutLeads, setEmployeesWithoutLeads] = useState(0);
+  const [employeegetLeads, setEmployeesGetLeads] = useState(0);
   const [excessLeads, setExcessLeads] = useState(0);
   const todayDate = new Date().toISOString().split("T")[0];
-  const [employeegetLeads, setEmployeesGetLeads] = useState(0);
-
   const totalEmployees = JSON.parse(
     localStorage.getItem("total-employee-count")
   );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  const storedUserData = localStorage.getItem("user");
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
@@ -28,6 +26,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
     setEmployeesGetLeads(
       activeEmployees - Math.max(0, Math.floor(donothaveLeads))
     );
+
     if (donothaveLeads < 0) {
       setExcessLeads(-1 * donothaveLeads);
     } else {
@@ -43,18 +42,15 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           page: 0,
           limit: 0,
           offset: 0,
-          approvedAt: "notNull",
-          isAdmin: "false",
+          role: "TL",
           activityStatus: "ACTIVE",
-          ...(storedUserData.role?.includes("TL")
-            ? { teamLeaderId: storedUserData._id }
-            : {}),
+          isAdmin: "false",
         };
         const response = await axios.get(baseURL, { params: params });
 
         if (response.status === 200) {
           localStorage.setItem(
-            "total-employee-count",
+            "active-member-count",
             JSON.stringify(response.data.count)
           );
           const activeEmployees = response.data.count;
@@ -73,11 +69,11 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
       }
     };
     fetchData();
-  }, [todayDate, storedUserData.role, storedUserData._id, totalLeads]);
+  }, [todayDate, totalLeads]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
-      localStorage.getItem("total-employee-count")
+      localStorage.getItem("active-member-count")
     );
 
     if (totalLeads === 0 || totalEmployees === 0 || activeEmployees === 0) {
@@ -99,27 +95,16 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
             Authorization: `Bearer ${accessToken}`,
           };
           try {
-            let response;
-            if (storedUserData.role?.includes("TL")) {
-              response = await axios.post(
-                `${API}/lead/assign/tl/${storedUserData._id}`,
-                {
-                  leadPerEmployee: leadsPerEmployee,
-                  typeOfEmployee: "active_status",
-                },
-                { headers }
-              );
-            } else {
-              response = await axios.post(
-                `${API}/lead/assign`,
-                {
-                  leadPerEmployee: leadsPerEmployee,
-                  typeOfEmployee: "active_status",
-                  role: "HR",
-                },
-                { headers }
-              );
-            }
+            const response = await axios.post(
+              `${API}/lead/assign`,
+              {
+                leadPerEmployee: leadsPerEmployee,
+                typeOfEmployee: "active_status",
+                role: "TL",
+              },
+              { headers }
+            );
+
             if (response.status === 200) {
               localStorage.setItem(
                 "lead-details",
@@ -165,17 +150,17 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
     <>
       <p className="text-xl mt-4 text-center my-3">Total Lead : {totalLeads}</p>
       <p className="text-xl text-blue-400 text-center my-3">
-        Total HR : {totalEmployees}
+        Total Team Leader: {activeEmployees}
       </p>
       <p className="text-xl text-success  text-center my-3">
-        HR Receive Leads : {employeegetLeads}
+        TL Receive Leads : {employeegetLeads}
       </p>
-      <p className="text-xl text-amber-500  text-center my-3">
-        HR Not Receive Leads : {employeesWithoutLeads}
+      <p className="text-xl text-amber-500 text-center my-3">
+        TL Not Receive Leads : {employeesWithoutLeads}
       </p>
       {excessLeads !== 0 && employeesWithoutLeads > 0 ? (
         <p className="text-xl text-red-600 text-center my-3">
-          1 HR will recieve {excessLeads} leads
+          1 TL will recieve {excessLeads} leads
         </p>
       ) : (
         ""
@@ -185,9 +170,10 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
         Leads Remaining :{" "}
         {Math.max(0, totalLeads - leadsPerEmployee * activeEmployees)}
       </p>
+
       <div className="mt-4 flex items-center justify-center">
-        <label htmlFor="leadsInput" className=" text-xl mr-2">
-          Leads per HR:
+        <label htmlFor="leadsInput" className="mr-2 text-xl">
+          Leads per Team Leader:
         </label>
         <input
           id="leadsInput"
@@ -223,4 +209,4 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   );
 }
 
-export default InActiveLeadModalBody;
+export default TLLeadModalBody;

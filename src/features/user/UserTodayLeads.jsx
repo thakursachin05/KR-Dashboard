@@ -19,7 +19,7 @@ function UserTodayLeads() {
   });
   const [filterValue, setFilterValue] = useState("");
 
-  const storeUserData = JSON.parse(localStorage.getItem("user"));
+  const storedUserData = JSON.parse(localStorage.getItem("user"));
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -40,7 +40,7 @@ function UserTodayLeads() {
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * itemsPerPage,
         assignedDate: todayIST,
-        assigneeId: storeUserData?._id,
+        assigneeId: storedUserData?._id,
         dateClosed: "null",
       };
       const baseURL = `${API}/lead`;
@@ -55,7 +55,7 @@ function UserTodayLeads() {
     };
 
     fetchData();
-  }, [itemsPerPage, leadDeleted, storeUserData._id, dispatch, currentPage]);
+  }, [itemsPerPage, leadDeleted, storedUserData._id, dispatch, currentPage]);
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
@@ -85,6 +85,14 @@ function UserTodayLeads() {
             }
           );
 
+          await axios.put(
+            `${API}/employee/${storedUserData._id}/closedLead`,
+            { leadId },
+            {
+              headers,
+            }
+          );
+
           // console.log("status updated data", response.data);
           dispatch(sliceLeadDeleted(true));
           dispatch(
@@ -96,7 +104,7 @@ function UserTodayLeads() {
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 1 })
+          showNotification({ message: "Access token not found", status: 0 })
         );
       }
     } catch (error) {
@@ -121,11 +129,17 @@ function UserTodayLeads() {
             },
           };
 
-          const storedUserData = JSON.parse(localStorage.getItem("user"));
+          await axios.put(
+            `${API}/lead/${leadId}`,
+            {
+              assigneeStatus: "CALLED",
+            },
+            config
+          );
 
           await axios.put(
             `${API}/employee/${storedUserData._id}/callLead`,
-            {leadId},
+            { leadId },
             config
           );
 
@@ -140,9 +154,9 @@ function UserTodayLeads() {
         );
       }
     } catch (error) {
-        // dispatch(
-        //   showNotification({ message: "Error Status updating", status: 0 })
-        // );
+      // dispatch(
+      //   showNotification({ message: "Error Status updating", status: 0 })
+      // );
     }
   };
 
@@ -261,7 +275,7 @@ function UserTodayLeads() {
                       <td>
                         <a href={`tel:${l.contact}`}>
                           <div
-                            onClick={()=>handleCalled(l._id)}
+                            onClick={() => handleCalled(l._id)}
                             className="btn btn-square btn-ghost"
                           >
                             <PhoneIcon className="w-5" />

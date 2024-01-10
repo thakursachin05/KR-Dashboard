@@ -6,6 +6,7 @@ import axios from "axios";
 
 function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
   const dispatch = useDispatch();
+  const storedUserData = JSON.parse(localStorage.getItem("user"));
 
   const { message } = extraObject;
 
@@ -18,6 +19,9 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       approvedAt: "notNull",
       isAdmin: "false",
       activityStatus: "ACTIVE",
+      ...(storedUserData.role?.includes("TL")
+        ? { teamLeaderId: storedUserData._id }
+        : {}),
     };
     try {
       const response = await axios.get(baseURL, { params: params });
@@ -27,8 +31,6 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           "total-employee-count",
           JSON.stringify(response.data.count)
         );
-      } else {
-        console.log("access token incorrect");
       }
     } catch (error) {
       console.error("error", error);
@@ -37,7 +39,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "active":
         dispatch(
           openModal({
-            title: "Today Present Employees",
+            title: "Today Present HR",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_ACTIVE,
           })
         );
@@ -45,7 +47,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "inactive":
         dispatch(
           openModal({
-            title: "Employees who didn't get Leads Today",
+            title: "Present HR who didn't get Leads Today",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_INACTIVE,
           })
         );
@@ -53,7 +55,7 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "all":
         dispatch(
           openModal({
-            title: "To All Employees with Active Status",
+            title: "To All HR with Active Status",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_TOTAL,
           })
         );
@@ -62,8 +64,16 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       case "single":
         dispatch(
           openModal({
-            title: "To Single Employee",
+            title: "To Particular Employee",
             bodyType: MODAL_BODY_TYPES.ASSIGN_TO_SINGLE,
+          })
+        );
+        break;
+      case "teamLeaders":
+        dispatch(
+          openModal({
+            title: "To Team Leaders",
+            bodyType: MODAL_BODY_TYPES.ASSIGN_TO_TL,
           })
         );
         break;
@@ -81,21 +91,21 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("active")}
         >
-          Present Employees Today
+          Present HR Today
         </button>
 
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("inactive")}
         >
-          Employees who didn't get Leads Today
+          Present HR who didn't get Leads Today
         </button>
 
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => openAddNewLeadModal("all")}
         >
-          To All Employees with Active Status
+          To All HR with Active Status
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
@@ -103,6 +113,16 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
         >
           To Particular Employee
         </button>
+        {storedUserData.isAdmin ? (
+          <button
+            className="btn px-6 btn-sm normal-case btn-primary"
+            onClick={() => openAddNewLeadModal("teamLeaders")}
+          >
+            To Team Leaders
+          </button>
+        ) : (
+          ""
+        )}
       </div>
     </>
   );

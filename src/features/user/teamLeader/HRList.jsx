@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { openModal } from "../../common/modalSlice";
-import {
-  CONFIRMATION_MODAL_CLOSE_TYPES,
-  MODAL_BODY_TYPES,
-} from "../../../utils/globalConstantUtil";
 import TitleCard from "../../../components/Cards/TitleCard";
 import Pagination from "../../../components/Pagination";
 import axios from "axios";
@@ -13,8 +7,14 @@ import { API } from "../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
 import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
+import { format } from "date-fns";
+import { openModal } from "../../common/modalSlice";
+import {
+  CONFIRMATION_MODAL_CLOSE_TYPES,
+  MODAL_BODY_TYPES,
+} from "../../../utils/globalConstantUtil";
 
-function NotApprovedMembers() {
+function HRList() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -27,6 +27,7 @@ function NotApprovedMembers() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
+  const storeUserData = JSON.parse(localStorage.getItem("user"));
 
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
@@ -39,56 +40,55 @@ function NotApprovedMembers() {
 
   useEffect(() => {
     const fetchData = async () => {
-      //   const todayDate = new Date().toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * itemsPerPage,
-        approvedAt: "null",
-        isAdmin: "false",
+        offset: Math.max(0, (currentPage - 1) * itemsPerPage),
+        teamLeaderId: storeUserData._id,
       };
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("not-approved-count", JSON.stringify(response.data.count));
+        localStorage.setItem(
+          "active-member-count",
+          JSON.stringify(response.data.count)
+        );
         setTeamMember(response.data);
       } catch (error) {
         console.error("error", error);
       }
-      // console.log("it is running or not when status is changing", memberStatus);
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
     };
 
     fetchData();
-  }, [itemsPerPage, memberDeleted, memberStatus, dispatch, currentPage]);
+  }, [
+    itemsPerPage,
+    memberDeleted,
+    storeUserData._id,
+    memberStatus,
+    dispatch,
+    currentPage,
+  ]);
 
-  // const employeeData = JSON.parse(localStorage.getItem("employee-details"));
-
-  const deleteCurrentLead = (id) => {
+  const WithdrawLeads = (contact) => {
     dispatch(
       openModal({
         title: "Confirmation",
         bodyType: MODAL_BODY_TYPES.CONFIRMATION,
         extraObject: {
-          message: `Are you sure you want to delete this Member?`,
-          type: CONFIRMATION_MODAL_CLOSE_TYPES.MEMBER_DELETE,
-          index: id,
-          // index,
+          message: `Are you sure you want to withdraw all open leads of this Member?`,
+          type: CONFIRMATION_MODAL_CLOSE_TYPES.WITHDRAW_LEADS,
+          contact: contact,
         },
       })
     );
   };
-
   const handleStatusChange = async (memberId, newStatus) => {
-    const todayDate = new Date().toISOString().split("T")[0];
-
     try {
       const storedToken = localStorage.getItem("accessToken");
       const employeeData = {
-        approvedAt: todayDate,
-        activityStatus: "ACTIVE",
-        role : ["HR"]
+        activityStatus: newStatus,
       };
       if (storedToken) {
         const accessToken = JSON.parse(storedToken).token;
@@ -98,33 +98,42 @@ function NotApprovedMembers() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          await axios.put(`${API}/employee/${memberId}`, employeeData, {
-            headers,
-          });
-          dispatch(sliceMemberDeleted(true));
+          const response = await axios.put(
+            `${API}/employee/${memberId}`,
+            employeeData,
+            {
+              headers,
+            }
+          );
 
+          // console.log("status updated data", response.data);
+          dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: "Member Approved Successfully!",
+              message: `${response.data.message}`,
               status: 1,
             })
           );
         }
       } else {
         dispatch(
-          showNotification({ message: "Access token not found", status: 0 })
+          showNotification({ message: "Access token not found", status: 1 })
         );
       }
     } catch (error) {
       dispatch(
-        showNotification({ message: "Error Member updating", status: 0 })
+        showNotification({
+          message: `${error.response.data.message}`,
+          status: 0,
+        })
       );
     }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
 
-  const itemsPerPageOptions = teamMember?.count > 200 ? [10, 50, 200, teamMember?.count] : [10,50,100,200];
-
+  const itemsPerPageOptions =
+    teamMember?.count > 200
+      ? [10, 50, 200, teamMember?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -154,9 +163,9 @@ function NotApprovedMembers() {
 
   const filteredLeads = sortedLeads?.filter((lead) => {
     return (
-      lead?.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
-      lead?.contact?.includes(filterValue) ||
-      lead?.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
+      lead.name?.toLowerCase().includes(filterValue.toLowerCase()) ||
+      lead.contact?.includes(filterValue) ||
+      lead.activityStatus?.toLowerCase().includes(filterValue.toLowerCase())
     );
   });
 
@@ -190,17 +199,17 @@ function NotApprovedMembers() {
 
   // Function to trigger the download
   const downloadXLSX = (data) => {
+    const todayDate = new Date().toISOString().split("T")[0];
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "not_approved_HR.xlsx";
+    link.download = `HR_List_${todayDate}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
     const dataToExport = filteredLeads;
 
     downloadXLSX(dataToExport);
@@ -213,7 +222,7 @@ function NotApprovedMembers() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export Not Approved HR
+          Export HR
         </button>
       </div>
     );
@@ -224,7 +233,7 @@ function NotApprovedMembers() {
       <div className="mb-4 flex items-center">
         <input
           type="text"
-          placeholder="Filter by Name or Phone"
+          placeholder="Filter by Name or Phone or Status"
           value={filterValue}
           onChange={handleFilterChange}
           className="input input-sm input-bordered  w-full max-w-xs"
@@ -234,7 +243,7 @@ function NotApprovedMembers() {
         <p>No Data Found</p>
       ) : (
         <TitleCard
-          title={`Total Not Approved HR ${teamMember?.count}`}
+          title={`Total HR ${teamMember?.count}`}
           topMargin="mt-2"
           TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
         >
@@ -272,8 +281,13 @@ function NotApprovedMembers() {
                   >
                     Phone Number
                   </th>
-                  <th>Status</th>
-                  <th>Action</th>
+                  <td>Last Lead Assigned</td>
+                  <td>Called Leads</td>
+                  <td>Closed Leads</td>
+
+                  <td>Last Date Assigned</td>
+                  <td>Activity Status</td>
+                  <td>Open Leads</td>
                 </tr>
               </thead>
               <tbody>
@@ -283,31 +297,37 @@ function NotApprovedMembers() {
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
+                      <td>{l.lastNumberOfLeadAssigned}</td>
+                      <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
+                      <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
+                     
+                      <td>
+                        {l.lastDateLeadAssigned
+                          ? format(
+                              new Date(l?.lastDateLeadAssigned),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </td>
                       <td>
                         <select
-                          value={
-                            l.activityStatus === null
-                              ? "null"
-                              : l.activityStatus
+                          value={l.activityStatus}
+                          onChange={(e) =>
+                            handleStatusChange(l._id, e.target.value)
                           }
-                          onChange={(e) => {
-                            handleStatusChange(l._id, e.target.value);
-                          }}
                         >
-                          <option value="null">Not Approved</option>
-                          <option value="ACTIVE">Approved</option>
+                          <option value="HOLD">Hold</option>
+                          <option value="DEAD">Dead</option>
+                          <option value="ACTIVE">Active</option>
                         </select>
                       </td>
-
-                      <td>
-                        <div className="flex item-center justify-between">
-                          <button
-                            className="btn btn-square btn-ghost"
-                            onClick={() => deleteCurrentLead(l._id)}
-                          >
-                            <TrashIcon className="w-5" />
-                          </button>
-                        </div>
+                      <td className="text-center">
+                        <button
+                          onClick={() => WithdrawLeads(l.contact)}
+                          className="btn btn-primary  normal-case btn-sm"
+                        >
+                          Withdraw
+                        </button>
                       </td>
                     </tr>
                   );
@@ -347,4 +367,4 @@ function NotApprovedMembers() {
   );
 }
 
-export default NotApprovedMembers;
+export default HRList;
