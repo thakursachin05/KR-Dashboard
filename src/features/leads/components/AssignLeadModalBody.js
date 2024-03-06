@@ -19,9 +19,9 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
       approvedAt: "notNull",
       isAdmin: "false",
       activityStatus: "ACTIVE",
-      ...(storedUserData.role?.includes("TL")
-        ? { teamLeaderId: storedUserData._id }
-        : {}),
+      ...(storedUserData.isAdmin
+        ? {}
+        : { teamLeaderId: storedUserData._id }),
     };
     try {
       const response = await axios.get(baseURL, { params: params });
@@ -33,6 +33,10 @@ function AssignLeadModalBody({ extraObject, closeModal, optionType }) {
         );
       }
     } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
       console.error("error", error);
     }
     switch (optionType) {

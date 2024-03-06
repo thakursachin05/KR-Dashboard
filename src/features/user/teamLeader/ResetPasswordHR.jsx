@@ -5,13 +5,14 @@ import InputText from "../../../components/Input/InputText";
 import { showNotification } from "../../common/headerSlice";
 import axios from "axios";
 import { API } from "../../../utils/constants";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 function ResetPasswordHR() {
   const INITIAL_REGISTER_OBJ = {
     password: "",
     contact: "",
   };
-
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
@@ -66,15 +67,24 @@ function ResetPasswordHR() {
           // window.location.href = "/app/teamMembers";
         }
       } catch (error) {
-        dispatch(
-          showNotification({
-            message: `${error.response.data.message}`,
-            status: 0,
-          })
-        );
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          dispatch(
+            showNotification({
+              message: `${error.response.data.message}`,
+              status: 0,
+            })
+          );
+        }
       }
       setLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
   const isPasswordValid = (password) => {
@@ -120,14 +130,27 @@ function ResetPasswordHR() {
                   updateFormValue={updateFormValue}
                 />
 
-                <InputText
-                  defaultValue={registerObj.password}
-                  type="password"
-                  updateType="password"
-                  containerStyle="mt-4"
-                  labelTitle="Password"
-                  updateFormValue={updateFormValue}
-                />
+                <div className="relative">
+                  <InputText
+                    defaultValue={registerObj.password}
+                    type={showPassword ? "text" : "password"}
+                    updateType="password"
+                    containerStyle="mt-4"
+                    labelTitle="Password"
+                    updateFormValue={updateFormValue}
+                  />
+                  <button
+                    className="text-sm absolute right-0 top-[62%] mr-2"
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {!showPassword ? (
+                      <EyeIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <ErrorText styleClass="mt-8">{errorMessage}</ErrorText>

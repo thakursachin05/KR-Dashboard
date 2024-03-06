@@ -65,6 +65,10 @@ function TLLeadModalBody({ extraObject, closeModal }) {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
     };
@@ -118,13 +122,18 @@ function TLLeadModalBody({ extraObject, closeModal }) {
               );
             }
           } catch (error) {
-            dispatch(
-              showNotification({
-                message: `${error.response.data.message}`,
+            if (error.response.status === 409) {
+              localStorage.clear();
+              window.location.href = "/login";
+            } else {
+              dispatch(
+                showNotification({
+                  message: `${error.response.data.message}`,
 
-                status: 0,
-              })
-            );
+                  status: 0,
+                })
+              );
+            }
           }
         }
         dispatch(sliceLeadDeleted(true));
@@ -134,13 +143,18 @@ function TLLeadModalBody({ extraObject, closeModal }) {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.message}`,
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
 
-          status: 0,
-        })
-      );
+            status: 0,
+          })
+        );
+      }
     }
 
     closeModal();

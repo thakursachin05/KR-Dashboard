@@ -32,8 +32,7 @@ function Login() {
       return setErrorMessage("Password is required!");
     if (!isContactValid(loginObj.contact)) {
       return setErrorMessage("Phone number not valid!");
-    } 
-    else {
+    } else {
       setLoading(true);
       // Call API to check user credentials and save token in localstorage
       try {
@@ -67,7 +66,6 @@ function Login() {
     // Assuming contact is a string representing the contact number
     return contact.length >= 10;
   };
-  
 
   // const isEmailValid = (email) => {
   //   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -83,10 +81,20 @@ function Login() {
     <div className="min-h-screen bg-base-200 flex items-center">
       <div className="card mx-auto w-full max-w-5xl  shadow-xl">
         <div className="grid  md:grid-cols-2 grid-cols-1  bg-base-100 rounded-xl">
-          <div className="">
+          <div className="hidden md:block">
             <LandingIntro />
           </div>
           <div className="py-24 px-10">
+            <div className="md:hidden">
+              <h1 className="text-3xl text-center font-bold ">
+                <img
+                  src="/logo192.png"
+                  className="w-12 inline-block mr-2 mask mask-circle"
+                  alt="Earn-from-talent-logo"
+                />
+                Earn From Talent
+              </h1>
+            </div>
             <h2 className="text-2xl font-semibold mb-2 text-center">Login</h2>
             <form onSubmit={(e) => submitForm(e)}>
               <div className="mb-4">

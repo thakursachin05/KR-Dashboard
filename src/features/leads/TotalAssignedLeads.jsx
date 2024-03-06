@@ -63,6 +63,10 @@ function TotalAssignedLeads() {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
@@ -176,12 +180,17 @@ function TotalAssignedLeads() {
       setEditedData({ name: "", contact: "" });
       setCurrentlyEditing(null);
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: "Error updating lead. Please try again.",
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: "Error updating lead. Please try again.",
+            status: 0,
+          })
+        );
+      }
     }
   };
   const handleChange = (key, value) => {
@@ -227,11 +236,33 @@ function TotalAssignedLeads() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
+  const handleExportXLSX = async () => {
+    const todayDate = new Date();
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(todayDate.getDate() - 1);
 
-    downloadXLSX(dataToExport);
+    const params = {
+      limit: leadData.count,
+      offset: 0,
+      assignedTo: "notNull",
+      dateClosed: "null",
+      assigneeStatus: "OPENED",
+    };
+    const baseURL = `${API}/lead`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      if (response.status === 200) {
+        downloadXLSX(response.data.data);
+      } else {
+        console.log("access token incorrect");
+      }
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -274,12 +305,7 @@ function TotalAssignedLeads() {
 
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={onExportXLSX}
-        >
-          Export
-        </button>
+
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={deleteLeads}
@@ -291,6 +317,12 @@ function TotalAssignedLeads() {
           onClick={() => deleteLast7DaysLeads()}
         >
           Delete leads 7+ days old
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export All
         </button>
       </div>
     );

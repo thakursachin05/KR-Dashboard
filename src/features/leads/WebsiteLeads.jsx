@@ -149,12 +149,17 @@ function WebsiteLeads() {
       setEditedData({ name: "", contact: "" });
       setCurrentlyEditing(null);
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: "Error updating lead. Please try again.",
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: "Error updating lead. Please try again.",
+            status: 0,
+          })
+        );
+      }
     }
   };
 
@@ -223,12 +228,35 @@ function WebsiteLeads() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
+  const handleExportXLSX = async () => {
+    const todayDate = new Date();
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(todayDate.getDate() - 1);
 
-    downloadXLSX(dataToExport);
+    const params = {
+      limit: leadData.count,
+      offset: 0,
+      assignedTo: "null",
+      dateClosed: "null",
+      isWebLead: true,
+    };
+    const baseURL = `${API}/lead`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      if (response.status === 200) {
+        downloadXLSX(response.data.data);
+      } else {
+        console.log("access token incorrect");
+      }
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
+
 
   const TopSideButtons = ({ onExportXLSX }) => {
     const dispatch = useDispatch();
@@ -273,7 +301,7 @@ function WebsiteLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLeads()}
         >
-          Delete All 
+          Delete All
         </button>
         <button
           className="btn px-6 btn-sm normal-case btn-primary"

@@ -47,9 +47,10 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           approvedAt: "notNull",
           activityStatus: "ACTIVE",
           isAdmin: "false",
-          ...(storedUserData.role?.includes("TL")
-            ? { teamLeaderId: storedUserData._id }
-            : {}),
+          role: "HR",
+          ...(storedUserData.isAdmin
+            ? {}
+            : { teamLeaderId: storedUserData._id }),
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -70,11 +71,15 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
     };
     fetchData();
-  }, [todayDate, totalLeads, storedUserData.role, storedUserData._id]);
+  }, [todayDate, totalLeads, storedUserData.isAdmin, storedUserData._id]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(
@@ -136,13 +141,18 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
             }
           } catch (error) {
             // console.error("error", error);
-            dispatch(
-              showNotification({
-                message: `${error.response.data.message}`,
+            if (error.response.status === 409) {
+              localStorage.clear();
+              window.location.href = "/login";
+            } else {
+              dispatch(
+                showNotification({
+                  message: `${error.response.data.message}`,
 
-                status: 0,
-              })
-            );
+                  status: 0,
+                })
+              );
+            }
           }
         }
         dispatch(sliceLeadDeleted(true));
@@ -152,13 +162,18 @@ function ActiveLeadModalBody({ extraObject, closeModal }) {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.message}`,
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
 
-          status: 0,
-        })
-      );
+            status: 0,
+          })
+        );
+      }
     }
 
     closeModal();

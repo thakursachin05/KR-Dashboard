@@ -1,7 +1,7 @@
 {
-  "name": "kr-teleservices",
+  "name": "earn-from-talent",
   "version": "1.0.0",
-  "description": "KR Teleservices, leads tracking, growth monitoring, profile settings",
+  "description": "Earn From Talent, leads tracking, growth monitoring, profile settings",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

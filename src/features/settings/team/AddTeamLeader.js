@@ -59,15 +59,20 @@ function AddTeamLeader() {
               status: 1,
             })
           );
-          setRegisterObj(INITIAL_REGISTER_OBJ)
+          setRegisterObj(INITIAL_REGISTER_OBJ);
         }
       } catch (error) {
-        dispatch(
-          showNotification({
-            message: `${error.response.data.message}`,
-            status: 0,
-          })
-        );
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          dispatch(
+            showNotification({
+              message: `${error.response.data.message}`,
+              status: 0,
+            })
+          );
+        }
       }
     }
   };

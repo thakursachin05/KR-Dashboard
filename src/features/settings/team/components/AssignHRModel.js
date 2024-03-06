@@ -10,7 +10,7 @@ function AssignHRModel({ extraObject, closeModal }) {
   const dispatch = useDispatch();
   const [contact, setContact] = useState("");
   const [HRname, setHRname] = useState("");
-  const { message, TLid, type, hrId } = extraObject;
+  const { message, TLid, type, hrId, NotApprovedMembers } = extraObject;
   // console.log("tlid and HRid",TLid,hrId)
 
   // console.log("body type",type)
@@ -51,12 +51,17 @@ function AssignHRModel({ extraObject, closeModal }) {
           );
         }
       } catch (error) {
-        dispatch(
-          showNotification({
-            message: `${error.response.data.message}`,
-            status: 0,
-          })
-        );
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          dispatch(
+            showNotification({
+              message: `${error.response.data.message}`,
+              status: 0,
+            })
+          );
+        }
       }
     } else if (type === MODAL_BODY_TYPES.CHANGE_TL) {
       try {
@@ -93,13 +98,18 @@ function AssignHRModel({ extraObject, closeModal }) {
           );
         }
       } catch (error) {
-        console.log(error);
-        dispatch(
-          showNotification({
-            message: `${error.response.data.message}`,
-            status: 0,
-          })
-        );
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          console.log(error);
+          dispatch(
+            showNotification({
+              message: `${error.response.data.message}`,
+              status: 0,
+            })
+          );
+        }
       }
     } else if (type === MODAL_BODY_TYPES.ASSIGN_TL) {
       try {
@@ -112,9 +122,12 @@ function AssignHRModel({ extraObject, closeModal }) {
             const headers = {
               Authorization: `Bearer ${accessToken}`,
             };
+            const endpointPath = NotApprovedMembers
+              ? "assignTlToNotApproved"
+              : "addTeamLeaderToHR";
 
             const response = await axios.put(
-              `${API}/employee/addTeamLeaderToHR/${hrId}`,
+              `${API}/employee/${endpointPath}/${hrId}`,
               {
                 contact: contact.contact,
               },
@@ -122,6 +135,7 @@ function AssignHRModel({ extraObject, closeModal }) {
                 headers,
               }
             );
+
             dispatch(sliceMemberDeleted(true));
             dispatch(
               showNotification({
@@ -136,12 +150,17 @@ function AssignHRModel({ extraObject, closeModal }) {
           );
         }
       } catch (error) {
-        dispatch(
-          showNotification({
-            message: `${error.response.data.message}`,
-            status: 0,
-          })
-        );
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          dispatch(
+            showNotification({
+              message: `${error.response.data.message}`,
+              status: 0,
+            })
+          );
+        }
       }
     }
     closeModal();
@@ -156,12 +175,17 @@ function AssignHRModel({ extraObject, closeModal }) {
         setHRname(response.data.data[0].name);
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.message}`,
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
+            status: 0,
+          })
+        );
+      }
     }
   };
 

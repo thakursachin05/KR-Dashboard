@@ -30,7 +30,12 @@ function TeamLeaderHR() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const memberStatus = useSelector((state) => state.lead.memberStatus);
+  const tlDataString = localStorage.getItem("tlData");
+  let tlData;
 
+  if (tlDataString) {
+    tlData = JSON.parse(tlDataString);
+  }
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
     setCurrentPage(1);
@@ -67,6 +72,10 @@ function TeamLeaderHR() {
         );
         setTeamMember(response.data);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceMemberStatus(""));
@@ -160,9 +169,14 @@ function TeamLeaderHR() {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({ message: `Error in updating Status`, status: 0 })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({ message: `Error in updating Status`, status: 0 })
+        );
+      }
     }
   };
 
@@ -208,12 +222,17 @@ function TeamLeaderHR() {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.message}`,
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
+            status: 0,
+          })
+        );
+      }
     }
   };
 
@@ -295,11 +314,29 @@ function TeamLeaderHR() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
+  const handleExportXLSX = async () => {
+    const params = {
+      limit: teamMember.count,
+      offset: 0,
+      teamLeaderId: teamLeaderId,
+    };
+    const baseURL = `${API}/employee`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      downloadXLSX(response.data.data);
 
-    downloadXLSX(dataToExport);
+      localStorage.setItem(
+        "active-member-count",
+        JSON.stringify(response.data.count)
+      );
+      setTeamMember(response.data);
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -328,7 +365,7 @@ function TeamLeaderHR() {
       </div>
 
       <TitleCard
-        title={`Total HR ${teamMember?.count}`}
+        title={`${teamMember?.count} HR under ${tlData?.name}`}
         topMargin="mt-2"
         TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
       >
@@ -391,7 +428,12 @@ function TeamLeaderHR() {
                 <tbody>
                   {filteredLeads?.map((l, k) => {
                     return (
-                      <tr key={k}>
+                      <tr
+                        key={k}
+                        className={
+                          l.activityStatus !== "ACTIVE" ? "text-red-600" : ""
+                        }
+                      >
                         <td>
                           {l.approvedAt
                             ? format(new Date(l?.approvedAt), "dd/MM/yyyy")

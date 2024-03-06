@@ -16,7 +16,7 @@ function NewJoinee() {
     <div className="hero  bg-base-200">
       <div className="hero-content">
         <div className="max-w-md flex items-center justify-center flex-col">
-          Welcome to <strong>KR Teleservices!</strong>
+          Welcome to <strong>Earn From Talent</strong>
           <br></br>
           We are thrilled to have you on board and look forward to your valuable
           contributions to our team. As you embark on this exciting journey with

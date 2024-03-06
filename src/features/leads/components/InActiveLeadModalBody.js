@@ -20,7 +20,7 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
   );
   const minimumLead = 1;
   const totalLeads = JSON.parse(localStorage.getItem("fresh-lead-count"));
-  const storedUserData = localStorage.getItem("user");
+  const storedUserData = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     let employeegetLeads = Math.ceil(totalLeads / leadsPerEmployee);
@@ -46,12 +46,14 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           limit: 0,
           offset: 0,
           lastDateLeadAssigned: "notToday",
+          presentDays: todayDate,
           approvedAt: "notNull",
           activityStatus: "ACTIVE",
           isAdmin: "false",
-          ...(storedUserData.role?.includes("TL")
-            ? { teamLeaderId: storedUserData._id }
-            : {}),
+          role: "HR",
+          ...(storedUserData.isAdmin
+            ? {}
+            : { teamLeaderId: storedUserData._id }),
         };
         const response = await axios.get(baseURL, { params: params });
 
@@ -72,11 +74,15 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
     };
     fetchData();
-  }, [todayDate, totalLeads, storedUserData.role, storedUserData._id]);
+  }, [todayDate, totalLeads, storedUserData.isAdmin, storedUserData._id]);
 
   const proceedWithYes = async () => {
     const activeEmployees = JSON.parse(localStorage.getItem("inActive-count"));
@@ -134,13 +140,18 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
               );
             }
           } catch (error) {
-            dispatch(
-              showNotification({
-                message: `${error.response.data.message}`,
+            if (error.response.status === 409) {
+              localStorage.clear();
+              window.location.href = "/login";
+            } else {
+              dispatch(
+                showNotification({
+                  message: `${error.response.data.message}`,
 
-                status: 0,
-              })
-            );
+                  status: 0,
+                })
+              );
+            }
           }
         }
         dispatch(sliceLeadDeleted(true));
@@ -150,13 +161,18 @@ function InActiveLeadModalBody({ extraObject, closeModal }) {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.message}`,
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
 
-          status: 0,
-        })
-      );
+            status: 0,
+          })
+        );
+      }
     }
 
     closeModal();

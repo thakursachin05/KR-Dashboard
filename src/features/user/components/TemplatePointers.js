@@ -90,7 +90,7 @@ function TemplatePointers() {
           <>
             <div className="bg-base-100  p-6 rounded-lg shadow-lg">
               <p className="text-lg font-semibold mb-4">
-                🌟 Welcome to <strong>KR Teleservices!</strong> 🌟
+                🌟 Welcome to <strong>Earn From Talent!</strong> 🌟
               </p>
               <p className="text-base mb-4">
                 Dear{" "}
@@ -167,13 +167,13 @@ function TemplatePointers() {
               <p className="text-lg">
                 Let's work together to achieve greatness! 🚀
               </p>
-              <p className="text-sm mt-4">Best regards, KR Teleservices</p>
+              <p className="text-sm mt-4">Best regards, Earn From Talent</p>
             </div>
           </>
         ) : (
           <div className="bg-base-100  p-6 rounded-lg shadow-lg">
             <p className="text-lg font-semibold mb-4">
-              🌟 Welcome to <strong>KR Teleservices!</strong> 🌟
+              🌟 Welcome to <strong>Earn From Talent!</strong> 🌟
             </p>
             <p className="text-base mb-4">
               We are thrilled to have you on board and look forward to your
@@ -210,7 +210,7 @@ function TemplatePointers() {
       ) : (
         <>
           <h1 className="text-2xl mt-8 font-bold">
-            Welcome to KR Teleservices!
+            Welcome to Earn From Talent!
           </h1>
           <p className="text-lg mt-6">
             Ready to transform leads into success? Dive into your daily tasks,
@@ -219,9 +219,9 @@ function TemplatePointers() {
           </p>
 
           <p className="text-lg mt-6">
-            Ready to boost your career? Join KR Teleservices today!
+            Ready to boost your career? Join Earn From Talent today!
             <a
-              href="https://www.thekrteleservices.com/apply"
+              href="https://www.earnfromtalent.com/apply"
               className="text-blue-500 underline ml-2"
             >
               Get Started

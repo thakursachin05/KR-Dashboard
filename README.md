@@ -1,1 +1,1 @@
-KR Teleservices, leads tracking, growth monitoring, profile settings
+Earn From Talent, leads tracking, growth monitoring, profile settings

@@ -7,11 +7,13 @@ import axios from "axios";
 import { API } from "../../utils/constants";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
 import { openModal } from "../common/modalSlice";
-import {
-  CONFIRMATION_MODAL_CLOSE_TYPES,
-  MODAL_BODY_TYPES,
-} from "../../utils/globalConstantUtil";
+// import { openModal } from "../common/modalSlice";
+// import {
+//   CONFIRMATION_MODAL_CLOSE_TYPES,
+//   MODAL_BODY_TYPES,
+// } from "../../utils/globalConstantUtil";
 function CalledLeads() {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
@@ -50,6 +52,10 @@ function CalledLeads() {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
@@ -139,11 +145,30 @@ function CalledLeads() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
-
-    downloadXLSX(dataToExport);
+  const handleExportXLSX = async () => {
+    const todayDate = new Date();
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(todayDate.getDate() - 1);
+    const params = {
+      limit : leadData.count,
+      offset: 0,
+      assigneeStatus: "CALLED",
+    };
+    const baseURL = `${API}/lead`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      if (response.status === 200) {
+        downloadXLSX(response.data.data);
+      } else {
+        console.log("access token incorrect");
+      }
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -182,12 +207,7 @@ function CalledLeads() {
 
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={onExportXLSX}
-        >
-          Export
-        </button>
+
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLeads()}
@@ -199,6 +219,12 @@ function CalledLeads() {
           onClick={() => deleteLast7DaysLeads()}
         >
           Delete 7+ days old
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export All
         </button>
       </div>
     );
