@@ -84,8 +84,8 @@ function Header() {
     const now = new Date();
     const currentHour = now.getHours();
 
-    // Check if the current time is between 5 am and 10 pm
-    const isTimeInRange = currentHour >= 5 && currentHour < 10;
+    // Check if the current time is between 12 am and 5 am
+    const isTimeInRange = currentHour >= 0 && currentHour < 10;
 
     setIsButtonEnabled(isTimeInRange);
   }, []);
@@ -126,7 +126,7 @@ function Header() {
         {},
         config
       );
-      console.log("response",response)
+      console.log("response", response);
       // Update the local storage with the modified user data
       localStorage.setItem("user", JSON.stringify(response.data.employee));
 
