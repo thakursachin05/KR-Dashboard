@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setPageTitle } from '../../features/common/headerSlice'
-// import KrLeads from '../../features/KrLeads/KrLeads'
 import TodayAssignedLeads from '../../features/leads/TodayAssignedLeads'
 
 function InternalPage(){

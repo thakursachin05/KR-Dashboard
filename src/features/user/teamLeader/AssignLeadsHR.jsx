@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { format } from "date-fns";
-import * as XLSX from "xlsx";
 import { API } from "../../../utils/constants";
 import { sliceLeadDeleted } from "../../leads/leadSlice";
 import { openModal } from "../../common/modalSlice";
@@ -54,6 +53,10 @@ function AssignLeadsHR() {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
@@ -104,53 +107,7 @@ function AssignLeadsHR() {
     );
   });
 
-  const convertDataToXLSX = (data) => {
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-    const blob = XLSX.write(wb, {
-      bookType: "xlsx",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      type: "binary",
-    });
-
-    // Convert the binary string to a Blob
-    const blobData = new Blob([s2ab(blob)], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    return blobData;
-  };
-
-  // Utility function to convert binary string to ArrayBuffer
-  const s2ab = (s) => {
-    const buf = new ArrayBuffer(s.length);
-    const view = new Uint8Array(buf);
-    for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
-    return buf;
-  };
-
-  // Function to trigger the download
-  const downloadXLSX = (data) => {
-    const blob = convertDataToXLSX(data);
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "exported_data.xlsx";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
-
-    downloadXLSX(dataToExport);
-  };
-
-  const TopSideButtons = ({ onExportXLSX }) => {
+  const TopSideButtons = () => {
     const dispatch = useDispatch();
 
     const openAddNewLeadModal = () => {
@@ -173,13 +130,6 @@ function AssignLeadsHR() {
         >
           Assign Leads
         </button>
-
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={onExportXLSX}
-        >
-          Export Leads
-        </button>
       </div>
     );
   };
@@ -199,7 +149,7 @@ function AssignLeadsHR() {
       <TitleCard
         title={`Not Assigned Leads ${leadData?.count}`}
         topMargin="mt-2"
-        TopSideButtons={<TopSideButtons onExportXLSX={handleExportXLSX} />}
+        TopSideButtons={<TopSideButtons />}
       >
         {filteredLeads?.length === 0 ? (
           <p>No Data Found</p>

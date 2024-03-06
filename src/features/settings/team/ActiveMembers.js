@@ -59,6 +59,10 @@ function ActiveMembers() {
         );
         setTeamMember(response.data);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceMemberStatus(""));
@@ -146,9 +150,14 @@ function ActiveMembers() {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({ message: "Error Status updating", status: 0 })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({ message: "Error Status updating", status: 0 })
+        );
+      }
     }
     // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
   };
@@ -231,11 +240,33 @@ function ActiveMembers() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
+  const handleExportXLSX = async () => {
+    const todayDate = new Date().toISOString().split("T")[0];
 
-    downloadXLSX(dataToExport);
+    const params = {
+      limit: teamMember.count,
+      offset: 0,
+      approvedAt: "notNull",
+      isAdmin: "false",
+      presentDays: todayDate,
+    };
+    const baseURL = `${API}/employee`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      downloadXLSX(response.data.data);
+
+      localStorage.setItem(
+        "active-member-count",
+        JSON.stringify(response.data.count)
+      );
+      setTeamMember(response.data);
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -322,7 +353,12 @@ function ActiveMembers() {
               <tbody>
                 {filteredLeads?.map((l, k) => {
                   return (
-                    <tr key={k}>
+                    <tr
+                      key={k}
+                      className={
+                        l.activityStatus !== "ACTIVE" ? "text-red-600" : ""
+                      }
+                    >
                       <td>{l.name}</td>
                       <td>{l.contact}</td>
                       <td>

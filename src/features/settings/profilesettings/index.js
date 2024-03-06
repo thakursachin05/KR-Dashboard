@@ -14,6 +14,7 @@ const ProfileSettings = () => {
   if (userString !== null && userString !== undefined) {
     try {
       user = JSON.parse(userString);
+      delete user?.password;
     } catch (error) {
       console.error("Error parsing JSON:", error);
       localStorage.clear();
@@ -35,8 +36,13 @@ const ProfileSettings = () => {
       try {
         const response = await axios.get(`${API}/employee/?id=${user._id}`);
         localStorage.setItem("user", JSON.stringify(response.data.data[0]));
+        delete response?.data?.data[0]?.password;
         setUserData(response.data.data[0]);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("Error fetching user data:", error);
       }
     };
@@ -121,12 +127,17 @@ const ProfileSettings = () => {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: "Error in updating Profile!",
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: "Error in updating Profile!",
+            status: 0,
+          })
+        );
+      }
       console.log("error", error);
     }
   };

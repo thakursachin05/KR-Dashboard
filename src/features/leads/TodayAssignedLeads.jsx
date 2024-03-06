@@ -38,20 +38,15 @@ function TodayAssignedLeads() {
   // const leadDetails = JSON.parse(localStorage.getItem("lead-details"));
   // console.log("lead details from local storage", leadDetails);
   const leadDeleted = useSelector((state) => state.lead.leadDeleted);
-
+  const todayDate = new Date();
+  const todayDateString = todayDate.toISOString().split("T")[0];
   useEffect(() => {
     const fetchData = async () => {
-      const todayDate = new Date();
-      const yesterdayDate = new Date(todayDate);
-      yesterdayDate.setDate(todayDate.getDate() - 1);
-
-      // Format dates as strings in "YYYY-MM-DD" format
-      const todayDateString = todayDate.toISOString().split("T")[0];
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         offset: Math.max(0, currentPage - 1) * 10,
-        dateAdded: todayDateString,
+        assignedDate: todayDateString,
         assignedTo: "notNull",
       };
       const baseURL = `${API}/lead`;
@@ -64,13 +59,17 @@ function TodayAssignedLeads() {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
     };
 
     fetchData();
-  }, [itemsPerPage, leadDeleted, dispatch, currentPage]);
+  }, [itemsPerPage, leadDeleted, todayDateString,dispatch, currentPage]);
 
   const deleteCurrentLead = (index) => {
     dispatch(
@@ -177,12 +176,17 @@ function TodayAssignedLeads() {
       setEditedData({ name: "", contact: "" });
       setCurrentlyEditing(null);
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: "Error updating lead. Please try again.",
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: "Error updating lead. Please try again.",
+            status: 0,
+          })
+        );
+      }
     }
   };
   const handleChange = (key, value) => {
@@ -228,11 +232,28 @@ function TodayAssignedLeads() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
-
-    downloadXLSX(dataToExport);
+  const handleExportXLSX = async () => {
+    const params = {
+      limit: leadData.count,
+      offset: 0,
+      assignedDate: todayDateString,
+      assignedTo: "notNull",
+    };
+    const baseURL = `${API}/lead`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      if (response.status === 200) {
+        downloadXLSX(response.data.data);
+      } else {
+        console.log("access token incorrect");
+      }
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -245,9 +266,8 @@ function TodayAssignedLeads() {
             message: `Are you sure you want to delete ALL leads?`,
             type: CONFIRMATION_MODAL_CLOSE_TYPES.DELETE_ALL_LEAD,
             params: {
+              assignedDate: todayDateString,
               assignedTo: "notNull",
-              dateClosed: "null",
-              assigneeStatus: "OPENED",
             },
           },
         })
@@ -257,15 +277,15 @@ function TodayAssignedLeads() {
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={onExportXLSX}
-        >
-          Export Leads
-        </button>
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
           onClick={deleteLeads}
         >
           Delete All Leads
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export Leads
         </button>
       </div>
     );

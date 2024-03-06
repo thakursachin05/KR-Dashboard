@@ -1,7 +1,5 @@
 import { useDispatch } from "react-redux";
-import {
-  DUPLICATE_LEADS,
-} from "../../../utils/globalConstantUtil";
+import { DUPLICATE_LEADS } from "../../../utils/globalConstantUtil";
 import { showNotification } from "../../common/headerSlice";
 import { API } from "../../../utils/constants";
 import axios from "axios";
@@ -47,24 +45,34 @@ function DuplicateLeadModalBody({ extraObject, closeModal }) {
               localStorage.setItem("unassigned-lead-count", leadLength);
             }
           } catch (error) {
-            dispatch(
-              showNotification({
-                message: `${error.response.data.message}`,
+            if (error.response.status === 409) {
+              localStorage.clear();
+              window.location.href = "/login";
+            } else {
+              dispatch(
+                showNotification({
+                  message: `${error.response.data.message}`,
 
-                status: 0,
-              })
-            );
+                  status: 0,
+                })
+              );
+            }
           }
         }
       } catch (error) {
         // console.error("Error pushing lead data:", error);
-        dispatch(
-          showNotification({
-            message: `${error.response.data.message}`,
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          dispatch(
+            showNotification({
+              message: `${error.response.data.message}`,
 
-            status: 0,
-          })
-        );
+              status: 0,
+            })
+          );
+        }
       }
     }
     closeModal();

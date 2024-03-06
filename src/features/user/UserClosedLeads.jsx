@@ -44,6 +44,10 @@ function UserClosedLeads() {
         localStorage.setItem("lead-details", JSON.stringify(response.data));
         setTeamMember(response.data.data);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         // console.error("error", error);
       }
       dispatch(sliceMemberDeleted(false));

@@ -52,6 +52,10 @@ function ClosedLeads() {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
@@ -141,11 +145,31 @@ function ClosedLeads() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
-
-    downloadXLSX(dataToExport);
+  const handleExportXLSX = async () => {
+    const todayDate = new Date();
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(todayDate.getDate() - 1);
+    const params = {
+      limit: leadData.count,
+      offset: 0,
+      dateClosed: "notNull",
+      // assigneeStatus : "CLOSED"
+    };
+    const baseURL = `${API}/lead`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      if (response.status === 200) {
+        downloadXLSX(response.data.data);
+      } else {
+        console.log("access token incorrect");
+      }
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -184,12 +208,7 @@ function ClosedLeads() {
 
     return (
       <div className="flex-wrap gap-[10px] max-sm:mt-[10px] flex justify-center">
-        <button
-          className="btn px-6 btn-sm normal-case btn-primary"
-          onClick={onExportXLSX}
-        >
-          Export
-        </button>
+
         <button
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={() => deleteLeads()}
@@ -201,6 +220,12 @@ function ClosedLeads() {
           onClick={() => deleteLast7DaysLeads()}
         >
           Delete 7+ days old
+        </button>
+        <button
+          className="btn px-6 btn-sm normal-case btn-primary"
+          onClick={onExportXLSX}
+        >
+          Export All
         </button>
       </div>
     );

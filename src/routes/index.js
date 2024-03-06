@@ -14,6 +14,9 @@ const ResetPasswordHR = lazy(() =>
   import("../features/user/teamLeader/ResetPasswordHR")
 );
 
+const TeamLeaderPresentHR = lazy(() =>
+  import("../features/settings/team/TeamLeaderPresentHR")
+);
 const HRList = lazy(() => import("../features/user/teamLeader/HRList"));
 const AssignLeadsHR = lazy(() =>
   import("../features/user/teamLeader/AssignLeadsHR")
@@ -118,6 +121,11 @@ if (isAdmin) {
     {
       path: `/teamLeaderHR/:teamLeaderId`,
       component: TeamLeaderHR,
+    },
+
+    {
+      path: `/presentTeamLeaderHR/:teamLeaderId`,
+      component: TeamLeaderPresentHR,
     },
     {
       path: "/addTL",

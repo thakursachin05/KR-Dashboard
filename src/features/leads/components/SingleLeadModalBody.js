@@ -68,13 +68,18 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
               );
             }
           } catch (error) {
-            console.log("erorr",error)
-            dispatch(
-              showNotification({
-                message: `${error.response.data.message}`,
-                status: 0,
-              })
-            );
+            if (error.response.status === 409) {
+              localStorage.clear();
+              window.location.href = "/login";
+            } else {
+              console.log("erorr", error);
+              dispatch(
+                showNotification({
+                  message: `${error.response.data.message}`,
+                  status: 0,
+                })
+              );
+            }
           }
         }
         dispatch(sliceLeadDeleted(true));
@@ -84,7 +89,11 @@ function SingleLeadModalBody({ extraObject, closeModal }) {
         );
       }
     } catch (error) {
-      console.log("erorr",error)
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.log("erorr", error);
 
       dispatch(
         showNotification({

@@ -56,7 +56,12 @@ function TeamLeader() {
         );
         setTeamMember(response.data);
       } catch (error) {
-        console.error("error", error);
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          console.error("error", error);
+        }
       }
       dispatch(sliceMemberStatus(""));
       dispatch(sliceMemberDeleted(false));
@@ -139,9 +144,14 @@ function TeamLeader() {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({ message: "Error Status updating", status: 0 })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({ message: "Error Status updating", status: 0 })
+        );
+      }
     }
   };
 
@@ -223,11 +233,29 @@ function TeamLeader() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
+  const handleExportXLSX = async () => {
+    const params = {
+      limit: teamMember.count,
+      offset: 0,
+      role: ["TL"],
+    };
+    const baseURL = `${API}/employee`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      downloadXLSX(response.data.data);
 
-    downloadXLSX(dataToExport);
+      localStorage.setItem(
+        "active-member-count",
+        JSON.stringify(response.data.count)
+      );
+      setTeamMember(response.data);
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -241,6 +269,16 @@ function TeamLeader() {
         </button>
       </div>
     );
+  };
+
+  const handleSaveTL = (l) => {
+    const dataToSave = {
+      name: l?.name,
+      // presentHRcount: l?.hrList ? l?.hrList?.length : 0,
+      // leadsWithdrawn: l?.leadsWithdrawn ? l.leadsWithdrawn[0].count : 0,
+    };
+
+    localStorage.setItem("tlData", JSON.stringify(dataToSave));
   };
 
   return (
@@ -314,7 +352,12 @@ function TeamLeader() {
               <tbody>
                 {filteredLeads?.map((l, k) => {
                   return (
-                    <tr key={k}>
+                    <tr
+                      key={k}
+                      className={
+                        l.activityStatus !== "ACTIVE" ? "text-red-600" : ""
+                      }
+                    >
                       <td>
                         {l.approvedAt
                           ? format(new Date(l?.approvedAt), "dd/MM/yyyy")
@@ -345,7 +388,8 @@ function TeamLeader() {
                             )
                           : "N/A"}
                       </td>
-                      <td>
+
+                      <td onClick={() => handleSaveTL(l)}>
                         <Link
                           className="btn btn-primary  normal-case btn-sm"
                           to={`/app/teamLeaderHR/${l._id}`}
@@ -354,10 +398,13 @@ function TeamLeader() {
                         </Link>
                       </td>
 
-                      <td>
-                        <div className="btn btn-success  normal-case btn-sm">
-                          {l.presentHRCount ? l.presentHRCount : 0}
-                        </div>
+                      <td onClick={() => handleSaveTL(l)}>
+                        <Link
+                          className="btn btn-success  normal-case btn-sm"
+                          to={`/app/presentTeamLeaderHR/${l._id}`}
+                        >
+                          {l.presentHRList ? l.presentHRList?.length : 0}
+                        </Link>
                       </td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>

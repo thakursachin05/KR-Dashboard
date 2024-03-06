@@ -35,6 +35,10 @@ function Leads() {
             })
           );
         } catch (error) {
+          if (error.response.status === 409) {
+            localStorage.clear();
+            window.location.href = "/login";
+          }
           console.error("Error reading XLSX file:", error);
         }
       };
@@ -70,6 +74,10 @@ function Leads() {
           );
           // Now you can use the jsonData as needed
         } catch (error) {
+          if (error.response.status === 409) {
+            localStorage.clear();
+            window.location.href = "/login";
+          }
           console.error("Error parsing CSV file:", error);
         }
       };

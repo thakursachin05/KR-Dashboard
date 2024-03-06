@@ -44,7 +44,7 @@ if (user?.approvedAt && !isAdmin && user?.role?.includes("HR")) {
     {
       path: "/app/userLeads",
       icon: <SparklesIcon className={iconClasses} />,
-      name: "Today's Assigned Leads",
+      name: "Today's Leads",
     },
     {
       path: "/app/closedLeads",
@@ -54,7 +54,7 @@ if (user?.approvedAt && !isAdmin && user?.role?.includes("HR")) {
     {
       path: "/app/previousLeads",
       icon: <BanknotesIcon className={iconClasses} />,
-      name: "Previous Assigned Leads",
+      name: "Previous Leads",
     }
   );
 }
@@ -89,7 +89,7 @@ if (isAdmin) {
     {
       path: "/app/totalAssignedLeads",
       icon: <Squares2X2Icon className={iconClasses} />,
-      name: "Total Assigned Leads",
+      name: "Not Used Leads",
     },
     {
       path: "/app/uploadLeads",
@@ -99,18 +99,9 @@ if (isAdmin) {
     {
       path: "/app/notAssigned",
       icon: <CircleStackIcon className={iconClasses} />,
-      name: "Not Assigned Leads",
+      name: "Fresh Leads",
     },
-    {
-      path: "/app/calledLeads",
-      icon: <PhoneArrowUpRightIcon className={iconClasses} />,
-      name: "Called Leads",
-    },
-    {
-      path: "/app/closedLeads",
-      icon: <CheckBadgeIcon className={iconClasses} />,
-      name: "Closed Leads",
-    },
+
     {
       path: "/app/websiteLeads",
       icon: <GlobeAltIcon className={iconClasses} />,
@@ -123,10 +114,11 @@ if (isAdmin) {
       name: "Reset Password",
     },
     {
-      path: "/app/addTL",
-      icon: <UserPlusIcon className={submenuIconClasses} />,
-      name: "Add Team Leader",
+      path: "/app/activeMembers",
+      icon: <BoltIcon className={submenuIconClasses} />,
+      name: "Present HR",
     },
+
     {
       path: "/app/teamLeaders",
       icon: <RocketLaunchIcon className={submenuIconClasses} />,
@@ -137,11 +129,7 @@ if (isAdmin) {
       icon: <UserGroupIcon className={submenuIconClasses} />,
       name: "HR List",
     },
-    {
-      path: "/app/activeMembers",
-      icon: <BoltIcon className={submenuIconClasses} />,
-      name: "Today Present HR",
-    },
+
     {
       path: "/app/todayAssignedLeads",
       icon: <SparklesIcon className={iconClasses} />,
@@ -152,6 +140,21 @@ if (isAdmin) {
       path: "/app/notApproved",
       icon: <QuestionMarkCircleIcon className={submenuIconClasses} />,
       name: "Not Approved HR",
+    },
+    {
+      path: "/app/addTL",
+      icon: <UserPlusIcon className={submenuIconClasses} />,
+      name: "Add Team Leader",
+    },
+    {
+      path: "/app/calledLeads",
+      icon: <PhoneArrowUpRightIcon className={iconClasses} />,
+      name: "Called Leads",
+    },
+    {
+      path: "/app/closedLeads",
+      icon: <CheckBadgeIcon className={iconClasses} />,
+      name: "Closed Leads",
     }
   );
 }

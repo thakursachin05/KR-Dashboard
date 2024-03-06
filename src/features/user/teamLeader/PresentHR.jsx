@@ -14,6 +14,7 @@ import {
 
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
+import { PhoneIcon } from "@heroicons/react/24/outline";
 
 function PresentHR() {
   // console.log("emploeyeeedata", employeeData);
@@ -61,6 +62,10 @@ function PresentHR() {
         );
         setTeamMember(response.data);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceMemberStatus(""));
@@ -128,12 +133,17 @@ function PresentHR() {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.message}`,
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: `${error.response.data.message}`,
+            status: 0,
+          })
+        );
+      }
     }
   };
 
@@ -296,12 +306,18 @@ function PresentHR() {
                   <td>Last Date Assigned</td>
                   <th>Status</th>
                   <td>Open Leads</td>
+                  <td>Call</td>
                 </tr>
               </thead>
               <tbody>
                 {filteredLeads?.map((l, k) => {
                   return (
-                    <tr key={k}>
+                    <tr
+                      key={k}
+                      className={
+                        l.activityStatus !== "ACTIVE" ? "text-red-600" : ""
+                      }
+                    >
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
@@ -336,6 +352,13 @@ function PresentHR() {
                         >
                           Withdraw
                         </button>
+                      </td>
+                      <td>
+                        <a href={`tel:${l.contact}`}>
+                          <div className="btn btn-square btn-ghost">
+                            <PhoneIcon className="w-5" />
+                          </div>
+                        </a>
                       </td>
                     </tr>
                   );

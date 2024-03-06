@@ -61,6 +61,10 @@ function OpenLeads() {
           console.log("access token incorrect");
         }
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceLeadDeleted(false));
@@ -148,12 +152,17 @@ function OpenLeads() {
       setEditedData({ name: "", contact: "" });
       setCurrentlyEditing(null);
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: "Error updating lead. Please try again.",
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: "Error updating lead. Please try again.",
+            status: 0,
+          })
+        );
+      }
     }
   };
 
@@ -222,11 +231,32 @@ function OpenLeads() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
-
-    downloadXLSX(dataToExport);
+  const handleExportXLSX = async () => {
+    const todayDate = new Date();
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(todayDate.getDate() - 1);
+    const params = {
+      limit: leadData.count,
+      offset: 0,
+      assignedTo: "null",
+      dateClosed: "null",
+      isWebLead: false,
+    };
+    const baseURL = `${API}/lead`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      if (response.status === 200) {
+        downloadXLSX(response.data.data);
+      } else {
+        console.log("access token incorrect");
+      }
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -255,6 +285,7 @@ function OpenLeads() {
             params: {
               assignedTo: "null",
               dateClosed: "null",
+              isWebLead: false,
             },
           },
         })
@@ -280,7 +311,7 @@ function OpenLeads() {
           className="btn px-6 btn-sm normal-case btn-primary"
           onClick={onExportXLSX}
         >
-          Export 
+          Export All
         </button>
       </div>
     );

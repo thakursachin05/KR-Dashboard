@@ -13,6 +13,7 @@ import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
 } from "../../../utils/globalConstantUtil";
+import { PhoneIcon } from "@heroicons/react/24/outline";
 
 function HRList() {
   const dispatch = useDispatch();
@@ -38,6 +39,16 @@ function HRList() {
     setCurrentPage(pageNumber);
   };
 
+  const todayDate = new Date().toISOString().split("T")[0];
+
+  const isSameDate = (date1, date2) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const params = {
@@ -55,6 +66,10 @@ function HRList() {
         );
         setTeamMember(response.data);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       dispatch(sliceMemberStatus(""));
@@ -98,19 +113,15 @@ function HRList() {
             Authorization: `Bearer ${accessToken}`,
           };
 
-          const response = await axios.put(
-            `${API}/employee/${memberId}`,
-            employeeData,
-            {
-              headers,
-            }
-          );
+          await axios.put(`${API}/employee/${memberId}`, employeeData, {
+            headers,
+          });
 
           // console.log("status updated data", response.data);
           dispatch(sliceMemberStatus(newStatus));
           dispatch(
             showNotification({
-              message: `${response.data.message}`,
+              message: `Status Updated Successfully!`,
               status: 1,
             })
           );
@@ -121,12 +132,17 @@ function HRList() {
         );
       }
     } catch (error) {
-      dispatch(
-        showNotification({
-          message: `${error.response.data.message}`,
-          status: 0,
-        })
-      );
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        dispatch(
+          showNotification({
+            message: `Error in updating status`,
+            status: 0,
+          })
+        );
+      }
     }
   };
 
@@ -199,7 +215,6 @@ function HRList() {
 
   // Function to trigger the download
   const downloadXLSX = (data) => {
-    const todayDate = new Date().toISOString().split("T")[0];
     const blob = convertDataToXLSX(data);
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
@@ -281,6 +296,8 @@ function HRList() {
                   >
                     Phone Number
                   </th>
+                  <th>Attendance</th>
+
                   <td>Last Lead Assigned</td>
                   <td>Called Leads</td>
                   <td>Closed Leads</td>
@@ -288,19 +305,42 @@ function HRList() {
                   <td>Last Date Assigned</td>
                   <td>Activity Status</td>
                   <td>Open Leads</td>
+                  <td>Call</td>
                 </tr>
               </thead>
               <tbody>
                 {filteredLeads?.map((l, k) => {
                   return (
-                    <tr key={k}>
+                    <tr
+                      key={k}
+                      className={
+                        l.activityStatus !== "ACTIVE" ? "text-red-600" : ""
+                      }
+                    >
                       <td>{l.name}</td>
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
+                      <td>
+                        <div
+                          className={`btn ${
+                            l.presentDays.some((date) =>
+                              isSameDate(new Date(date), new Date(todayDate))
+                            )
+                              ? "btn-success"
+                              : "btn-tertiary"
+                          } normal-case btn-sm`}
+                        >
+                          {l.presentDays.some((date) =>
+                            isSameDate(new Date(date), new Date(todayDate))
+                          )
+                            ? "Present"
+                            : "Absent"}
+                        </div>
+                      </td>
                       <td>{l.lastNumberOfLeadAssigned}</td>
                       <td>{l.calledLeads ? l.calledLeads.length : 0}</td>
                       <td>{l.closedLeads ? l.closedLeads.length : 0}</td>
-                     
+
                       <td>
                         {l.lastDateLeadAssigned
                           ? format(
@@ -328,6 +368,13 @@ function HRList() {
                         >
                           Withdraw
                         </button>
+                      </td>
+                      <td>
+                        <a href={`tel:${l.contact}`}>
+                          <div className="btn btn-square btn-ghost">
+                            <PhoneIcon className="w-5" />
+                          </div>
+                        </a>
                       </td>
                     </tr>
                   );

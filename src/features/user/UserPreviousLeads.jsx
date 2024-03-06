@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
-import Pagination from "../../components/Pagination";
 import axios from "axios";
 import { API } from "../../utils/constants";
 import { sliceMemberDeleted } from "../leads/leadSlice";
@@ -11,8 +10,6 @@ import { format } from "date-fns";
 
 function UserPreviousLeads() {
   const dispatch = useDispatch();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [teamMember, setTeamMember] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     column: "",
@@ -22,21 +19,13 @@ function UserPreviousLeads() {
 
   const memberDeleted = useSelector((state) => state.lead.memberDeleted);
   const storeUserData = JSON.parse(localStorage.getItem("user"));
-  const handleItemsPerPageChange = (value) => {
-    setItemsPerPage(value);
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       const params = {
-        page: currentPage,
-        limit: itemsPerPage,
-        offset: Math.max(0, currentPage - 1) * itemsPerPage,
+        // page: currentPage,
+        limit: 1000,
+        offset: 0,
         assignedDate: "notToday",
         dateClosed: "null",
       };
@@ -46,13 +35,17 @@ function UserPreviousLeads() {
         localStorage.setItem("lead-details", JSON.stringify(response.data));
         setTeamMember(response.data.data);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         // console.error("error", error);
       }
       dispatch(sliceMemberDeleted(false));
     };
 
     fetchData();
-  }, [itemsPerPage, storeUserData._id, memberDeleted, dispatch, currentPage]);
+  }, [storeUserData._id, memberDeleted, dispatch]);
 
   const employeeData = JSON.parse(localStorage.getItem("lead-details"));
 
@@ -98,16 +91,16 @@ function UserPreviousLeads() {
         );
       }
     } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }else{
       dispatch(
         showNotification({ message: "Error Status updating", status: 0 })
       );
+      }
     }
   };
-
-  const itemsPerPageOptions =
-    employeeData?.count > 200
-      ? [10, 50, 100, 200, employeeData?.count]
-      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -242,32 +235,6 @@ function UserPreviousLeads() {
                 })}
               </tbody>
             </table>
-          </div>
-          <div className="flex  max-sm:flex-col item-center justify-between">
-            <Pagination
-              itemsPerPage={itemsPerPage}
-              totalItems={employeeData?.count}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-            <div className="flex items-center max-sm:mt-[20px] justify-center">
-              <label className="mr-2   text-sm font-medium">
-                Items Per Page:
-              </label>
-              <select
-                className="border rounded p-2 max-sm:p-[.5vw]"
-                value={itemsPerPage}
-                onChange={(e) =>
-                  handleItemsPerPageChange(Number(e.target.value))
-                }
-              >
-                {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
         </TitleCard>
       )}

@@ -11,7 +11,6 @@ import Pagination from "../../../components/Pagination";
 import axios from "axios";
 import { API } from "../../../utils/constants";
 import { sliceMemberDeleted, sliceMemberStatus } from "../../leads/leadSlice";
-import { showNotification } from "../../common/headerSlice";
 import * as XLSX from "xlsx";
 
 function NotApprovedMembers() {
@@ -50,9 +49,16 @@ function NotApprovedMembers() {
       const baseURL = `${API}/employee`;
       try {
         const response = await axios.get(baseURL, { params: params });
-        localStorage.setItem("not-approved-count", JSON.stringify(response.data.count));
+        localStorage.setItem(
+          "not-approved-count",
+          JSON.stringify(response.data.count)
+        );
         setTeamMember(response.data);
       } catch (error) {
+        if (error.response.status === 409) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
         console.error("error", error);
       }
       // console.log("it is running or not when status is changing", memberStatus);
@@ -80,51 +86,25 @@ function NotApprovedMembers() {
     );
   };
 
-  const handleStatusChange = async (memberId, newStatus) => {
-    const todayDate = new Date().toISOString().split("T")[0];
-
-    try {
-      const storedToken = localStorage.getItem("accessToken");
-      const employeeData = {
-        approvedAt: todayDate,
-        activityStatus: "ACTIVE",
-        role : ["HR"]
-      };
-      if (storedToken) {
-        const accessToken = JSON.parse(storedToken).token;
-
-        if (accessToken) {
-          const headers = {
-            Authorization: `Bearer ${accessToken}`,
-          };
-
-          await axios.put(`${API}/employee/${memberId}`, employeeData, {
-            headers,
-          });
-          dispatch(sliceMemberDeleted(true));
-
-          dispatch(
-            showNotification({
-              message: "Member Approved Successfully!",
-              status: 1,
-            })
-          );
-        }
-      } else {
-        dispatch(
-          showNotification({ message: "Access token not found", status: 0 })
-        );
-      }
-    } catch (error) {
-      dispatch(
-        showNotification({ message: "Error Member updating", status: 0 })
-      );
-    }
-    // console.log(`Updating status for lead ${leadId} to ${newStatus}`);
+  const ChangeTeamLeader = (hrId, tlId) => {
+    dispatch(
+      openModal({
+        title: "Assign Team Leader",
+        bodyType: MODAL_BODY_TYPES.ASSIGN_TL,
+        extraObject: {
+          message: "Enter the phone number of Team Leader",
+          type: MODAL_BODY_TYPES.ASSIGN_TL,
+          hrId: hrId,
+          NotApprovedMembers: true,
+        },
+      })
+    );
   };
 
-  const itemsPerPageOptions = teamMember?.count > 200 ? [10, 50, 200, teamMember?.count] : [10,50,100,200];
-
+  const itemsPerPageOptions =
+    teamMember?.count > 200
+      ? [10, 50, 200, teamMember?.count]
+      : [10, 50, 100, 200];
 
   const handleSort = (column) => {
     if (column === sortConfig.column) {
@@ -199,11 +179,31 @@ function NotApprovedMembers() {
     document.body.removeChild(link);
   };
 
-  const handleExportXLSX = () => {
-    // Assuming you have an array of objects representing the table data
-    const dataToExport = filteredLeads;
+  const handleExportXLSX = async () => {
 
-    downloadXLSX(dataToExport);
+    const params = {
+      limit: teamMember.count,
+      offset: 0,
+      approvedAt: "null",
+      isAdmin: "false",
+    };
+    const baseURL = `${API}/employee`;
+    try {
+      const response = await axios.get(baseURL, { params: params });
+      downloadXLSX(response.data.data);
+
+      localStorage.setItem(
+        "active-member-count",
+        JSON.stringify(response.data.count)
+      );
+      setTeamMember(response.data);
+    } catch (error) {
+      if (error.response.status === 409) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+      console.error("error", error);
+    }
   };
 
   const TopSideButtons = ({ onExportXLSX }) => {
@@ -272,7 +272,7 @@ function NotApprovedMembers() {
                   >
                     Phone Number
                   </th>
-                  <th>Status</th>
+                  <th>Assign TL</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -284,21 +284,17 @@ function NotApprovedMembers() {
                       <td>{l.email}</td>
                       <td>{l.contact}</td>
                       <td>
-                        <select
-                          value={
-                            l.activityStatus === null
-                              ? "null"
-                              : l.activityStatus
+                        <button
+                          onClick={() =>
+                            ChangeTeamLeader(l._id, l.teamLeaderId)
                           }
-                          onChange={(e) => {
-                            handleStatusChange(l._id, e.target.value);
-                          }}
+                          className={`btn ${
+                            l.teamLeaderName ? "btn-primary" : "btn-secondary"
+                          }  normal-case btn-sm`}
                         >
-                          <option value="null">Not Approved</option>
-                          <option value="ACTIVE">Approved</option>
-                        </select>
+                          {l.teamLeaderName ? "Change" : "Assign"}
+                        </button>
                       </td>
-
                       <td>
                         <div className="flex item-center justify-between">
                           <button
